@@ -1,0 +1,65 @@
+# Gear price tiers (Option 4 hybrid; see docs/price-tiers.md). Hand-authored; every number is a starting guess
+# to be corrected by price anchors. Ranks resolve against the pinned PoB ModItem.lua (rank 1 = highest-level
+# tier of an affix group eligible on the slot). schema_version bumps on incompatible changes.
+schema_version: 1
+
+# A tier is a total point budget for the whole build. div_range is documentation only.
+tiers:
+  starter: { budget: 20,   div_range: "0-1" }
+  budget:  { budget: 60,   div_range: "1-10" }
+  mid:     { budget: 160,  div_range: "10-50" }
+  high:    { budget: 400,  div_range: "50-300" }
+  mirror:  { budget: null, div_range: "uncapped" }   # null = uncapped
+
+# Default share of the budget per slot. Variants may move points between slots; sum must be 1.
+default_allocation:
+  weapon: 0.28
+  body_armour: 0.16
+  amulet: 0.12
+  ring: 0.12        # per build, split over both rings
+  helmet: 0.08
+  gloves: 0.08
+  boots: 0.08
+  belt: 0.08
+
+# Slot -> ModItem.lua weightKey tags; a mod is eligible if any tag has weight > 0.
+slots:
+  weapon:      { tags: [wand, staff, sceptre, bow, crossbow, sword, mace, axe, spear, flail, dagger, claw, warstaff, talisman] }
+  body_armour: { tags: [body_armour] }
+  helmet:      { tags: [helmet] }
+  gloves:      { tags: [gloves] }
+  boots:       { tags: [boots] }
+  amulet:      { tags: [amulet] }
+  ring:        { tags: [ring] }
+  belt:        { tags: [belt] }
+
+# Points for one affix by rank band (first band whose max_rank >= rank applies). Multiplied by the premium weight.
+rank_points:
+  - { max_rank: 1, points: 4.0 }
+  - { max_rank: 3, points: 2.0 }
+  - { max_rank: 6, points: 1.0 }
+  - { max_rank: 999, points: 0.5 }
+
+# Premium weight per affix group: first regex (full match on the group name) wins; default 1.0.
+# Rank is not value: these make scarce, high-demand groups cost more. Rules matching no group fail the tests.
+premium_weights:
+  - { pattern: 'GlobalIncrease\w*SkillGemLevel\w*', weight: 6.0 }
+  - { pattern: 'BaseSpirit', weight: 4.0 }
+  - { pattern: 'MovementVelocity', weight: 3.0 }
+  - { pattern: 'CriticalStrikeMultiplier', weight: 2.0 }
+  - { pattern: 'CriticalStrikeChance', weight: 1.5 }
+  - { pattern: '\w*ResistanceAndMax', weight: 2.0 }
+  - { pattern: 'AllResistances', weight: 2.0 }
+  - { pattern: 'AttackAndCastSpeed', weight: 2.5 }
+  - { pattern: 'FireResistance|ColdResistance|LightningResistance', weight: 0.7 }
+  - { pattern: 'ChaosResistance', weight: 0.5 }
+
+# Dated price anchors (divines) per (slot, tier): best item seen at that price cap. Empty until sampled.
+# Shape: anchors: { weapon: { mid: { div: 12.0, samples: 4, date: "2026-12-20" } } }
+anchors: {}
+
+# Uniques without poe.ninja: hand-set bands. points = budget cost in the same units as rare affixes.
+unique_bands:
+  cheap: { div: 0.5, points: 3 }
+  mid:   { div: 10,  points: 35 }
+  chase: { div: 100, points: 150 }
