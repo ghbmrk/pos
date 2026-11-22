@@ -12,6 +12,7 @@
 - 2026-11-22 · Benchmark content: Arbiter of Ash (uber as hard setting) + Breach T15+ density proxy; numbers re-sourced from 1.0 data (docs/benchmarks.md) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUEx7vFAPsHTmhjjy3Gx6rKW
 - 2026-11-22 · Pipeline NL front: MCP server + CLI, no embedded LLM/API key (docs/pipeline.md) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUAqzfwd83TbFbqwuWojhQ3V
 - 2026-11-22 · Creative ideation from high-level prompts · cmsg_01RxGYnd78N9kMbbAJ5pWDhU6o4n9NQafMk2fcJq7WYpEm
+- 2026-11-22 · Engine models a second actor per build (Knight's Squire: own gear, own skills, cross-actor effects); docs/second-actor.md · cmsg_01RxGYnd78N9kMbbAJ5pWDhU1rV7vhNcCUFrXzAenA5jNG
 - 2026-11-22 · Use current pre-1.0 data to build/test/validate; keep data pinned and swappable · cmsg_01RxGYnd78N9kMbbAJ5pWDhUUgS6By69FAnTchmtmGQpzb
 
 ## Open work
@@ -49,6 +50,13 @@
 - I7 · blocked on I6 · 5-prompt evaluation, tune thresholds (Opus)
 - B3 · done (PR open) · data/benchmarks.yaml filled from poe2db game-file pages (0.5.x): Arbiter evasion/armour/life, 2 named hits (basic_attack, chasm_slam); PoB overrides verified (docs/benchmarks.md section 7; `none` profile fixed, `pob_default` added). Still null: arbiter_ash_uber life/level/hits (no poe2db uber page), Magic/Rare life_mult (no source reachable). poe2db blocked from shell, readable via WebFetch · thread "Fill benchmark data from current patch"
 - B3b · done (PR open) · Magic x2.48 / Rare x8 life mults sourced (repoe-fork/poe2 mods.json MonsterMagic2 +148%, MonsterRare2 +700%, 0.5.5.1; Unique +2800% = x29 cross-checks Arbiter base life) so breach_t15 clear now computes (proxy, Spark golden: complete). Still null: arbiter_ash_uber life/level/hits. Tried: PoB-PoE2 Bosses.lua/Misc.lua (armour/evasion mults only), repoe-fork export (no monster tables; MapUberBoss_Monolith = the L74 fight, map_pinnacle_boss_difficulty_+ = 0), poe2db, mobalytics (tiers 0-4 qualitative); poe2wiki blocked. Remaining route: poe2db/wiki tier tables or a GGPK dat read (MonsterVarieties, pinnacle difficulty) · thread "Source uber Arbiter and mob multipliers"
+
+- K1 · done (PR open) · docs/second-actor.md + spec `companion` (kind, skills+supports, gear bases) + validator (actor_kind/actor_unavailable/actor_requires/companion_slot/companion_skills, companion supports reuse main checks) + data/actors.yaml (squire `pending`, unknowns listed) + data/actor_effects.yaml (charges, ground, banner, companion keys; all verified as config keys on pinned PoB) + pos_pipeline/actors.py (effects from registry only, merge with conflict errors, uptime blend, PendingActorModel raises). Findings: no Duelist class in pinned data; Cyclone not in PoE2 (Whirling Slash/Assault nearest); PoE2 Elemental Discharge is a Spell support consuming ailments, not charges, and cannot support minion skills, so target build 2 does not work as written on current data · thread "Add Squire second-actor support"
+- K2 · startable · companion assembly (separate_build) + orchestrator wiring (effects into config, on/off blend, combined metric) + report columns; test-only fake actor (Sonnet)
+- K3 · startable · two-gear-set search in one tier budget: namespaced slots, budget_share split, realloc across actors (Sonnet)
+- K4 · waits for 1.0 re-pin (2026-12-11) · source Squire facts, choose native_pob vs separate_build, fill data/actors.yaml, flip to available, re-check build 1/2 skill names (Opus)
+- K5 · blocked on K4 · ideation slate fields + sweeps over companion skills (Sonnet)
+- K? · needs owner decision, not asked · pre-1.0 "what-if" runs with spec-declared, labelled assumed effects
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.

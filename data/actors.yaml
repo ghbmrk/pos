@@ -1,0 +1,22 @@
+# Second actors per build (docs/second-actor.md). Hand-authored from sourced game/PoB data only.
+# status: pending = not sourced; every entry point fails loudly (validator `actor_unavailable`, ActorUnavailable).
+# skill_effects: companion skill catalogue id -> [{effect: <data/actor_effects.yaml id>, uptime: 0-1, params: {}, source: text}]
+# model: native_pob (PoB models the actor in the main build) | separate_build (own PoB build + effects as config).
+schema_version: 1
+actors:
+  squire:
+    status: pending
+    requires: { class: Duelist, ascendancy: Knight }
+    announced: "Knight (Duelist) + Summon Squire, PoE2 1.0, 2026-12-11 (poe-vault, mobalytics previews)"
+    unknowns:
+      - "Duelist/Knight absent from pinned catalogue; arrives with the 1.0 re-pin"
+      - "Squire gear slots"
+      - "how and how often Squire skills fire"
+      - "which Squire stats or effects pass to the player"
+      - "how the Squire scales (level, gear, player stats)"
+      - "whether PoB models the Squire and its gear (decides native_pob vs separate_build)"
+    model: null
+    gear_slots: null
+    max_skills: null
+    budget_share: null
+    skill_effects: {}
