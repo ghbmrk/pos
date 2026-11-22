@@ -1,6 +1,6 @@
 # Benchmarks: boss and mass-mob content (B1)
 
-Status: design, 2026-11-22. Owner requirement (cmsg_01RxGYnd78N9kMbbAJ5pWDhUEhCn1kwfA6vy3QYah3EvbX): sim builds against benchmark content, starting with one hard endgame boss and one endgame mass-mob content. Content choice is pending an owner card (see "Decision").
+Status: design, 2026-11-22. Owner requirement (cmsg_01RxGYnd78N9kMbbAJ5pWDhUEhCn1kwfA6vy3QYah3EvbX): sim builds against benchmark content, starting with one hard endgame boss and one endgame mass-mob content. Content decided by the owner 2026-11-22: Arbiter of Ash + Breach T15+ (cmsg_01RxGYnd78N9kMbbAJ5pWDhUEx7vFAPsHTmhjjy3Gx6rKW).
 
 ## 1. What existing tools model (checked)
 
@@ -105,9 +105,9 @@ Engine change: add `AverageHit`, `AreaOfEffectRadiusMetres`, `TotalNumberOfHits`
 - Base monster life, damage, armour and evasion tables update automatically with the PoB re-pin (they come from `Misc.lua`).
 - Boss life, hit multipliers, rarity multipliers: re-read after 1.0 from poe2db.tw monster pages (game-file derived) or a GGPK export. Expected change: new or re-tuned pinnacle fights at 1.0; the benchmark ids stay, values are replaced, and a different boss can be swapped in with one YAML entry.
 
-## 5. Decision for the owner
+## 5. Decision (made: option A)
 
-Which content to standardise on first. Recommendation (judgement): **Arbiter of Ash (pinnacle, uber as the hard setting) + Breach in a tier-15+ waystone.** Arbiter has a phys+fire hit profile that tests two defensive layers and an uber tier for the hard setting; Breach isolates density and kill rate, which is what a clear-speed proxy can actually rank. Alternatives: Arbiter + Simulacrum (adds sustained survival, but unpublished wave scaling), or Xesht + Breach (easier bar, tiers, void overlays PoB has no type for). Boundary: if "hard" means the single hardest fight, Arbiter of Divinity wins on paper but its invulnerable phase makes TTK script-bound.
+Which content to standardise on first. Owner chose A on 2026-11-22. Recommendation was (judgement): **Arbiter of Ash (pinnacle, uber as the hard setting) + Breach in a tier-15+ waystone.** Arbiter has a phys+fire hit profile that tests two defensive layers and an uber tier for the hard setting; Breach isolates density and kill rate, which is what a clear-speed proxy can actually rank. Alternatives: Arbiter + Simulacrum (adds sustained survival, but unpublished wave scaling), or Xesht + Breach (easier bar, tiers, void overlays PoB has no type for). Boundary: if "hard" means the single hardest fight, Arbiter of Divinity wins on paper but its invulnerable phase makes TTK script-bound.
 
 Sequencing (judgement, reversible, no card): build B2 now with content ids that are swappable data; source hit profiles and multipliers (B3) against 1.0 data on poe2db after 2026-12-11 rather than 0.5 numbers that will be replaced. Nothing found yet says whether Arbiter, uber tiers or Breach persist at 1.0; if not, the nearest equivalents take the same ids' roles.
 
