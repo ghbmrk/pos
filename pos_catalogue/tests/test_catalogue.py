@@ -115,7 +115,7 @@ def test_real_resolve_and_compatibility(real):
 @needs_pob
 def test_committed_catalogue_matches_pinned_pob(tmp_path, real):
     """Fails after a re-pin until the catalogue is re-exported (python -m pos_catalogue export)."""
-    assert pob_sha().startswith("601768b"), "PoB pin moved: re-export the catalogue and update this test"
+    committed = CATALOGUE_DIR / f"{pob_sha()[:7]}.json"
+    assert committed.exists(), "PoB pin moved: re-export the catalogue (tools/repin.sh does this)"
     path = export_catalogue(out_dir=tmp_path)
-    assert json.loads(path.read_text(encoding="utf-8")) == real.data
-    assert path.read_text(encoding="utf-8") == (CATALOGUE_DIR / "601768b.json").read_text(encoding="utf-8")
+    assert path.read_text(encoding="utf-8") == committed.read_text(encoding="utf-8")

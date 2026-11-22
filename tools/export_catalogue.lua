@@ -59,6 +59,13 @@ end
 -- Gems
 local gems = dofile(src .. "/Data/Gems.lua")
 
+-- PoB generated data files come in two shapes across versions: `return function(a, b) ... end` or a body reading `local a, b = ...`.
+-- Run either: pass the args to the chunk, and if it returns a function, call that with them too.
+local function callGenerated(chunk, ...)
+  local r = chunk(...)
+  if type(r) == "function" then r(...) end
+end
+
 -- Skills (granted effects): files are `return function(skills, mod, flag, skill) ... end`
 local stub = function() return {} end
 local skills = {}
@@ -70,7 +77,7 @@ local env = setmetatable({ SkillType = SkillType, bit = setmetatable({}, { __ind
 for _, f in ipairs({ "act_dex", "act_int", "act_str", "other", "sup_dex", "sup_int", "sup_str", "minion", "spectre" }) do
   local chunk = assert(loadfile(src .. "/Data/Skills/" .. f .. ".lua"))
   setfenv(chunk, env)
-  chunk()(skills, stub, stub, stub)
+  callGenerated(chunk, skills, stub, stub, stub)
 end
 
 local outGems = {}
@@ -107,7 +114,7 @@ local baseFiles = io.popen('ls "' .. src .. '/Data/Bases"')
 for fn in baseFiles:lines() do
   if fn:match("%.lua$") then
     local t = {}
-    assert(loadfile(src .. "/Data/Bases/" .. fn))()(t)
+    callGenerated(assert(loadfile(src .. "/Data/Bases/" .. fn)), t)
     for name, b in pairs(t) do
       bases[#bases + 1] = {
         name = name, type = b.type, subtype = b.subType, tags = sorted_keys(b.tags or {}),
