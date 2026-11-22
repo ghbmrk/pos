@@ -57,6 +57,9 @@ local DEFAULT_STATS = {
 	"TotalDPS", "FullDPS", "CombinedDPS", "AverageDamage", "Speed", "HitChance",
 	"CritChance", "CritMultiplier", "ManaCost", "Life", "Mana", "EnergyShield",
 	"TotalEHP", "Ward", "Armour", "Evasion", "Str", "Dex", "Int", "ProjectileCount",
+	"AverageHit", "AreaOfEffectRadiusMetres", "TotalNumberOfHits", "EHPSurvivalTime",
+	"PhysicalMaximumHitTaken", "FireMaximumHitTaken", "ColdMaximumHitTaken", "LightningMaximumHitTaken",
+	"ChaosMaximumHitTaken",
 }
 
 local function collectStats(keys)

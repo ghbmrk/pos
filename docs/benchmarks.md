@@ -117,9 +117,11 @@ Advisor review (2026-11-22) corrected the first draft: poe2db carries game-file 
 
 | Id | Task | Needs |
 |---|---|---|
-| B2 | `data/benchmarks.yaml` + loader/validator + `pos_pipeline/benchmarks.py` metrics + engine `stat_keys` additions + tests (Sonnet) | owner content choice |
+| B2 (done) | `data/benchmarks.yaml` + loader/validator + `pos_pipeline/benchmarks.py` metrics + engine `stat_keys` additions + tests (Sonnet) | owner content choice |
 | B3 | Source hit profiles, uber life and rarity life multipliers from game data (poe2db or GGPK) for the chosen content; reconcile with PoB's level clamp; fill `null`s | B2 + 1.0 data on poe2db (after 2026-12-11) |
 | B4 | Report columns + spec `benchmarks:` / benchmark objective (folds into G8b) | B2 |
 | B5 | repin.sh stale-benchmark check | B2 |
 
 Sources: [Switchblade pinnacle guide (0.5.2, modified 2026-10-10)](https://www.switchbladegaming.com/path-of-exile-2/endgame-boss-guide/), [Timesaver Arbiter of Ash guide (0.5, updated 2026-06-24)](https://timesaver.gg/blog/poe2-arbiter-of-ash-guide), [Maxroll pinnacle bosses (2024, pre-0.5)](https://maxroll.gg/poe2/resources/pinnacle-bosses); PoB-PoE2 `601768b`: `src/Modules/ConfigOptions.lua`, `src/Data/BossSkills.lua`, `src/Data/Misc.lua`, `src/Modules/CalcDefence.lua`.
+
+B2 as built: YAML cells are `{value, source}`; `null` = unsourced. Survival uses `<Type>MaximumHitTaken / hit damage` from one evaluation per benchmark (max hit does not depend on enemy damage), so no per-hit evaluation was needed; while hits are null, `survive` is None and PoB's generic `TotalNumberOfHits` is shown. Pack `clear_s` stays None until every rarity's `life_mult` is sourced. Projectile skills without an AoE radius use coverage = projectiles / monsters. Not yet checked: which of `enemyLevel`/res/armour overrides PoB applies on top of `enemyIsBoss: Pinnacle` (B3).

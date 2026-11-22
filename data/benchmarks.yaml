@@ -1,0 +1,57 @@
+# Benchmark content (docs/benchmarks.md, B2). Every number is {value, source} and the file carries a `patch` stamp.
+# `value: null` = not sourced: pos_pipeline.benchmarks reports the benchmark as incomplete instead of guessing.
+# B3 fills the nulls from 1.0 game data (poe2db.tw monster pages or a GGPK export) after 2026-12-11.
+# `ASSUMPTION` in a source marks an owner-tunable constant that is not game data.
+schema_version: 1
+benchmarks:
+  arbiter_ash:
+    kind: boss
+    description: Arbiter of Ash (pinnacle).
+    patch: "0.5.2"
+    # Applied with PobEngine.set_config(options=...). Level 74 is the poe2db row; PoB clamps Pinnacle/Uber to >= 82
+    # (ConfigOptions.lua), so the level and per-type resists below may be overridden by PoB: B3 reconciles.
+    pob_options:
+      enemyIsBoss: Pinnacle
+      enemyLevel: 74
+      enemyFireResist: 30
+      enemyColdResist: -30
+      enemyLightningResist: 0
+      enemyChaosResist: 0
+      enemyArmour: 4099
+    option_source: "poe2db.tw/sp/The_Burning_Monolith (MapUberBoss_Monolith), 0.5.x; not yet checked against what PoB applies"
+    life: { value: 4274058, source: "poe2db.tw/sp/The_Burning_Monolith (MapUberBoss_Monolith) level 74, 0.5.x; guides say ~5M" }
+    uptime: { value: 0.75, source: "ASSUMPTION: share of the fight the boss is hittable and the player is attacking" }
+    hits:   # named hits to survive; damage per type in raw hit points, null until sourced (B3)
+      - { name: phase2_sword_combo, physical: null, fire: null, source: "TODO B3: poe2db skill multipliers x monsterDamageTable[level]" }
+    gates:
+      ttk_s_max: { value: 60, source: "ASSUMPTION: owner-tunable" }
+      survive_all_hits: { value: true, source: "docs/benchmarks.md section 3.1" }
+  arbiter_ash_uber:
+    kind: boss
+    description: Arbiter of Ash, uber (the hard setting).
+    patch: "0.5.2"
+    pob_options:
+      enemyIsBoss: Uber
+      enemyLevel: null        # B3: not on poe2db page for the uber variant
+    option_source: null
+    life: { value: null, source: "TODO B3: guides say >22M (community), no game-file row found" }
+    uptime: { value: 0.75, source: "ASSUMPTION: as arbiter_ash" }
+    hits:
+      - { name: phase2_sword_combo, physical: null, fire: null, source: "TODO B3" }
+    gates:
+      ttk_s_max: { value: 120, source: "ASSUMPTION: owner-tunable" }
+      survive_all_hits: { value: true, source: "docs/benchmarks.md section 3.1" }
+  breach_t15:
+    kind: pack
+    description: Breach in a tier-15+ waystone (density proxy, not real seconds).
+    patch: "0.5.2"
+    pob_options: { enemyIsBoss: None, enemyLevel: 83 }
+    option_source: "docs/benchmarks.md section 2 (level 83 = T15+ monster level, community; not game data)"
+    base_life: { value: 33945, source: "PoB-PoE2 Data/Misc.lua monsterLifeTable[83] (DefaultMonsterStats.dat) at pin 601768b" }
+    monsters:
+      - { rarity: normal, count: { value: 40, source: "ASSUMPTION: pack size" }, life_mult: { value: 1.0, source: "definition of normal rarity" } }
+      - { rarity: magic,  count: { value: 12, source: "ASSUMPTION: pack size" }, life_mult: { value: null, source: "TODO B3: game data" } }
+      - { rarity: rare,   count: { value: 3,  source: "ASSUMPTION: pack size" }, life_mult: { value: null, source: "TODO B3: game data" } }
+    spread_radius_m: { value: 6.0, source: "ASSUMPTION: pack footprint radius" }
+    gates:
+      clear_s_max: { value: 20, source: "ASSUMPTION: owner-tunable (proxy units)" }
