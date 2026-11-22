@@ -19,6 +19,7 @@
 - S1 · done · prior-art memo docs/prior-art.md + reuse-vs-build decision · thread "Evaluate existing PoE2 build tools" (cmsg_01RxGYnd78N9kMbbAJ5pWDhUXjKQcaEQwYS7APh7ozgeRB)
 - P1 · done (PR open) · data/tiers.yaml + pos_tiers/ (tier table, ModItem rank resolver, PriceModel/AnchorSumModel, hand-set unique bands) + .github/workflows/tests.yml; anchors empty until sampled; poe.ninja fetch (price-tiers step 4) still blocked · thread "Build gear tier tables and pricing"
 - S3 · done · rare-item price tiers decided (docs/price-tiers.md, PR #2 merged) · thread "Plan rare-item price tiers"
+- G2 · done (PR open) · catalogue export: tools/export_catalogue.lua + pos_catalogue/ (export, Catalogue.resolve with suggestions, can_support); data/catalogue/601768b.json committed; `python -m pos_catalogue export` after any re-pin (test fails until re-exported) · thread "Build game-data catalogue export"
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.
