@@ -61,3 +61,4 @@
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.
 - PRs that record or implement something the owner already decided or approved are merged without asking · cmsg_01RxGYnd78N9kMbbAJ5pWDhUYLuCFUWcofw67uLDKo4gM3
+- Run `tools/test.sh` before merge; engine tests must run. Engine tests erroring because LuaJIT is missing is a failure, never "not a regression" (root conftest.py stops the session with the fix).
