@@ -10,4 +10,5 @@ git -C "$tmp/lj" checkout -q "$REF"
 make -C "$tmp/lj" -j"$(nproc)" >/dev/null
 make -C "$tmp/lj" install PREFIX="$ROOT/runtime/luajit" >/dev/null
 ln -sf "$(ls "$ROOT"/runtime/luajit/bin/luajit-* | head -1)" "$ROOT/runtime/luajit/bin/luajit" 2>/dev/null || true
+echo "$REF" > "$ROOT/runtime/luajit/.ref"
 echo "built: $("$ROOT/runtime/luajit/bin/luajit" -v)"
