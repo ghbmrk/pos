@@ -1,6 +1,7 @@
 # Benchmark content (docs/benchmarks.md, B2). Every number is {value, source} and the file carries a `patch` stamp.
 # `value: null` = not sourced: pos_pipeline.benchmarks reports the benchmark as incomplete instead of guessing.
-# B3 fills the nulls from 1.0 game data (poe2db.tw monster pages or a GGPK export) after 2026-12-11.
+# B3 (2026-11-22) filled what current-patch (0.5.x, pre-1.0) poe2db game-file pages give; remaining nulls are listed in STATE.md.
+# At 1.0 re-read the same pages and replace values + patch labels (tools/repin.sh reports stale patches).
 # `ASSUMPTION` in a source marks an owner-tunable constant that is not game data.
 schema_version: 1
 benchmarks:
@@ -18,11 +19,21 @@ benchmarks:
       enemyLightningResist: 0
       enemyChaosResist: 0
       enemyArmour: 4099
-    option_source: "poe2db.tw/sp/The_Burning_Monolith (MapUberBoss_Monolith), 0.5.x; not yet checked against what PoB applies"
-    life: { value: 4274058, source: "poe2db.tw/sp/The_Burning_Monolith (MapUberBoss_Monolith) level 74, 0.5.x; guides say ~5M" }
+      enemyEvasion: 803
+    # B3 (2026-11-22), probed on the engine at pin 601768b: PoB's enemyIsBoss placeholders (damage, armour, evasion)
+    # DO apply headless; explicit enemyArmour/enemy*Damage/enemy*Resist inputs win over them. Under Pinnacle/Uber a level
+    # below 82 is treated as 82 for the damage/armour/evasion defaults (so only an explicit override pins them), and
+    # levels above 82 are honoured; enemyLevel 74 is kept for the other level users. Resists come from the engine wrapper
+    # (tier default 50) unless set, as here. Uber also applies DamageTaken -70% inside PoB, so DPS under it is already reduced.
+    option_source: "poe2db.tw/us/The_Burning_Monolith (MapUberBoss_Monolith) row L74 and poe2db.tw/us/The_Arbiter_of_Ash (evasion 803, armour 4,099 at L74), both read 2026-11-22, 0.5.x game files"
+    life: { value: 4274058, source: "poe2db.tw/us/The_Burning_Monolith (MapUberBoss_Monolith) level 74, 0.5.x; consistent with 147,381 base life on poe2db.tw/us/The_Arbiter_of_Ash x ~29; guides say ~5M" }
     uptime: { value: 0.75, source: "ASSUMPTION: share of the fight the boss is hittable and the player is attacking" }
-    hits:   # named hits to survive; damage per type in raw hit points, null until sourced (B3)
-      - { name: phase2_sword_combo, physical: null, fire: null, source: "TODO B3: poe2db skill multipliers x monsterDamageTable[level]" }
+    # Named hits, raw damage before mitigation, from poe2db.tw/us/The_Arbiter_of_Ash skill rows (L74, read 2026-11-22, 0.5.x).
+    # Caveat: poe2db's Monolith row lists boss Damage 802 vs 1,259 on the boss page; the boss-page skill rows are used here and
+    # are NOT confirmed in game. Not gated (positional mechanics): FlameSeedDonutNuke 18,307-27,461 fire (avg 22,884), PulsingBall.
+    hits:
+      - { name: basic_attack, physical: 880.95, fire: 377.55, source: "MASDemonClawBossFire base 1007-1510 (avg 1258.5), 30% physical converted to fire; poe2db The_Arbiter_of_Ash L74" }
+      - { name: chasm_slam, physical: 1761.9, fire: 755.1, source: "GADemonClawBossChasmSlam attack damage 200% of 1258.5 = 2517, 30% phys to fire; poe2db The_Arbiter_of_Ash L74" }
     gates:
       ttk_s_max: { value: 60, source: "ASSUMPTION: owner-tunable" }
       survive_all_hits: { value: true, source: "docs/benchmarks.md section 3.1" }
@@ -32,12 +43,12 @@ benchmarks:
     patch: "0.5.2"
     pob_options:
       enemyIsBoss: Uber
-      enemyLevel: null        # B3: not on poe2db page for the uber variant
+      enemyLevel: null        # not sourced: PoB default for Uber is 82
     option_source: null
-    life: { value: null, source: "TODO B3: guides say >22M (community), no game-file row found" }
+    life: { value: null, source: "NOT SOURCED 2026-11-22: poe2db has no Uber Arbiter page or row (Arbiter_of_Ash_Uber fails); guides say >22M (community)" }
     uptime: { value: 0.75, source: "ASSUMPTION: as arbiter_ash" }
     hits:
-      - { name: phase2_sword_combo, physical: null, fire: null, source: "TODO B3" }
+      - { name: basic_attack, physical: null, fire: null, source: "NOT SOURCED 2026-11-22: no uber skill rows on poe2db; hit scaling vs the base fight unknown" }
     gates:
       ttk_s_max: { value: 120, source: "ASSUMPTION: owner-tunable" }
       survive_all_hits: { value: true, source: "docs/benchmarks.md section 3.1" }
@@ -50,8 +61,8 @@ benchmarks:
     base_life: { value: 33945, source: "PoB-PoE2 Data/Misc.lua monsterLifeTable[83] (DefaultMonsterStats.dat) at pin 601768b" }
     monsters:
       - { rarity: normal, count: { value: 40, source: "ASSUMPTION: pack size" }, life_mult: { value: 1.0, source: "definition of normal rarity" } }
-      - { rarity: magic,  count: { value: 12, source: "ASSUMPTION: pack size" }, life_mult: { value: null, source: "TODO B3: game data" } }
-      - { rarity: rare,   count: { value: 3,  source: "ASSUMPTION: pack size" }, life_mult: { value: null, source: "TODO B3: game data" } }
+      - { rarity: magic,  count: { value: 12, source: "ASSUMPTION: pack size" }, life_mult: { value: null, source: "NOT SOURCED 2026-11-22: poe2db Monster_Rarity / Monster_Modifiers carry no life multiplier; poe2wiki blocks automated clients" } }
+      - { rarity: rare,   count: { value: 3,  source: "ASSUMPTION: pack size" }, life_mult: { value: null, source: "NOT SOURCED 2026-11-22: poe2db Monster_Rarity / Monster_Modifiers carry no life multiplier; poe2wiki blocks automated clients" } }
     spread_radius_m: { value: 6.0, source: "ASSUMPTION: pack footprint radius" }
     gates:
       clear_s_max: { value: 20, source: "ASSUMPTION: owner-tunable (proxy units)" }

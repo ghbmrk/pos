@@ -23,4 +23,4 @@ Decodes a PoB code/XML and builds a spec: class, ascendancy, level, main skill +
 
 ## Verified here
 - Socket limit 5: PoB `Modules/CalcSetup.lua` raises `socketLimitWarning` when a group has more than 5 non-hidden supports; it only warns, the calc still runs. `data/rules.yaml` now has `verified: true`, so exceeding 5 is a validator **error**. Lineage-support exceptions are not modelled.
-- PoB's default enemy elemental resistance is already 50%: config profile `none` gives the same lightning DPS as `pinnacle_boss`. Noted in `data/config_profiles.yaml`; add an `enemyIsBoss: None` profile for "unresisted".
+- Corrected (B3, 2026-11-22): PoB's `enemyIsBoss` default is Pinnacle (`defaultIndex = 3`), so an empty option set equals `pinnacle_boss`. Profile `none` now sets `enemyIsBoss: None` (unresisted normal enemy); `pob_default` is the empty option set.
