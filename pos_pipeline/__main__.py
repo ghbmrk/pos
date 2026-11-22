@@ -206,8 +206,9 @@ def _run(argv: list[str]) -> int:
         cache = str(Path(a.out) / "cache.sqlite") if a.out else None
         if a.out:
             Path(a.out).mkdir(parents=True, exist_ok=True)
+        meta = {"metric_note": rep.metric_note, "limitations": [f"[{i.confidence or i.severity}] {i.message}" for i in rep.issues if i.code == "limitation"]}
         with engine_stages(spec, cat, rep, bases, workers=a.workers, cache=cache, realloc_rounds=a.realloc_rounds) as (st, skill_of):
-            r = run(spec, st, skill_id=skill_of, force=a.force, out_dir=a.out, **kw)
+            r = run(spec, st, skill_id=skill_of, force=a.force, out_dir=a.out, meta=meta, **kw)
     except RunRefused as e:
         print(f"refused: {e}"); return 3
     for t, (v, val) in r.best_per_tier().items():
@@ -218,6 +219,14 @@ def _run(argv: list[str]) -> int:
 def main(argv: list[str]) -> int:
     if argv and argv[0] == "run":
         return _run(argv[1:])
+    if argv and argv[0] == "report":
+        from pathlib import Path
+
+        from .report import load_run, write_report
+        out = argv[2] if len(argv) > 2 else (argv[1] if Path(argv[1]).is_dir() else str(Path(argv[1]).parent))
+        write_report(load_run(argv[1]), out)
+        print(f"wrote report.md and results.sqlite in {out}")
+        return 0
     if len(argv) >= 2 and argv[0] == "assemble":
         return _assemble(argv[1], argv[2] if len(argv) > 2 else None)
     if len(argv) >= 2 and argv[0] == "supports":
@@ -229,7 +238,7 @@ def main(argv: list[str]) -> int:
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
+        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
         return 2
     try:
         spec = load_spec(argv[1])

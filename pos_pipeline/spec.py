@@ -12,7 +12,7 @@ class SpecError(ValueError):
     """Structural problem (wrong type, unknown key). Game-data problems are Issues from validate()."""
 
 
-_TOP = {"pob_sha", "class", "ascendancy", "level", "main_skill", "fixed", "axes", "tiers", "config_profile", "objective"}
+_TOP = {"pob_sha", "class", "ascendancy", "level", "main_skill", "fixed", "axes", "tiers", "config_profile", "objective", "benchmarks"}
 _FIXED = {"keystones", "notables", "uniques", "supports"}
 _OBJ = {"maximise", "floors"}
 
@@ -31,6 +31,7 @@ class BuildSpec:
     axes: dict[str, list[str]] = field(default_factory=dict)
     tiers: list[str] = field(default_factory=list)
     config_profile: str = "pinnacle_boss"
+    benchmarks: list[str] = field(default_factory=list)   # ids from data/benchmarks.yaml, scored per tier (B4)
     maximise: str = "auto"
     floors: dict[str, Any] = field(default_factory=lambda: {"resist_capped": True})
 
@@ -85,7 +86,7 @@ def parse_spec(data: Any) -> BuildSpec:
         uniques=_strs(fixed.get("uniques"), "fixed.uniques"),
         axes={k: _strs(v, f"axes.{k}") for k, v in axes.items()},
         tiers=_strs(d["tiers"], "tiers"),
-        config_profile=d.get("config_profile", "pinnacle_boss"),
+        config_profile=d.get("config_profile", "pinnacle_boss"), benchmarks=_strs(d.get("benchmarks"), "benchmarks"),
         maximise=obj.get("maximise", "auto"), floors=floors,
     )
 

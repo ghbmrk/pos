@@ -20,6 +20,9 @@ from .assemble import variants
 RATES = Path(__file__).resolve().parents[1] / "data" / "rates.yaml"
 DEFAULT_MAX_MINUTES = 45.0
 DEFAULT_REALLOC_ROUNDS = 4
+# PoB outputs shown in the report next to the objective metric
+REPORT_KEYS = ("TotalDPS", "FullDPS", "Speed", "Life", "EnergyShield", "TotalEHP", "Armour", "Evasion",
+               "FireResist", "ColdResist", "LightningResist", "ChaosResist")
 
 
 def load_rates(path: Path = RATES) -> dict:
@@ -86,6 +89,9 @@ class Stages:
     apply_supports: Callable[[str, str, Sequence[str]], str]
     trees: Callable[[Sequence[str]], list]
     gear: Callable[[str, str, dict], Any]
+    # optional (B4): `bench(xml, benchmark_id, variant) -> BossResult | PackResult`; `stats(xml, variant) -> dict` (report keys)
+    bench: Callable[[str, str, dict], Any] | None = None
+    stats: Callable[[str, dict], dict] | None = None
 
 
 @dataclass
@@ -102,6 +108,9 @@ class TierRun:
     xml: str = ""
     notes: list[str] = field(default_factory=list)
     error: str | None = None
+    stats: dict[str, Any] = field(default_factory=dict)      # PoB outputs of the final build (REPORT_KEYS)
+    bench: dict[str, dict] = field(default_factory=dict)     # benchmark id -> BossResult/PackResult as dict, or {"error": ...}
+    unparsed: list[str] = field(default_factory=list)        # mod ids / lines PoB could not parse (candidates rejected)
 
 
 @dataclass
@@ -124,6 +133,7 @@ class RunResult:
     estimate: Estimate
     seeds: list[SeedRun]
     notes: list[str] = field(default_factory=list)
+    meta: dict[str, Any] = field(default_factory=dict)       # spec summary, benchmark provenance, limitations (report header)
 
     def to_dict(self, xml: bool = False) -> dict:
         def clean(o):
@@ -151,10 +161,21 @@ class RunRefused(Exception):
         self.estimate = est
 
 
+def _jsonable(o: Any) -> Any:
+    """Stats/benchmark dicts may carry numpy-ish or non-finite values; keep them JSON-safe (inf/nan -> None)."""
+    if isinstance(o, dict):
+        return {str(k): _jsonable(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_jsonable(v) for v in o]
+    if isinstance(o, float) and not math.isfinite(o):
+        return None
+    return o
+
+
 # ---- the loop ---------------------------------------------------------------------------------------------
 def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id: str | Callable[[dict], str],
         realloc_rounds: int = DEFAULT_REALLOC_ROUNDS, max_minutes: float = DEFAULT_MAX_MINUTES, force: bool = False,
-        dry_run: bool = False, out_dir: str | Path | None = None, log: Callable[[str], None] = lambda s: None) -> RunResult:
+        dry_run: bool = False, benchmarks: Sequence[str] = (), meta: Mapping[str, Any] | None = None, out_dir: str | Path | None = None, log: Callable[[str], None] = lambda s: None) -> RunResult:
     """Per seed (axis combination): assemble -> supports -> tree, once; then per tier: gear.
 
     Supports are searched on the ungeared seed (G5 measured it that way): picks made before gear exists can differ
@@ -166,7 +187,9 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
     log(est.summary())
     if est.over_cap and not force:
         raise RunRefused(est)
-    res = RunResult(metric, est, [])
+    from .report import run_meta
+    bench_ids = list(benchmarks) or list(getattr(spec, "benchmarks", []) or [])
+    res = RunResult(metric, est, [], meta={**run_meta(spec, bench_ids), **(meta or {})})
     if dry_run:
         return res
 
@@ -221,8 +244,21 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
                 continue
             items = {sl: (c.unique or ", ".join(f"{a.group} r{a.rank}" for a in c.affixes) or "(no affixes)") + f" [{c.base}]"
                      for sl, c in g.items.items()}
-            s.tiers[t] = TierRun(t, True, g.value, g.baseline, g.floors_met, getattr(g.price, "label", None), g.evals,
-                                 items, time.perf_counter() - t0, g.xml, list(g.notes))
+            tr = TierRun(t, True, g.value, g.baseline, g.floors_met, getattr(g.price, "label", None), g.evals,
+                         items, 0.0, g.xml, list(g.notes), unparsed=list(getattr(g, "rejected_unparsed", []) or []))
+            tr.stats = _jsonable(stages.stats(g.xml, s.variant) if stages.stats else getattr(g, "stats", {}) or {})
+            for bid in bench_ids:
+                if stages.bench is None:
+                    tr.bench[bid] = {"error": "no benchmark stage"}
+                    continue
+                try:
+                    from dataclasses import asdict, is_dataclass
+                    b = stages.bench(g.xml, bid, s.variant)
+                    tr.bench[bid] = _jsonable(asdict(b) if is_dataclass(b) else dict(b))
+                except Exception as ex:  # benchmark failure marks that cell, not the tier
+                    tr.bench[bid] = {"error": f"{type(ex).__name__}: {ex}"}
+            tr.seconds = time.perf_counter() - t0
+            s.tiers[t] = tr
             log(f"seed {s.variant or '(none)'} tier {t}: {metric} {g.baseline} -> {g.value}")
     res.notes.append("pure-DPS metric leaves boots/belt (and other stat-only slots) without damage affixes; "
                      "survivability comes only from floors (G7b finding, not solved here)")
@@ -230,6 +266,8 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
         d = Path(out_dir)
         d.mkdir(parents=True, exist_ok=True)
         (d / "run.json").write_text(json.dumps(res.to_dict(), indent=1, default=str), encoding="utf-8")
+        from .report import write_report
+        write_report(res.to_dict(), d)
     return res
 
 
@@ -271,11 +309,20 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                 return search_gear(cat, pool, eng, xml, tier, b, rep.metric, slots=tuple(b), floors=fl,
                                    realloc_rounds=realloc_rounds)
 
+            def bench(xml, bid, variant):
+                from .benchmarks import evaluate
+                sk = cat.get("skill", skill_of(variant))
+                return evaluate(pool, xml, bid, rep.metric, projectile="Projectile" in (sk.get("skill_types") or []))
+
+            def stats(xml, variant):
+                eng.load_build_xml(xml)
+                return eng.get_stats(list(dict.fromkeys([rep.metric, *REPORT_KEYS])))["stats"]
+
             yield Stages(
                 assemble=lambda v: assemble(spec, cat, eng, v),
                 supports=lambda xml, sk: search_supports(cat, pool, xml, sk, fixed, rep.metric, allow_triggered=allow),
                 apply_supports=apply_supports,
                 trees=lambda xmls: search_trees(xmls, rep.metric, workers=workers, require=require, caps=tuple(tree_caps or DEFAULT_CAPS)),
-                gear=gear,
+                gear=gear, bench=bench, stats=stats,
             ), skill_of
     return cm()
