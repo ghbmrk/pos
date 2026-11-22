@@ -11,7 +11,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from pos_pipeline import data, parse_slate, validate_slate  # noqa: E402
-from pos_pipeline.slate_run import (best_run, estimate_slate, make_rare_replacer, rank_by_benchmarks, render_slate_markdown,  # noqa: E402
+from pos_pipeline.slate_run import (artefact_flag, best_run, estimate_slate, make_rare_replacer, rank_by_benchmarks, render_slate_markdown,  # noqa: E402
                                     run_slate, screen_tier_for, unique_slot)
 from pos_pipeline.sweep import Ablation, ablate  # noqa: E402
 from pos_pipeline.tests.test_slate import cat, good_slate, spec  # noqa: E402,F401
@@ -234,3 +234,21 @@ def test_unique_not_in_build_is_not_testable_and_fallback_is_labelled():
     assert new == "UNIQ EMPTY" and "upper bound" in label
 
 
+
+
+# ---- G5 artefact audit flag in ranking (I9) ---------------------------------------------------------------
+def test_artefact_flag_only_when_ttk_rests_on_fulldps():
+    b_full = {"arbiter_ash": {**boss(10), "dps_metric": "FullDPS"}}
+    b_total = {"arbiter_ash": {**boss(10), "dps_metric": "TotalDPS"}}
+    assert "ARTEFACT AUDIT" in artefact_flag({"FullDPS": 96948, "TotalDPS": 2732}, b_full)
+    assert artefact_flag({"FullDPS": 96948, "TotalDPS": 2732}, b_total) is None     # ttk not on FullDPS
+    assert artefact_flag({"FullDPS": 300, "TotalDPS": 100}, b_full) is None         # exactly 3x is not above
+    assert artefact_flag({"FullDPS": 5, "TotalDPS": None}, b_full) is None and artefact_flag(None, None) is None
+
+
+def test_flagged_candidate_ranks_after_unflagged_with_note():
+    cells = {"fiery": {"arbiter_ash": boss(1), "breach_t15": pack(1)},
+             "honest": {"arbiter_ash": boss(500), "breach_t15": pack(90)}}
+    order = rank_by_benchmarks(cells, BIDS, {"fiery": "ARTEFACT AUDIT: x"})
+    assert [n for n, _ in order] == ["honest", "fiery"] and "ARTEFACT AUDIT" in dict(order)["fiery"]
+    assert [n for n, _ in rank_by_benchmarks(cells, BIDS)] == ["fiery", "honest"]    # no audit -> unchanged behaviour
