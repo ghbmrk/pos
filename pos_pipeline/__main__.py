@@ -15,8 +15,10 @@ def _print_issues(issues) -> None:
 def _slate(argv: list[str]) -> int:
     from . import slate as sl
 
+    if argv and argv[0] == "run":
+        return _slate_run(argv[1:])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline slate validate slate.yaml")
+        print("usage: python -m pos_pipeline slate validate slate.yaml | slate run slate.yaml [slot=Base ...] [--preflight] [--workers N] [--max-minutes M] [--force] [--deepen-k K] [--out DIR]")
         return 2
     try:
         s = sl.load_slate(argv[1])
@@ -30,6 +32,70 @@ def _slate(argv: list[str]) -> int:
         _print_issues(r.issues)
     print(f"{len(rep.kept)} of {len(rep.candidates)} kept; " + ("OK" if rep.ok else "slate NOT ok"))
     return 0 if rep.ok else 1
+
+
+def _slate_run(argv: list[str]) -> int:
+    import argparse
+    import os
+    from pathlib import Path
+
+    from . import slate as sl
+    from .gear import SLOTS
+    from .orchestrate import DEFAULT_MAX_MINUTES
+    from .slate_run import EngineRunner, estimate_slate, run_slate
+
+    ap = argparse.ArgumentParser(prog="python -m pos_pipeline slate run")
+    ap.add_argument("slate")
+    ap.add_argument("bases", nargs="*", help="default slot=Base for candidates that give no `bases:` of their own")
+    ap.add_argument("--workers", type=int, default=os.cpu_count() or 1)
+    ap.add_argument("--max-minutes", type=float, default=DEFAULT_MAX_MINUTES, help="refuse above this estimate unless --force")
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--preflight", action="store_true", help="print the cost estimate and exit")
+    ap.add_argument("--deepen-k", type=int, default=None)
+    ap.add_argument("--out", default=None, help="directory for slate_run.json, slate_report.md, slate_results.sqlite, cache.sqlite")
+    a = ap.parse_args(argv)
+    bases = dict(x.split("=", 1) for x in a.bases if "=" in x)
+    if "ring" in bases:
+        bases.setdefault("ring_1", bases["ring"]); bases.setdefault("ring_2", bases.pop("ring"))
+    bad = [s for s in bases if s not in SLOTS]
+    if bad:
+        print(f"unknown slot(s): {', '.join(bad)}; known: {', '.join(SLOTS)}"); return 2
+    try:
+        s = sl.load_slate(a.slate)
+    except SpecError as e:
+        print(f"error: {e}"); return 1
+    cat = Catalogue.load(pob_sha=s.pob_sha)
+    rep = sl.validate_slate(s, cat)
+    _print_issues(rep.issues)
+    for r in rep.candidates:
+        if not r.kept:
+            print(f"REJECTED {r.name}"); _print_issues(r.errors)
+    if not rep.ok:
+        print("slate NOT ok; not running"); return 1
+    by = {c.name: c for c in s.candidates}
+    kept = [by[r.name] for r in rep.kept]
+    slots = {c.name: len({**bases, **c.bases}) for c in kept}
+    if not all(slots.values()) and not a.preflight:
+        print("a candidate has no bases (give `bases:` on it or slot=Base on the command line)"); return 2
+    est = estimate_slate(kept, s.brief, {n: v or len(SLOTS) for n, v in slots.items()}, a.workers, max_minutes=a.max_minutes, k=a.deepen_k)
+    print(est.summary())
+    if a.preflight:
+        for src in est.sources:
+            print("  rate:", src)
+        return 1 if est.over_cap else 0
+    if est.over_cap and not a.force:
+        print("refused: estimate above the cap; pass --force or raise --max-minutes"); return 3
+    cache = str(Path(a.out) / "cache.sqlite") if a.out else None
+    if a.out:
+        Path(a.out).mkdir(parents=True, exist_ok=True)
+    runner = EngineRunner(cat, s, bases, workers=a.workers, cache=cache, log=print)
+    r = run_slate(s, rep, runner, k=a.deepen_k, out_dir=a.out, estimate_text=est.summary(), log=print)
+    for c in sorted((c for c in r.candidates if c.screen_rank), key=lambda c: c.screen_rank):
+        print(f"{c.screen_rank}. {c.name}" + (f"  ({c.rank_note})" if c.rank_note else ""))
+    for c in r.candidates:
+        if c.status == "failed":
+            print(f"FAILED {c.name}: {c.error}")
+    return 0
 
 
 def _assemble(path: str, out_dir: str | None) -> int:

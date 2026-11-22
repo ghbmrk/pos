@@ -24,7 +24,7 @@ from .validate import Issue, _lookup, validate
 ARCH_FIELDS = ("class_asc", "delivery", "damage", "defence", "main_skill", "key_pieces")
 _TOP = {"slate", "pob_sha", "prompt", "brief", "candidates"}
 _BRIEF = {"benchmarks", "tiers", "constraints", "floors"}
-_CAND = {"name", "archetype", "spec", "key_pieces", "claims", "source"}
+_CAND = {"name", "archetype", "spec", "key_pieces", "claims", "source", "bases"}
 _ARCH = {"delivery", "damage", "defence", "engine"}
 _SOURCE = re.compile(r"^(llm|sweep:[^/\s]+/\S.*)$")
 
@@ -48,6 +48,7 @@ class Candidate:
     key_pieces: list[dict]       # [{kind, id}]
     claims: list[Claim]
     source: str
+    bases: dict[str, str] = field(default_factory=dict)   # slot -> catalogue base for the gear search (I5); CLI bases fill the rest
 
 
 @dataclass
@@ -109,6 +110,14 @@ def _ref_list(v: Any, where: str, keys: tuple[str, ...]) -> list[dict]:
     return out
 
 
+def _bases(v: Any, where: str) -> dict[str, str]:
+    if v is None:
+        return {}
+    if not isinstance(v, dict) or not all(isinstance(k, str) and isinstance(b, str) and b for k, b in v.items()):
+        raise SlateError(f"{where}.bases must map slot names to base names")
+    return dict(v)
+
+
 def parse_slate(d: Any) -> Slate:
     d = _only(d, _TOP, "slate")
     if d.get("slate") != 1:
@@ -155,7 +164,7 @@ def parse_slate(d: Any) -> Slate:
         except SpecError as e:
             spec, serr = None, str(e)
         cands.append(Candidate(c["name"].strip(), spec, serr, dict(arch), _ref_list(c["key_pieces"], f"{w}.key_pieces", ("kind", "id")),
-                               claims, c.get("source", "llm")))
+                               claims, c.get("source", "llm"), _bases(c.get("bases"), w)))
     return Slate(d["pob_sha"], d["prompt"], dict(brief), cands)
 
 
@@ -262,6 +271,14 @@ def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg
             if m["metric"] is None and not any(x.code == "no_metric" for x in sr.issues):
                 add("error", "no_metric", "spec.main_skill", f"{skill['name']} has no engine metric ({m['note']}); not rankable yet")
         _check_brief_fit(c, add)
+
+    # bases for the gear search: slot names and catalogue bases must exist
+    from .gear import SLOTS
+    for k, b in c.bases.items():
+        if k not in SLOTS:
+            add("error", "bases", f"bases.{k}", f"unknown slot {k!r}; one of {', '.join(SLOTS)}")
+        elif _lookup(cat, "base", b)[0] is None:
+            add("error", "unresolved", f"bases.{k}", f"base {b!r} not found in the catalogue")
 
     # key pieces
     kp = cfg["slate"]["key_pieces"]
