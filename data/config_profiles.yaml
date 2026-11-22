@@ -1,0 +1,16 @@
+# Fixed PoB configuration profiles (docs/spec.md). A spec names exactly one; its canonical hash is part of the
+# result-cache key, so DPS figures are only ever compared under the same enemy/conditions.
+# `options` are applied with PobEngine.set_config(options=...); `custom_mods` as custom_mods=.
+# Only option keys exercised in pos_engine/tests are used here (enemyIsBoss: Boss | Pinnacle). Add keys after
+# checking them with PobEngine.list_config_options on the pinned PoB.
+schema_version: 1
+profiles:
+  none:
+    description: PoB defaults, no boss. Use only for clear-speed style comparisons.
+    options: {}
+  boss:
+    description: Standard boss enemy.
+    options: { enemyIsBoss: Boss }
+  pinnacle_boss:
+    description: Pinnacle boss enemy (higher resistances; the default for DPS comparisons).
+    options: { enemyIsBoss: Pinnacle }
