@@ -71,6 +71,40 @@ def _supports(path: str, workers: int) -> int:
     return 0
 
 
+def _tree(path: str, workers: int, candidates: int) -> int:
+    from pos_engine.engine import PobEngine
+
+    from .assemble import assemble, variants
+    from .tree import search_trees
+
+    spec = load_spec(path)
+    cat = Catalogue.load(pob_sha=spec.pob_sha)
+    rep = validate(spec, cat)
+    _print_issues(rep.issues)
+    if not rep.ok:
+        print(f"{len(rep.errors)} validation error(s); not searching")
+        return 1
+    seeds = []
+    with PobEngine() as eng:
+        for v in variants(spec):
+            a = assemble(spec, cat, eng, v)
+            if a.ok:
+                seeds.append((v, a.xml))
+            else:
+                print(f"variant {v or '(none)'}: seed FAILED"); _print_issues(a.issues)
+    require = list(spec.keystones) + list(spec.notables)
+    out = search_trees([x for _, x in seeds], rep.metric, workers=workers, candidates=candidates, require=require)
+    bad = 0
+    for (v, _), r in zip(seeds, out):
+        if not r.ok:
+            print(f"variant {v or '(none)'}: FAILED {r.error}"); bad += 1; continue
+        print(f"variant {v or '(none)'}: {r.metric} {r.start:.1f} -> {r.final:.1f} ({r.gain:+.0%}); {len(r.allocated)} picks, "
+              f"{r.points_used} points used, {r.points_remaining} left; {r.seconds:.1f} s")
+        for n in r.notes:
+            print("  note:", n)
+    return 1 if bad else 0
+
+
 def _gear(path: str, tier: str, base_args: list[str], workers: int = 2) -> int:
     from pos_engine.engine import PobEngine
     from pos_pool.pool import EnginePool
@@ -130,12 +164,14 @@ def main(argv: list[str]) -> int:
         return _assemble(argv[1], argv[2] if len(argv) > 2 else None)
     if len(argv) >= 2 and argv[0] == "supports":
         return _supports(argv[1], int(argv[2]) if len(argv) > 2 else 2)
+    if len(argv) >= 2 and argv[0] == "tree":
+        return _tree(argv[1], int(argv[2]) if len(argv) > 2 else 2, int(argv[3]) if len(argv) > 3 else 200)
     if len(argv) >= 3 and argv[0] == "gear":
         return _gear(argv[1], argv[2], [a for a in argv[3:] if "=" in a])
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | gear spec.yaml TIER slot=Base... | import code.pobcode")
+        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates] | gear spec.yaml TIER slot=Base... | import code.pobcode")
         return 2
     try:
         spec = load_spec(argv[1])
