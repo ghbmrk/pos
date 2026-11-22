@@ -136,3 +136,20 @@ class Catalogue:
         """Support gems whose type requirements the skill meets."""
         skill = self.get("skill", skill_id)
         return [s for s in self.data["supports"] if can_support(s, skill)]
+
+    # read-only ideation queries (see query.py)
+    def search(self, kind: str, **kw) -> list[dict]:
+        from . import query
+        return query.search(self, kind, **kw)
+
+    def enablers(self, skill_type: str) -> dict:
+        from . import query
+        return query.enablers(self, skill_type)
+
+    def bridges(self, term_a: str, term_b: str, limit: int | None = None) -> dict:
+        from . import query
+        return query.bridges(self, term_a, term_b, limit)
+
+    def explain(self, kind: str, id_: str) -> dict:
+        from . import query
+        return query.explain(self, kind, id_)

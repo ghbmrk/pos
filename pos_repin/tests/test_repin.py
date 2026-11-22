@@ -112,3 +112,13 @@ def test_repin_script_usage():
     root = Path(__file__).resolve().parents[2]
     assert subprocess.run(["bash", str(root / "tools" / "repin.sh")], capture_output=True).returncode == 2
     assert subprocess.run(["bash", "-n", str(root / "tools" / "repin.sh")]).returncode == 0
+
+
+def test_diff_flags_changed_unique_text_and_gem_description():
+    old = cat("a", uniques=[E("Andvarius", base="Gold Ring", lines=[{"text": "30% increased Rarity"}])],
+              skills=[E("Fireball", id="FireballPlayer", skill_types=["Spell"], description="Old text.")])
+    new = cat("b", uniques=[E("Andvarius", base="Gold Ring", lines=[{"text": "25% increased Rarity"}])],
+              skills=[E("Fireball", id="FireballPlayer", skill_types=["Spell"], description="New text.")])
+    d = diff_catalogues(old, new)
+    assert ("Andvarius (Gold Ring)", ["lines"]) in d.kinds["uniques"].changed
+    assert ("Fireball", ["description"]) in d.kinds["skills"].changed

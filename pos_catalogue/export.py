@@ -11,7 +11,7 @@ from pathlib import Path
 
 from pos_engine.paths import ROOT, bundled_luajit, pob_src_dir
 
-SCHEMA = 1
+SCHEMA = 2
 CATALOGUE_DIR = ROOT / "data" / "catalogue"
 
 

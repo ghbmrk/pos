@@ -40,8 +40,8 @@
 - G9 · blocked on G8b · MCP server + usage guide; NL front decided: MCP + CLI, no API key (Sonnet; Opus reviews tool text)
 
 - I1 · done (PR open) · docs/ideation.md: creative ideation within MCP-only (no revisit needed): LLM slate of 6-10 BuildSpecs + engine sweeps (keystone/unique/support marginals) as second generator; gates = exact PoE2 resolution, quote-substring mechanism citations, diversity distance, ablation of key pieces; screen at one tier then deepen top 3; cross-archetype ranking on benchmark metrics only; finding: catalogue lacks unique mod lines and gem text (I2) · thread "Design creative build ideation"
-- I2 · startable · catalogue: unique mod lines + gem text; search/enablers/bridges/explain (Sonnet)
-- I3 · blocked on I2 · slate schema + validate_slate + data/ideation.yaml (Sonnet)
+- I2 · done (PR open) · catalogue schema 2: unique `lines`/`variants`/`req_level` + gem `description`; pos_catalogue/query.py `search`/`enablers`/`bridges`/`explain` + CLI; `texts()` = quotable text for I3 citations; repin diff covers new fields; docs/catalogue-queries.md · thread "Build ideation task I2"
+- I3 · startable · slate schema + validate_slate + data/ideation.yaml (Sonnet)
 - I4 · startable · sweep + ablate on probe seed (Sonnet)
 - I5 · blocked on I3, I4, G8b · slate runner: screen, ablation, halving, slate report (Sonnet)
 - I6 · blocked on I5, G9 · MCP ideate prompt + tools (Opus writes text)
