@@ -17,6 +17,7 @@
 - S2 · done (PR open) · re-pin spike: result STAY ON FORK; engine layer in pos_engine/, PoB-PoE2 submodule at 601768b, zero patches; docs/engine-fork.md · thread "Test updating the PoB engine fork"
 - R1 · done · ghbmrk/pos scaffolded (README, .gitignore), STATE.md moved into repo · thread "Set up the pos repo"
 - S1 · done · prior-art memo docs/prior-art.md + reuse-vs-build decision · thread "Evaluate existing PoE2 build tools" (cmsg_01RxGYnd78N9kMbbAJ5pWDhUXjKQcaEQwYS7APh7ozgeRB)
+- P1 · done (PR open) · data/tiers.yaml + pos_tiers/ (tier table, ModItem rank resolver, PriceModel/AnchorSumModel, hand-set unique bands) + .github/workflows/tests.yml; anchors empty until sampled; poe.ninja fetch (price-tiers step 4) still blocked · thread "Build gear tier tables and pricing"
 - S3 · done · rare-item price tiers decided (docs/price-tiers.md, PR #2 merged) · thread "Plan rare-item price tiers"
 
 ## Standing rules learned
