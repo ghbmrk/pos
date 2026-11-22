@@ -4,7 +4,10 @@
 schema_version: 1
 # PoB output keys the engine wrapper reads (pos_engine/pob_headless.lua); a test checks this against the Lua list.
 stat_keys: [TotalDPS, FullDPS, CombinedDPS, AverageDamage, Speed, HitChance, CritChance, CritMultiplier,
-            ManaCost, Life, Mana, EnergyShield, TotalEHP, Ward, Armour, Evasion, Str, Dex, Int, ProjectileCount]
+            ManaCost, Life, Mana, EnergyShield, TotalEHP, Ward, Armour, Evasion, Str, Dex, Int, ProjectileCount,
+            AverageHit, AreaOfEffectRadiusMetres, TotalNumberOfHits, EHPSurvivalTime,
+            PhysicalMaximumHitTaken, FireMaximumHitTaken, ColdMaximumHitTaken, LightningMaximumHitTaken,
+            ChaosMaximumHitTaken]
 rules:
   - any: [Minion, CreatesMinion]
     metric: null
