@@ -163,7 +163,61 @@ def _import(path: str) -> int:
     return 0
 
 
+def _run(argv: list[str]) -> int:
+    import argparse
+    import os
+
+    from .gear import SLOTS
+    from .orchestrate import DEFAULT_MAX_MINUTES, DEFAULT_REALLOC_ROUNDS, RunRefused, engine_stages, run
+
+    ap = argparse.ArgumentParser(prog="python -m pos_pipeline run")
+    ap.add_argument("spec")
+    ap.add_argument("bases", nargs="*", help="slot=Base, e.g. weapon='Acrid Wand' (ring=Base sets both rings)")
+    ap.add_argument("--workers", type=int, default=os.cpu_count() or 1)
+    ap.add_argument("--max-minutes", type=float, default=DEFAULT_MAX_MINUTES, help="refuse above this estimate unless --force")
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--preflight", action="store_true", help="print the cost estimate and exit")
+    ap.add_argument("--realloc-rounds", type=int, default=DEFAULT_REALLOC_ROUNDS, help="0 = cheap gear mode (about 2.3x faster, weaker)")
+    ap.add_argument("--out", default=None, help="directory for run.json and cache.sqlite")
+    a = ap.parse_args(argv)
+    bases = dict(x.split("=", 1) for x in a.bases if "=" in x)
+    if "ring" in bases:
+        bases.setdefault("ring_1", bases["ring"]); bases.setdefault("ring_2", bases.pop("ring"))
+    bad = [s for s in bases if s not in SLOTS]
+    if bad:
+        print(f"unknown slot(s): {', '.join(bad)}; known: {', '.join(SLOTS)}"); return 2
+    spec = load_spec(a.spec)
+    cat = Catalogue.load(pob_sha=spec.pob_sha)
+    rep = validate(spec, cat)
+    _print_issues(rep.issues)
+    if not rep.ok:
+        print(f"{len(rep.errors)} validation error(s); not running"); return 1
+    if not bases and not a.preflight:
+        print("no bases given (slot=Base ...): gear search needs one per slot"); return 2
+    kw = dict(metric=rep.metric, slots=len(bases) or len(SLOTS), workers=a.workers, realloc_rounds=a.realloc_rounds,
+              max_minutes=a.max_minutes, log=print)
+    try:
+        if a.preflight:
+            r = run(spec, None, skill_id="", dry_run=True, force=True, **kw)  # type: ignore[arg-type]
+            for src in r.estimate.sources:
+                print("  rate:", src)
+            return 1 if r.estimate.over_cap else 0
+        from pathlib import Path
+        cache = str(Path(a.out) / "cache.sqlite") if a.out else None
+        if a.out:
+            Path(a.out).mkdir(parents=True, exist_ok=True)
+        with engine_stages(spec, cat, rep, bases, workers=a.workers, cache=cache, realloc_rounds=a.realloc_rounds) as (st, skill_of):
+            r = run(spec, st, skill_id=skill_of, force=a.force, out_dir=a.out, **kw)
+    except RunRefused as e:
+        print(f"refused: {e}"); return 3
+    for t, (v, val) in r.best_per_tier().items():
+        print(f"tier {t}: best {r.metric} {val:.1f} with {v or '(no axes)'}")
+    return 1 if any(not s.ok for s in r.seeds) else 0
+
+
 def main(argv: list[str]) -> int:
+    if argv and argv[0] == "run":
+        return _run(argv[1:])
     if len(argv) >= 2 and argv[0] == "assemble":
         return _assemble(argv[1], argv[2] if len(argv) > 2 else None)
     if len(argv) >= 2 and argv[0] == "supports":
@@ -175,7 +229,7 @@ def main(argv: list[str]) -> int:
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode")
+        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
         return 2
     try:
         spec = load_spec(argv[1])

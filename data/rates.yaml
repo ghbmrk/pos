@@ -1,0 +1,14 @@
+# Measured stage costs for the run preflight (pos_pipeline/orchestrate.py). Core-seconds = wall seconds x worker
+# processes; wall estimate = core-seconds / workers. Re-measure with a real run (RunResult.timings) and edit here.
+# Machine: 4 vCPU, PoB-PoE2 601768b, Spark Stormweaver L90 seed (not an endgame build; large trees/gear may cost more).
+schema_version: 1
+assemble:      { core_s_per_seed: 5,   source: "assumed (engine boot ~1.1 s + build ~2 s); unmeasured" }
+supports:      { core_s_per_seed: 116, evals_per_seed: 370, source: "docs/supports.md: 370 evals, 29 s on 4 workers, no gear" }
+tree:          { core_s_per_seed: 75,  evals_per_seed: 3,   source: "docs/tree.md: caps 100/200/400 ~75 s per seed, one core per seed; evals = optimize_passives calls" }
+gear_per_slot:
+  realloc_0:   { core_s: 32, evals: 213, source: "docs/gear.md G7b: mid, 9 slots, 71 s on 4 workers, 1,920 submitted" }
+  realloc_4:   { core_s: 71, evals: 724, source: "docs/gear.md G7b: mid, 9 slots, 159 s on 4 workers, 6,517 submitted" }
+# Few slots (<= 3) cost more per slot: the weapon/amulet search dominates and fewer slots share cached candidates.
+gear_per_slot_few:
+  realloc_0:   { core_s: 70, evals: 329, source: "G8a run, Spark L90 after supports+tree, mid, weapon+amulet, 35 s on 4 workers, 658 evals" }
+  realloc_4:   { core_s: 155, evals: 1100, source: "ASSUMED: realloc_0 few-slot rate scaled by the 9-slot ratio (71/32 time, 724/213 evals); unmeasured" }
