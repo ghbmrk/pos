@@ -12,3 +12,6 @@ __pycache__/
 .vscode/
 runtime/
 runs/
+
+# I7 eval runs: engine cache is regenerable
+evals/**/cache.sqlite

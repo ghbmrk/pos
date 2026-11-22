@@ -64,6 +64,16 @@ class Ablation:
     note: str = ""
 
 
+def _support_id(cat: Catalogue, ref: str) -> str | None:
+    """A support key piece may be named by gem name or by gem id (the slate gate accepts both; I7 found id-form pieces
+    reported `not_testable`)."""
+    try:
+        return cat.get("support", ref)["id"]
+    except KeyError:
+        e = cat.resolve("support", ref).entry
+        return e["id"] if e else None
+
+
 def _has_text(e: dict) -> bool:
     return bool(e.get("stats") or e.get("text") or e.get("lines"))
 
@@ -286,7 +296,7 @@ def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapp
                 if cur is None:
                     gems = _seed_build(xml, engine).get("mainSkillGroup") or []
                     cur = [r.entry["id"] for g in gems[1:] if (r := cat.resolve("support", g["name"])).entry]
-                sid = cat.resolve("support", id_).entry["id"] if cat.resolve("support", id_).entry else None
+                sid = _support_id(cat, id_)
                 if sid not in cur:
                     res.note = f"support {id_!r} is not in the main skill's group"
                     out.append(res)

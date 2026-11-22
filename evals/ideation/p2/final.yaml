@@ -1,0 +1,87 @@
+slate: 1
+pob_sha: "601768b"
+prompt: "something nasty with ailments that is not a caster"
+brief: { benchmarks: [arbiter_ash, breach_t15], tiers: [mid], constraints: {}, floors: {} }
+candidates:
+  - name: "Poison Stack Bow"
+    archetype: { defence: evasion, engine: "burst of Poison on hit, many Poisons stacked on the target" }
+    spec: { pob_sha: "601768b", class: Ranger, ascendancy: Pathfinder, level: 90, main_skill: { gem: Poisonburst Arrow },
+            tiers: [mid], fixed: { keystones: [], notables: [Overwhelming Toxicity], uniques: [], supports: [Arakaali's Lust] } }
+    key_pieces: [ { kind: support, id: Arakaali's Lust }, { kind: notable, id: Overwhelming Toxicity } ]
+    claims:
+      - text: "Poison stacking is the damage multiplier: more Poisons on the target raise hit damage."
+        cites: [ { kind: support, id: SupportArakaalisLustPlayer, quote: "the more Poisons are on the target" } ]
+      - text: "The tree lets targets carry far more Poisons at once."
+        cites: [ { kind: notable, id: Overwhelming Toxicity, quote: "Double the number of your Poisons that targets can be affected by at the same time" } ]
+    bases: { weapon: Crude Bow }
+    source: llm
+  - name: "Gas Cloud Ignite Bow"
+    archetype: { defence: evasion, engine: "poison gas cloud detonates off Ignited enemies" }
+    spec: { pob_sha: "601768b", class: Ranger, ascendancy: Deadeye, level: 90, main_skill: { gem: Gas Arrow },
+            tiers: [mid], fixed: { keystones: [], notables: [Firestarter], uniques: [], supports: [Searing Flame I] } }
+    key_pieces: [ { kind: notable, id: Firestarter }, { kind: support, id: Searing Flame I } ]
+    claims:
+      - text: "The poison cloud explodes when an Ignited enemy touches it, so Ignite feeds the burst."
+        cites: [ { kind: skill, id: GasArrowPlayer, quote: "if an Ignited enemy touches it" } ]
+      - text: "Ignite is made stronger and lowers enemy fire resistance."
+        cites: [ { kind: notable, id: Firestarter, quote: "Enemies Ignited by you have -5% to Fire Resistance" } ]
+    bases: { weapon: Crude Bow }
+    source: llm
+  - name: "Plague Grenadier"
+    archetype: { defence: life, engine: "poisoned enemies gain Plague and burst on death" }
+    spec: { pob_sha: "601768b", class: Mercenary, ascendancy: Witchhunter, level: 90, main_skill: { gem: Gas Grenade },
+            tiers: [mid], fixed: { keystones: [], notables: [], uniques: [], supports: [Bursting Plague, Fiery Death] } }
+    key_pieces: [ { kind: support, id: Bursting Plague }, { kind: support, id: Fiery Death } ]
+    claims:
+      - text: "Poisoned enemies build up Plague and explode when they die, spreading the damage."
+        cites: [ { kind: support, id: SupportBurstingPlaguePlayer, quote: "explode in a Plague Burst on death" } ]
+      - text: "Burning effects turn the grenade cloud into a fiery blast."
+        cites: [ { kind: skill, id: ToxicGrenadePlayer, quote: "Burning effects or Detonator skills will cause the cloud to explode" } ]
+    bases: { weapon: Dyad Crossbow }
+    source: llm
+  - name: "Aggravated Bleed Raker"
+    archetype: { defence: evasion, engine: "short aggravated bleed with heavily boosted magnitude" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Amazon, level: 90, main_skill: { gem: Rake },
+            tiers: [mid], fixed: { keystones: [Crimson Assault], notables: [], uniques: [], supports: [Deep Cuts I] } }
+    key_pieces: [ { kind: keystone, id: Crimson Assault }, { kind: support, id: Deep Cuts I } ]
+    claims:
+      - text: "The keystone makes bleeding aggravated and stronger at the cost of its duration."
+        cites: [ { kind: keystone, id: Crimson Assault, quote: "Bleeding you inflict is Aggravated" } ]
+      - text: "Rake inflicts Bleeding on every enemy it strikes."
+        cites: [ { kind: skill, id: RakePlayer, quote: "inflicting Bleeding on all enemies struck" } ]
+    bases: { weapon: Hardwood Spear }
+    source: llm
+  - name: "Blood Hunt Warbringer"
+    archetype: { defence: armour, engine: "bleed applied then consumed by a lunge for a blood explosion" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: Warbringer, level: 90, main_skill: { gem: Blood Hunt },
+            tiers: [mid], fixed: { keystones: [], notables: [Bleeding Out], uniques: [], supports: [Bleed III] } }
+    key_pieces: [ { kind: support, id: Bleed III }, { kind: notable, id: Bleeding Out } ]
+    claims:
+      - text: "Bleed is guaranteed by the support so the lunge always has something to consume."
+        cites: [ { kind: support, id: SupportBleedPlayerThree, quote: "causing it to inflict Bleeding" } ]
+      - text: "Blood Hunt consumes Bleeding on hit and explodes."
+        cites: [ { kind: skill, id: BloodHuntPlayer, quote: "blood explosion and also Consume Bleeding" } ]
+    bases: { weapon: Hardwood Spear }
+    source: llm
+  - name: "Shock Spirit Shaman"
+    archetype: { defence: life, engine: "refreshing Shock summons spirits, third strike consumes Shock" }
+    spec: { pob_sha: "601768b", class: Druid, ascendancy: Shaman, level: 90, main_skill: { gem: Primal Strikes },
+            tiers: [mid], fixed: { keystones: [], notables: [Electrifying Nature], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Electrifying Nature } ]
+    claims:
+      - text: "Hits on Shocked enemies refresh Shock, and the finishing strike consumes it for a stampede."
+        cites: [ { kind: skill, id: PrimalStrikesPlayer, quote: "refresh Shock duration" } ]
+    bases: { weapon: Hardwood Spear }
+    source: llm
+  - name: "Ignited Ground Spear"
+    archetype: { defence: evasion, engine: "detonated spear leaves Ignited Ground, flame pillars consume Ignite" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Ritualist, level: 90, main_skill: { gem: Explosive Spear },
+            tiers: [mid], fixed: { keystones: [], notables: [Firestarter], uniques: [], supports: [Flame Pillar] } }
+    key_pieces: [ { kind: support, id: Flame Pillar }, { kind: notable, id: Firestarter } ]
+    claims:
+      - text: "The detonated spear creates Ignited Ground that feeds Ignite."
+        cites: [ { kind: skill, id: ExplosiveSpearPlayer, quote: "creating Ignited Ground" } ]
+      - text: "Flame Pillar converts Ignite into extra fire pillars."
+        cites: [ { kind: support, id: SupportFlamePillarPlayer, quote: "Consume Ignite on Hit to create pillars of flame" } ]
+    bases: { weapon: Hardwood Spear }
+    source: llm

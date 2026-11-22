@@ -80,3 +80,10 @@ def test_ablation_verdicts(cat, seed, skill):
     with EnginePool(workers=2) as pool:
         [x] = ablate(cat, pool, seed, [{"kind": "notable", "id": "Constant Gale"}], "TotalDPS", threshold=1e-6)
     assert x.verdict in {"confirmed", "possibly_unmodelled", "not_load_bearing"} and x.baseline > 0
+
+
+def test_support_key_piece_by_gem_id(cat):
+    """I7: the gate accepts a support key piece by gem id; ablation must resolve it the same way (was `not_testable`)."""
+    from pos_pipeline.sweep import _support_id
+    assert _support_id(cat, "SupportChainPlayer") == _support_id(cat, "Chain I") == "SupportChainPlayer"
+    assert _support_id(cat, "Nope") is None

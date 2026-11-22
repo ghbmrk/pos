@@ -1,0 +1,6 @@
+p1 exit=0 wall_s=626
+p5 exit=2 wall_s=0
+p2 exit=0 wall_s=822
+p4 exit=0 wall_s=648
+p3 exit=0 wall_s=552
+p5(retry, amulet default for the unarmed candidate) exit=0 wall_s=608
