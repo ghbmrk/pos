@@ -92,6 +92,8 @@ class Stages:
     # optional (B4): `bench(xml, benchmark_id, variant) -> BossResult | PackResult`; `stats(xml, variant) -> dict` (report keys)
     bench: Callable[[str, str, dict], Any] | None = None
     stats: Callable[[str, dict], dict] | None = None
+    # optional (K2): `actor(xml, variant) -> actors.Combined` for the spec's companion (effects, blend, combined metric)
+    actor: Callable[[str, dict], Any] | None = None
 
 
 @dataclass
@@ -111,6 +113,7 @@ class TierRun:
     stats: dict[str, Any] = field(default_factory=dict)      # PoB outputs of the final build (REPORT_KEYS)
     bench: dict[str, dict] = field(default_factory=dict)     # benchmark id -> BossResult/PackResult as dict, or {"error": ...}
     unparsed: list[str] = field(default_factory=list)        # mod ids / lines PoB could not parse (candidates rejected)
+    actor: dict[str, Any] = field(default_factory=dict)      # companion result (K2): main, companion, total, without_companion, effects, blended
 
 
 @dataclass
@@ -172,6 +175,12 @@ def _jsonable(o: Any) -> Any:
     return o
 
 
+def actor_dict(c) -> dict:
+    """actors.Combined -> JSON-safe dict for run.json / the report."""
+    return _jsonable({"main": c.main, "companion": c.companion, "total": c.total, "without_companion": c.without_companion,
+                      "blended": c.blended, "effects": [{"id": e.id, "uptime": e.uptime, "options": e.options, "source": e.source} for e in c.effects]})
+
+
 # ---- the loop ---------------------------------------------------------------------------------------------
 def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id: str | Callable[[dict], str],
         realloc_rounds: int = DEFAULT_REALLOC_ROUNDS, max_minutes: float = DEFAULT_MAX_MINUTES, force: bool = False,
@@ -182,6 +191,11 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
     from picks on a geared build; the per-tier support re-check from docs/pipeline.md is not built (see docs/orchestrator.md).
     A failed seed or tier is recorded and skipped; the rest of the run continues."""
     tiers = list(spec.tiers) or ["mid"]
+    if getattr(spec, "companion", None) is not None:
+        from . import actors
+        actors.require_available(spec.companion.kind)   # pending actor: ActorUnavailable, before any work or number
+        if not dry_run and stages.actor is None:
+            raise actors.ActorUnavailable(spec.companion.kind, ["no actor stage supplied to run()"])
     vs = variants(spec)
     est = estimate(len(vs), len(tiers), slots, workers, realloc_rounds=realloc_rounds, max_minutes=max_minutes)
     log(est.summary())
@@ -247,6 +261,11 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
             tr = TierRun(t, True, g.value, g.baseline, g.floors_met, getattr(g.price, "label", None), g.evals,
                          items, 0.0, g.xml, list(g.notes), unparsed=list(getattr(g, "rejected_unparsed", []) or []))
             tr.stats = _jsonable(stages.stats(g.xml, s.variant) if stages.stats else getattr(g, "stats", {}) or {})
+            if stages.actor is not None and getattr(spec, "companion", None) is not None:
+                try:
+                    tr.actor = actor_dict(stages.actor(g.xml, s.variant))
+                except Exception as ex:  # companion failure marks the cell; the player's numbers stand
+                    tr.actor = {"error": f"{type(ex).__name__}: {ex}"}
             for bid in bench_ids:
                 if stages.bench is None:
                     tr.bench[bid] = {"error": "no benchmark stage"}
@@ -318,11 +337,42 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                 eng.load_build_xml(xml)
                 return eng.get_stats(list(dict.fromkeys([rep.metric, *REPORT_KEYS])))["stats"]
 
+            actor = None
+            if spec.companion is not None:
+                from . import actors
+                from .assemble import assemble_companion
+                prof_opts = data.profiles()[spec.config_profile].get("options") or {}
+                mod = actors.actor(spec.companion.kind).get("model")
+                if mod != "separate_build":   # native_pob waits for 1.0 data (K4); pending raised earlier in run()
+                    actors.require_available(spec.companion.kind)
+                    raise NotImplementedError(f"actor model {mod!r} is not built")
+                cache_comp: dict[str, Any] = {}
+
+                def player_metric(xml, options):
+                    eng.load_build_xml(xml)
+                    eng.set_config(options=dict(options) or None)
+                    return float(eng.get_stats([rep.metric])["stats"][rep.metric])
+
+                def companion_metric(cxml):
+                    eng.load_build_xml(cxml)
+                    return float(eng.get_stats([rep.metric])["stats"].get(rep.metric) or 0.0)
+
+                def actor(xml, variant):
+                    if "xml" not in cache_comp:
+                        ca = assemble_companion(spec, cat, eng)
+                        if not ca.ok:
+                            raise RuntimeError("companion assembly failed: " + "; ".join(i.message for i in ca.errors))
+                        cache_comp["xml"] = ca.xml
+                    ids = [cat.resolve("skill", k.gem).entry["id"] for k in spec.companion.skills]
+                    eff = actors.effects_for(spec.companion, ids)
+                    m = actors.model_for(spec.companion.kind, player_metric=player_metric, companion_metric=companion_metric, base=prof_opts)
+                    return m.evaluate(xml, cache_comp["xml"], eff)
+
             yield Stages(
                 assemble=lambda v: assemble(spec, cat, eng, v),
                 supports=lambda xml, sk: search_supports(cat, pool, xml, sk, fixed, rep.metric, allow_triggered=allow),
                 apply_supports=apply_supports,
                 trees=lambda xmls: search_trees(xmls, rep.metric, workers=workers, require=require, caps=tuple(tree_caps or DEFAULT_CAPS)),
-                gear=gear, bench=bench, stats=stats,
+                gear=gear, bench=bench, stats=stats, actor=actor,
             ), skill_of
     return cm()

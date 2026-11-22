@@ -123,6 +123,24 @@ def assemble(spec: BuildSpec, cat: Catalogue, engine: PobEngine, variant: dict[s
     return out
 
 
+def assemble_companion(spec: BuildSpec, cat: Catalogue, engine: PobEngine) -> Assembled:
+    """Companion as its own PoB build (`separate_build`, docs/second-actor.md section 3): the player's class and level, the
+    companion's skill group, no passives or uniques. One skill group per companion until K4 sources how the actor fires."""
+    from dataclasses import replace
+    out = Assembled(variant={})
+    comp = spec.companion
+    if comp is None or not comp.skills:
+        out.issues.append(Issue("error", "companion_skills", "companion.skills", "no companion skill to assemble", [], None))
+        return out
+    if len(comp.skills) > 1:
+        out.issues.append(Issue("error", "companion_skills", "companion.skills",
+                                "separate_build assembles one companion skill group; more arrive with K4", [], None))
+        return out
+    sk = comp.skills[0]
+    sub = replace(spec, main_skill=sk.gem, supports=list(sk.supports), keystones=[], notables=[], uniques=[], axes={}, companion=None)
+    return assemble(sub, cat, engine, None)
+
+
 def _equip_unique(engine: PobEngine, e: dict, slots_used: set[str], add, path: str) -> None:
     t = engine.call("unique_text", name=e["name"], base=e.get("base"))
     if not t.get("ok"):
