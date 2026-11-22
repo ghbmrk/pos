@@ -1,0 +1,18 @@
+# Fixed PoB configuration profiles (docs/spec.md). A spec names exactly one; its canonical hash is part of the
+# result-cache key, so DPS figures are only ever compared under the same enemy/conditions.
+# `options` are applied with PobEngine.set_config(options=...); `custom_mods` as custom_mods=.
+# Only option keys exercised in pos_engine/tests are used here (enemyIsBoss: Boss | Pinnacle). Add keys after
+# checking them with PobEngine.list_config_options on the pinned PoB.
+schema_version: 1
+profiles:
+  none:
+    # G3b finding: PoB's default enemy elemental resistance is already 50% (same DPS as Pinnacle for lightning), so this
+    # profile is NOT 'unresisted'. Use enemyIsBoss: None (sets 0%) in a new profile if that is wanted.
+    description: PoB defaults (no enemyIsBoss option; PoB's default enemy resists are 50%).
+    options: {}
+  boss:
+    description: Standard boss enemy.
+    options: { enemyIsBoss: Boss }
+  pinnacle_boss:
+    description: Pinnacle boss enemy (higher resistances; the default for DPS comparisons).
+    options: { enemyIsBoss: Pinnacle }

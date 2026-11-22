@@ -19,20 +19,21 @@
 - R1 · done · ghbmrk/pos scaffolded (README, .gitignore), STATE.md moved into repo · thread "Set up the pos repo"
 - S1 · done · prior-art memo docs/prior-art.md + reuse-vs-build decision · thread "Evaluate existing PoE2 build tools" (cmsg_01RxGYnd78N9kMbbAJ5pWDhUXjKQcaEQwYS7APh7ozgeRB)
 - P1 · done (PR open) · data/tiers.yaml + pos_tiers/ (tier table, ModItem rank resolver, PriceModel/AnchorSumModel, hand-set unique bands) + .github/workflows/tests.yml; anchors empty until sampled; poe.ninja fetch (price-tiers step 4) still blocked · thread "Build gear tier tables and pricing"
+- G4 · done (PR open) · pos_pool/ engine pool (N workers, SQLite cache, restart/retry, slot_item batched fast path) + tools/bench_pool.py; 4 vCPU on 202-node no-gear build: 13.5 evals/s general path, 57.6 evals/s slot_item; docs/engine-pool.md · thread "Build parallel engine pool"
 - S3 · done · rare-item price tiers decided (docs/price-tiers.md, PR #2 merged) · thread "Plan rare-item price tiers"
 - G1 · done (PR #5) · pipeline design docs/pipeline.md · thread "Design build idea to variants pipeline" (cmsg_01RxGYnd78N9kMbbAJ5pWDhU83mMm33bteTmbpNC7yECs2)
-- G2 · startable · catalogue export from pinned PoB + resolve() (Sonnet) · see docs/pipeline.md
-- G4 · startable · engine pool + SQLite cache + large-build benchmark (Sonnet)
-- G3a · blocked on G2 · BuildSpec schema, validator, config profiles, per-skill metric (Sonnet)
-- G3b · blocked on G3a · assembler, round-trip checks incl. unparsed mods, PoB-code import (Sonnet)
-- G5 · blocked on G3b, G4 · support search (Sonnet)
-- G6 · blocked on G3b, G4 · tree stage via optimize_passives + timing benchmark (Sonnet)
-- G7 · blocked on G3b, G4 · gear search, first 3 slots (Sonnet)
-- G7b · blocked on G7 · gear search, remaining slots (Sonnet)
-- G8a · blocked on G5, G6, G7b and G4/G6 benchmarks · orchestrator + CLI (Sonnet)
+- G2 · done (PR open) · catalogue export: tools/export_catalogue.lua + pos_catalogue/ (export, Catalogue.resolve with suggestions, can_support); data/catalogue/601768b.json committed; `python -m pos_catalogue export` after any re-pin (test fails until re-exported) · thread "Build game-data catalogue export"
+- G3a · done (PR open) · pos_pipeline/: BuildSpec schema + validator (catalogue ids, support type/add_types/family, class/ascendancy, axes, tiers), data/config_profiles.yaml (+cache-key hash), data/metrics.yaml (per-skill-type metric; minion/buff skills have none), data/limitations.yaml (verified vs suspected); socket limit 5 is an unverified guess (G5 verifies); `python -m pos_pipeline validate`; docs/spec.md. G3b (assembler, unparsed-mod check, PoB import) not built · thread "Build build-spec validator"
+- G10 · done (PR open) · tools/repin.sh <pob_sha> (bump submodule, bump LuaJIT REF from PoB Dockerfile, engine tests, export catalogue, write docs/repin/<sha>.md: catalogue diff, saved-spec revalidation in specs/, tier-table checks); pos_repin/; rehearsed against PoB a82a33b; exporter now handles both generated-file shapes; Catalogue.load() prefers the pinned sha when several exist; docs/repin.md · thread "Build the 1.0 data update script"
+- G3b · done (PR open) · pos_pipeline/assemble.py (assemble, variants, import_pob, unparsed_lines) + engine methods check_build/check_item/unique_text; CLI `assemble`/`import`; socket limit 5 verified vs PoB (now a validator error); finding: config profile `none` is not unresisted (PoB default enemy res 50%); docs/assemble.md · thread "Build the build assembler"
+
+- G5 · done (PR open) · pos_pipeline/supports.py: single-swap deltas + beam over eligible supports (type/add_types/family/duplicate rules enforced here because PoB silently ignores clashes but counts them as socketed); CLI `supports`; docs/supports.md. Spark L90 no gear: 221 eligible, 370 evals, ~29 s on 4 workers; flags singles >3x baseline (Fiery Death +20x unaudited) · thread "Build next pipeline stage"
+- G6 · done (PR open) · pos_pipeline/tree.py: search_tree / search_trees wrapping optimize_passives (dedicated engine per seed, retry once, returns XML), CLI `tree`, tools/bench_tree.py; Spark Sorceress no gear 4 vCPU: 12-47 s per seed depending on candidate cap (default 200: 23 s), 4 seeds parallel 15.5 s; finding: candidates cap is non-monotonic (25 strands points, 1000 worse than 200); Fiery Death +20x audited = FullDPS artefact (triggered granted skill, TotalDPS unchanged), docs/tree.md + docs/supports.md · thread "Build passive tree search"
+- G7 · done (PR open) · pos_pipeline/gear.py: weapon/body/amulet rare search inside tier point budgets (affix options per base from ModItem.lua with first-tag spawn rule, unparsed-mod rejection via check_item, screen + beam per slot, coordinate descent, budget reallocation, floors ranked ahead of metric, hand-priced uniques via data/unique_prices.yaml (empty)); CLI `gear`; docs/gear.md. Spark L90 FullDPS mid tier 88 -> 1,651, ~3.2k submitted evals (~1.5k engine), 58 s on 4 workers: pipeline gear estimate ~3x low. Base per slot is an input. G7b (other slots) startable · thread "Build gear search"
+- G7b · startable · gear search, remaining slots (Sonnet) · docs/pipeline.md
+- G8a · blocked on G7b · orchestrator (seeds x tiers) + CLI preflight/cap; use G4/G6/G7 measured rates (gear ~3x pipeline estimate) (Sonnet)
 - G8b · blocked on G8a · report + golden e2e (Sonnet)
-- G9 · blocked on G8b · MCP server + usage guide (Sonnet; Opus reviews tool text)
-- G10 · blocked on G2, G3a; run at 1.0 (2026-12-11) · repin.sh, catalogue diff, spec revalidation (Sonnet)
+- G9 · blocked on G8b · MCP server + usage guide; NL front decided: MCP + CLI, no API key (Sonnet; Opus reviews tool text)
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.

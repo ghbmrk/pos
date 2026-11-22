@@ -1,0 +1,8 @@
+# Build rules the validator enforces beyond the catalogue's type expressions.
+schema_version: 1
+level: { min: 1, max: 100 }
+# Support slots on a socket group. Verified (G3b) against PoB-PoE2 src/Modules/CalcSetup.lua (`socketedSupportGems > 5`
+# raises socketLimitWarning; PoB only warns, the calc still runs). Lineage/ascendancy exceptions are not modelled.
+max_supports: { value: 5, verified: true }
+# Weapon-base axis values are joined with '+' for sets (wand+focus); each token is matched to a base `type` (case-insensitive).
+axes: [ascendancy, main_skill, weapon_base]

@@ -1,0 +1,18 @@
+# Known engine/model limitations surfaced as validator warnings and in reports. Hand-maintained: add entries as
+# they are found. confidence: verified = confirmed in code or a test; suspected = generic catalogue heuristic,
+# not confirmed against PoB. `match` is one of: {skill: name}, {skill_type: type}, {stat_prefix: text} (applies
+# to fixed keystone/notable stats).
+schema_version: 1
+limitations:
+  - match: { skill: Mana Tempest }
+    confidence: verified
+    note: "PoB-PoE2 does not model Mana Tempest's empower, so real DPS is higher than shown (pos_engine/pob_headless.lua UNMODELED_SKILLS)."
+  - match: { skill_type: Minion }
+    confidence: verified
+    note: "Minion damage is not read by the engine wrapper; minion builds cannot be ranked by DPS yet."
+  - match: { skill_type: Meta }
+    confidence: suspected
+    note: "Meta/triggering skills may not roll up the triggered skills' damage; verify the DPS in PoB before trusting a ranking."
+  - match: { stat_prefix: "Grants Skill:" }
+    confidence: suspected
+    note: "A fixed passive grants a skill; whether PoB models that skill's damage is unchecked."
