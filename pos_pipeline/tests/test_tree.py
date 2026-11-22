@@ -47,3 +47,15 @@ def test_parallel_seeds_and_failure_reporting(seed):
     assert out[0].points_used == out[1].points_used  # deterministic
     bad = search_trees(["<not xml"], "TotalDPS", workers=1)
     assert not bad[0].ok and bad[0].error and isinstance(bad[0], TreeSearch)
+
+
+def test_best_of_caps_keeps_highest_final(seed):
+    from pos_pipeline.tree import search_tree_caps
+    with PobEngine() as eng:
+        singles = {c: search_tree(eng, seed, "TotalDPS", points=12, candidates=c) for c in (10, 50)}
+        best = search_tree_caps(eng, seed, "TotalDPS", caps=(10, 50, 10), points=12)
+    assert best.ok
+    assert best.final == pytest.approx(max(r.final for r in singles.values()))
+    assert any(n.startswith("candidate caps: 10=") and "50=" in n for n in best.notes)  # duplicate cap run once
+    out = search_trees([seed], "TotalDPS", workers=1, caps=(10, 50), points=12)
+    assert out[0].final == pytest.approx(best.final)
