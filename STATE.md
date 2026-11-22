@@ -20,6 +20,7 @@
 - P1 · done (PR open) · data/tiers.yaml + pos_tiers/ (tier table, ModItem rank resolver, PriceModel/AnchorSumModel, hand-set unique bands) + .github/workflows/tests.yml; anchors empty until sampled; poe.ninja fetch (price-tiers step 4) still blocked · thread "Build gear tier tables and pricing"
 - G4 · done (PR open) · pos_pool/ engine pool (N workers, SQLite cache, restart/retry, slot_item batched fast path) + tools/bench_pool.py; 4 vCPU on 202-node no-gear build: 13.5 evals/s general path, 57.6 evals/s slot_item; docs/engine-pool.md · thread "Build parallel engine pool"
 - S3 · done · rare-item price tiers decided (docs/price-tiers.md, PR #2 merged) · thread "Plan rare-item price tiers"
+- G2 · done (PR open) · catalogue export: tools/export_catalogue.lua + pos_catalogue/ (export, Catalogue.resolve with suggestions, can_support); data/catalogue/601768b.json committed; `python -m pos_catalogue export` after any re-pin (test fails until re-exported) · thread "Build game-data catalogue export"
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.
