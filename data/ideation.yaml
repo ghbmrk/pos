@@ -7,6 +7,13 @@ slate:
   key_pieces: { min: 1, max: 3 }
   claims: { min: 1 }
   quote_min_chars: 12       # a quote shorter than this proves nothing
+# Slate runner (I5). Tunable by I7.
+run:
+  screen_tier: mid            # tier for the cheap screen; a brief whose highest tier is lower uses that tier instead
+  screen_realloc_rounds: 0    # gear search mode in the screen (0 = cheap)
+  screen_tree_caps: [200]     # passive-tree point caps tried in the screen
+  deepen_k: 3                 # top candidates by screen rank that get the full run at every brief tier
+  ablation_threshold: 0.10    # removing a key piece must cost at least this share of the metric to be `confirmed`
 diversity:
   min_differing_fields: 2   # of: class_asc, delivery, damage, defence, main_skill, key_pieces
   min_distinct: 3           # distinct delivery OR damage values across kept candidates, when the brief leaves them open
