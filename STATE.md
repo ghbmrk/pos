@@ -8,6 +8,7 @@
 - 2026-11-22 · Alerts thread retired; blockers go to Decisions; standing Questions thread (Opus) added · cmsg_01RxGYnd78N9kMbbAJ5pWDhUEwwmv9Me7Q9YyXKfpxtwhV
 - 2026-11-22 · PoB calcs: fork MaxWilk/poe2-build-mcp engine layer (MIT), re-pin to current PoB-PoE2 dev in a timeboxed spike first; if it breaks badly, switch to own wrapper on HeadlessWrapper.lua. Variant + price orchestration built in-house. See docs/prior-art.md · cmsg_01RxGYnd78N9kMbbAJ5pWDhUAkFQ7SB2ZY4Cm3XN5SYSps
 - 2026-11-22 · Gear price tiers: Option 4 hybrid (point budgets over mod ranks + premium weights, price-capped trade anchors, uniques via poe.ninja/bands); docs/price-tiers.md · cmsg_01RxGYnd78N9kMbbAJ5pWDhU459EKgtfBKKEj26VPNCE18
+- 2026-11-22 · Pipeline NL front: MCP server + CLI, no embedded LLM/API key (docs/pipeline.md) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUAqzfwd83TbFbqwuWojhQ3V
 
 ## Open work
 <!-- id · state · owner thread -->
@@ -19,7 +20,7 @@
 - S1 · done · prior-art memo docs/prior-art.md + reuse-vs-build decision · thread "Evaluate existing PoE2 build tools" (cmsg_01RxGYnd78N9kMbbAJ5pWDhUXjKQcaEQwYS7APh7ozgeRB)
 - P1 · done (PR open) · data/tiers.yaml + pos_tiers/ (tier table, ModItem rank resolver, PriceModel/AnchorSumModel, hand-set unique bands) + .github/workflows/tests.yml; anchors empty until sampled; poe.ninja fetch (price-tiers step 4) still blocked · thread "Build gear tier tables and pricing"
 - S3 · done · rare-item price tiers decided (docs/price-tiers.md, PR #2 merged) · thread "Plan rare-item price tiers"
-- G1 · done (PR open, NL-front card pending) · pipeline design docs/pipeline.md · thread "Design build idea to variants pipeline" (cmsg_01RxGYnd78N9kMbbAJ5pWDhU83mMm33bteTmbpNC7yECs2)
+- G1 · done (PR #5) · pipeline design docs/pipeline.md · thread "Design build idea to variants pipeline" (cmsg_01RxGYnd78N9kMbbAJ5pWDhU83mMm33bteTmbpNC7yECs2)
 - G2 · startable · catalogue export from pinned PoB + resolve() (Sonnet) · see docs/pipeline.md
 - G4 · startable · engine pool + SQLite cache + large-build benchmark (Sonnet)
 - G3a · blocked on G2 · BuildSpec schema, validator, config profiles, per-skill metric (Sonnet)
@@ -30,7 +31,7 @@
 - G7b · blocked on G7 · gear search, remaining slots (Sonnet)
 - G8a · blocked on G5, G6, G7b and G4/G6 benchmarks · orchestrator + CLI (Sonnet)
 - G8b · blocked on G8a · report + golden e2e (Sonnet)
-- G9 · blocked on G8b and NL-front decision · MCP server + usage guide (Sonnet; Opus reviews tool text)
+- G9 · blocked on G8b · MCP server + usage guide (Sonnet; Opus reviews tool text)
 - G10 · blocked on G2, G3a; run at 1.0 (2026-12-11) · repin.sh, catalogue diff, spec revalidation (Sonnet)
 
 ## Standing rules learned

@@ -1,6 +1,6 @@
 # Pipeline: build idea -> ranked variants per price tier (G1)
 
-Status: design, revised 2026-11-22 after advisor review (validation gaps, fixed config profile, tree-stage cost, task split). Builds on `docs/engine-fork.md` (engine), `docs/price-tiers.md` (tiers) and the code on `main` (`pos_engine/`, `pos_tiers/`, `data/tiers.yaml`).
+Status: decided. Design revised 2026-11-22 after advisor review (validation gaps, fixed config profile, tree-stage cost, task split). Builds on `docs/engine-fork.md` (engine), `docs/price-tiers.md` (tiers) and the code on `main` (`pos_engine/`, `pos_tiers/`, `data/tiers.yaml`).
 
 ## Principle
 
@@ -127,9 +127,9 @@ Re-pin at 1.0 (expected 2026-12-11, once PoB publishes 1.0 data), scripted as `t
 
 Specs record `pob_sha`, so old results stay reproducible against their own pin.
 
-## Decision for the owner
+## Decision
 
-**How the natural-language step runs.** Recommendation: A, MCP server + CLI, no embedded LLM.
+**How the natural-language step runs.** Decided 2026-11-22 by the owner: **A, MCP server + CLI, no embedded LLM** (cmsg_01RxGYnd78N9kMbbAJ5pWDhUAqzfwd83TbFbqwuWojhQ3V).
 
 | | A. MCP + CLI (recommended) | B. CLI with embedded Claude API calls | C. Both |
 |---|---|---|---|
