@@ -1,6 +1,6 @@
 # Benchmark content (docs/benchmarks.md, B2). Every number is {value, source} and the file carries a `patch` stamp.
 # `value: null` = not sourced: pos_pipeline.benchmarks reports the benchmark as incomplete instead of guessing.
-# B3 (2026-11-22) filled what current-patch (0.5.x, pre-1.0) poe2db game-file pages give; remaining nulls are listed in STATE.md.
+# B3 (2026-11-22) filled what current-patch (0.5.x, pre-1.0) poe2db game-file pages give; remaining nulls are listed in STATE.md. B3b (2026-11-22) filled Magic/Rare life_mult from the repoe-fork/poe2 game-data export (0.5.5.1).
 # At 1.0 re-read the same pages and replace values + patch labels (tools/repin.sh reports stale patches).
 # `ASSUMPTION` in a source marks an owner-tunable constant that is not game data.
 schema_version: 1
@@ -45,7 +45,7 @@ benchmarks:
       enemyIsBoss: Uber
       enemyLevel: null        # not sourced: PoB default for Uber is 82
     option_source: null
-    life: { value: null, source: "NOT SOURCED 2026-11-22: poe2db has no Uber Arbiter page or row (Arbiter_of_Ash_Uber fails); guides say >22M (community)" }
+    life: { value: null, source: "NOT SOURCED 2026-11-22: poe2db has no Uber Arbiter page or row (Arbiter_of_Ash_Uber fails); guides say >22M (community). B3b tried: PoB-PoE2 src/Data (Bosses.lua has armour/evasion mults only), repoe-fork/poe2 export (no monster tables; MapUberBoss_Monolith area is the same L74 pinnacle fight, MapPinnacleDifficulty map_pinnacle_boss_difficulty_+ = 0), poe2db The_Burning_Monolith (no uber row), mobalytics (qualitative tiers 0-4 only, patch 0.1.1); poe2wiki blocks automated clients" }
     uptime: { value: 0.75, source: "ASSUMPTION: as arbiter_ash" }
     hits:
       - { name: basic_attack, physical: null, fire: null, source: "NOT SOURCED 2026-11-22: no uber skill rows on poe2db; hit scaling vs the base fight unknown" }
@@ -61,8 +61,8 @@ benchmarks:
     base_life: { value: 33945, source: "PoB-PoE2 Data/Misc.lua monsterLifeTable[83] (DefaultMonsterStats.dat) at pin 601768b" }
     monsters:
       - { rarity: normal, count: { value: 40, source: "ASSUMPTION: pack size" }, life_mult: { value: 1.0, source: "definition of normal rarity" } }
-      - { rarity: magic,  count: { value: 12, source: "ASSUMPTION: pack size" }, life_mult: { value: null, source: "NOT SOURCED 2026-11-22: poe2db Monster_Rarity / Monster_Modifiers carry no life multiplier; poe2wiki blocks automated clients" } }
-      - { rarity: rare,   count: { value: 3,  source: "ASSUMPTION: pack size" }, life_mult: { value: null, source: "NOT SOURCED 2026-11-22: poe2db Monster_Rarity / Monster_Modifiers carry no life multiplier; poe2wiki blocks automated clients" } }
+      - { rarity: magic,  count: { value: 12, source: "ASSUMPTION: pack size" }, life_mult: { value: 2.48, source: "repoe-fork/poe2 data/mods.json mod MonsterMagic2: monster_life_+%_final_from_rarity = +148% (final), so x2.48; game version 0.5.5.1 (export commit 1905f2a, 2026-11-19); same table gives Unique +2800% = x29, matching the Arbiter base-life ratio above" } }
+      - { rarity: rare,   count: { value: 3,  source: "ASSUMPTION: pack size" }, life_mult: { value: 8, source: "repoe-fork/poe2 data/mods.json mod MonsterRare2: monster_life_+%_final_from_rarity = +700% (final), so x8; game version 0.5.5.1 (export commit 1905f2a, 2026-11-19); same table gives Unique +2800% = x29, matching the Arbiter base-life ratio above" } }
     spread_radius_m: { value: 6.0, source: "ASSUMPTION: pack footprint radius" }
     gates:
       clear_s_max: { value: 20, source: "ASSUMPTION: owner-tunable (proxy units)" }

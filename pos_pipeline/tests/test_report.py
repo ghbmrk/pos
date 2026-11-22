@@ -17,7 +17,7 @@ from pos_pipeline.spec import parse_spec  # noqa: E402
 GOLDEN = Path(__file__).parent / "golden" / "report.md"
 
 
-def spec(benchmarks=("arbiter_ash", "breach_t15")):
+def spec(benchmarks=("arbiter_ash", "breach_t15", "arbiter_ash_uber")):
     return parse_spec({"pob_sha": "601768b", "class": "Sorceress", "ascendancy": "Stormweaver", "level": 90,
                        "main_skill": {"gem": "Spark"}, "tiers": ["starter", "mid"], "benchmarks": list(benchmarks),
                        "axes": {"ascendancy": ["Stormweaver", "Chronomancer"]}})
@@ -96,10 +96,11 @@ def test_files_written_and_rerenderable(tmp_path):
     assert (tmp_path / "report.md").read_text() == render_markdown(load_run(tmp_path))
     c = sqlite3.connect(tmp_path / "results.sqlite")
     assert c.execute("select count(*) from tier_runs").fetchone()[0] == 4
-    assert c.execute("select count(*) from bench").fetchone()[0] == 8
+    assert c.execute("select count(*) from bench").fetchone()[0] == 12
     assert c.execute("select seed from tier_runs where tier='mid' and rank=1").fetchone()[0] == 1   # Chronomancer seed
     assert json.loads(c.execute("select result from bench where benchmark='arbiter_ash' limit 1").fetchone()[0])["patch"]
-    assert r.seeds[0].tiers["mid"].bench["breach_t15"]["complete"] is False
+    assert r.seeds[0].tiers["mid"].bench["breach_t15"]["complete"] is True
+    assert r.seeds[0].tiers["mid"].bench["arbiter_ash_uber"]["ttk_s"] is None
 
 
 def test_no_benchmarks_still_reports():
@@ -118,4 +119,4 @@ def test_end_to_end_on_engine(tmp_path):
     md = (tmp_path / "report.md").read_text()
     assert "## Tier `mid`" in md and "arbiter_ash" in md and "breach_t15" in md and "unsourced inputs" in md
     c = sqlite3.connect(tmp_path / "results.sqlite")
-    assert c.execute("select count(*) from bench").fetchone()[0] == 2
+    assert c.execute("select count(*) from bench").fetchone()[0] == 3

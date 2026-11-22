@@ -7,10 +7,10 @@
 
 ## Tier `starter`
 
-| # | variant | FullDPS | vs best | EHP | Life / ES | min res | price | floors | arbiter_ash | breach_t15 |
-|---|---|---:|---:|---:|---:|---|---|---|---|---|
-| 1 | ascendancy=Chronomancer | 1,500.0 | best | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | NOT met | TTK 3799.2s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear n/a; coverage 100% incomplete |
-| 2 | ascendancy=Stormweaver | 1,000.0 | -33.3% | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | NOT met | TTK 5698.7s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear n/a; coverage 100% incomplete |
+| # | variant | FullDPS | vs best | EHP | Life / ES | min res | price | floors | arbiter_ash | breach_t15 | arbiter_ash_uber |
+|---|---|---:|---:|---:|---:|---|---|---|---|---|---|
+| 1 | ascendancy=Chronomancer | 1,500.0 | best | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | NOT met | TTK 3799.2s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear 272.0 proxy-s FAIL; coverage 100% | TTK n/a; survival n/a (named hits unsourced); EHP 9,000 incomplete |
+| 2 | ascendancy=Stormweaver | 1,000.0 | -33.3% | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | NOT met | TTK 5698.7s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear 272.0 proxy-s FAIL; coverage 100% | TTK n/a; survival n/a (named hits unsourced); EHP 9,000 incomplete |
 
 **1. ascendancy=Chronomancer**: supports Chain, Fork; tree +50.0% (100 points); gear 10.0 -> 1,500.0 FullDPS, 700 engine evals.
   - weapon: Added Lightning r2 [Acrid Wand]
@@ -27,15 +27,18 @@ Benchmark flags:
 - arbiter_ash: FullDPS includes all-hits-landing and ailment/DoT: an upper bound
 - arbiter_ash: named hits unsourced: survival not judged, generic PoB hit shown (generic_hits_to_die)
 - breach_t15: density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1
-- breach_t15: incomplete: monsters.magic.life_mult, monsters.rare.life_mult
+- arbiter_ash_uber: ttk unavailable: life/uptime unsourced
+- arbiter_ash_uber: FullDPS includes all-hits-landing and ailment/DoT: an upper bound
+- arbiter_ash_uber: named hits unsourced: survival not judged, generic PoB hit shown (generic_hits_to_die)
+- arbiter_ash_uber: incomplete: life, hits.basic_attack.physical, hits.basic_attack.fire
 
 
 ## Tier `mid`
 
-| # | variant | FullDPS | vs best | EHP | Life / ES | min res | price | floors | arbiter_ash | breach_t15 |
-|---|---|---:|---:|---:|---:|---|---|---|---|---|
-| 1 | ascendancy=Chronomancer | 75,000.0 | best | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | met | TTK 3799.2s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear n/a; coverage 100% incomplete |
-| 2 | ascendancy=Stormweaver | 50,000.0 | -33.3% | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | met | TTK 5698.7s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear n/a; coverage 100% incomplete |
+| # | variant | FullDPS | vs best | EHP | Life / ES | min res | price | floors | arbiter_ash | breach_t15 | arbiter_ash_uber |
+|---|---|---:|---:|---:|---:|---|---|---|---|---|---|
+| 1 | ascendancy=Chronomancer | 75,000.0 | best | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | met | TTK 3799.2s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear 272.0 proxy-s FAIL; coverage 100% | TTK n/a; survival n/a (named hits unsourced); EHP 9,000 incomplete |
+| 2 | ascendancy=Stormweaver | 50,000.0 | -33.3% | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | met | TTK 5698.7s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear 272.0 proxy-s FAIL; coverage 100% | TTK n/a; survival n/a (named hits unsourced); EHP 9,000 incomplete |
 
 **1. ascendancy=Chronomancer**: supports Chain, Fork; tree +50.0% (100 points); gear 10.0 -> 75,000.0 FullDPS, 700 engine evals.
   - weapon: Added Lightning r2 [Acrid Wand]
@@ -50,7 +53,10 @@ Benchmark flags:
 - arbiter_ash: FullDPS includes all-hits-landing and ailment/DoT: an upper bound
 - arbiter_ash: named hits unsourced: survival not judged, generic PoB hit shown (generic_hits_to_die)
 - breach_t15: density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1
-- breach_t15: incomplete: monsters.magic.life_mult, monsters.rare.life_mult
+- arbiter_ash_uber: ttk unavailable: life/uptime unsourced
+- arbiter_ash_uber: FullDPS includes all-hits-landing and ailment/DoT: an upper bound
+- arbiter_ash_uber: named hits unsourced: survival not judged, generic PoB hit shown (generic_hits_to_die)
+- arbiter_ash_uber: incomplete: life, hits.basic_attack.physical, hits.basic_attack.fire
 
 
 ## Across tiers
@@ -67,8 +73,10 @@ Axis `ascendancy`: best FullDPS per value, by tier (winner in bold).
 - `arbiter_ash` (boss, patch 0.5.2): Arbiter of Ash (pinnacle).
   - ASSUMPTION constants (owner-tunable, not game data): gates.ttk_s_max, uptime
 - `breach_t15` (pack, patch 0.5.2): Breach in a tier-15+ waystone (density proxy, not real seconds).
-  - incomplete, unsourced inputs: monsters.magic.life_mult, monsters.rare.life_mult (metrics depending on them are n/a, never guessed)
   - ASSUMPTION constants (owner-tunable, not game data): gates.clear_s_max, monsters.magic.count, monsters.normal.count, monsters.rare.count, spread_radius_m
+- `arbiter_ash_uber` (boss, patch 0.5.2): Arbiter of Ash, uber (the hard setting).
+  - incomplete, unsourced inputs: life, hits.basic_attack.physical, hits.basic_attack.fire (metrics depending on them are n/a, never guessed)
+  - ASSUMPTION constants (owner-tunable, not game data): gates.ttk_s_max, uptime
 
 ## Limitations and flags
 
