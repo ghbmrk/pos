@@ -13,7 +13,7 @@ own gear, own skills and cross-actor effects. Target builds: cmsg_01RxGYnd78N9kM
 | Squire gear slots, how its skills fire, which of its stats pass to the player, how it scales | no source | unknown |
 | PoB support for Squire | no source; PoB models minions with own skills but not own gear | unknown, main risk |
 | PoB config keys a companion's output can drive on the player's calc | `list_config_options` on pinned PoB (checked here) | verified: `use/override{Power,Frenzy,Endurance}Charges`, `conditionEnemyOn{Shocked,Chilled,Scorched,Brittle,Sapped,Consecrated,Profane,Fungal}Ground`, `conditionOn{Consecrated,...}Ground`, `bannerPlanted`, `companionInPresence`, `multiplierNearbyAlly` |
-| Build 2 skill names | pinned catalogue | **Cyclone is not a PoE2 skill** (nearest: Whirling Slash, Whirling Assault). **Elemental Discharge is a PoE2 support**, but it supports Spells that Hit and consumes elemental *ailments*, not charges, and "cannot support the skills of Minions". As written, build 2 does not work on current data; re-check at 1.0 |
+| Build 2 skill names | pinned catalogue; 1.0 reveals | **Cyclone is absent from the pinned data but confirmed for 1.0** (GGG: Rogers, ExileCon 2026; it picks up blood and elemental ground; sources in docs/theorycraft-squire.md). Pre-1.0 engine stand-in: Whirling Slash. **Elemental Discharge is a PoE2 support**, but it supports Spells that Hit and consumes elemental *ailments*, not charges, and "cannot support the skills of Minions". As written, build 2 does not work on current data; re-check at 1.0 |
 
 ## Principle
 
