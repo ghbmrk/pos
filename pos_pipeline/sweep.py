@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 from pos_catalogue import Catalogue
 from pos_engine.engine import PobEngine
@@ -227,10 +227,13 @@ def sweep(cat: Catalogue, pool: EnginePool, xml: str, kind: str, metric: str = "
 # ---- ablation ----------------------------------------------------------------------------------------------
 def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapping[str, Any]], metric: str = "TotalDPS", *,
            options: Mapping[str, Any] | None = None, skill_id: str | None = None, supports: Sequence[str] | None = None,
-           threshold: float = CONFIRM_THRESHOLD, engine: PobEngine | None = None) -> list[Ablation]:
+           threshold: float = CONFIRM_THRESHOLD, engine: PobEngine | None = None,
+           replace_unique: "Callable[[str, Mapping[str, Any]], tuple[str, str]] | None" = None) -> list[Ablation]:
     """Remove each key piece ({kind, id, [slot]}) and re-measure. keystone/notable: deallocated. support: swapped for
-    the best other eligible support. unique: unequipped from `slot` (the best-rare replacement of ideation.md is
-    the slate runner's job, I5; unequipping over-states the loss, so a unique verdict is an upper bound)."""
+    the best other eligible support. unique: with `replace_unique(xml, piece) -> (new_xml, label)` the unique is swapped
+    for the best rare (the slate runner supplies it; it raises ValueError when the unique is not in the build, which
+    makes the piece `not_testable`); without it the unique is unequipped from `slot`, which over-states the loss, so
+    that verdict is an upper bound."""
     cfg = _config(options)
     [base] = _score(pool, [Job(xml, mutations=cfg, stat_keys=_keys(metric))], metric)
     if base is None:
@@ -262,13 +265,17 @@ def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapp
                 has_text = _has_text(e)
             elif kind == "unique":
                 slot = p.get("slot")
-                if slot not in SLOTS:
+                if replace_unique is not None:
+                    new_xml, res.replacement = replace_unique(xml, p)
+                    [v] = _score(pool, [Job(new_xml, mutations=cfg, stat_keys=_keys(metric))], metric)
+                elif slot not in SLOTS:
                     res.note = "unique key piece needs a `slot`"
                     out.append(res)
                     continue
-                [v] = _score(pool, [Job(xml, mutations=(*cfg, ("unequip_item", {"slot": SLOTS[slot]})), stat_keys=_keys(metric))], metric)
+                else:
+                    [v] = _score(pool, [Job(xml, mutations=(*cfg, ("unequip_item", {"slot": SLOTS[slot]})), stat_keys=_keys(metric))], metric)
+                    res.replacement = "(slot emptied)"
                 has_text = True
-                res.replacement = "(slot emptied)"
             elif kind == "support":
                 if skill_id is None:
                     res.note = "support ablation needs skill_id"

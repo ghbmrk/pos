@@ -12,3 +12,10 @@ gear_per_slot:
 gear_per_slot_few:
   realloc_0:   { core_s: 70, evals: 329, source: "G8a run, Spark L90 after supports+tree, mid, weapon+amulet, 35 s on 4 workers, 658 evals" }
   realloc_4:   { core_s: 155, evals: 1100, source: "ASSUMED: realloc_0 few-slot rate scaled by the 9-slot ratio (71/32 time, 724/213 evals); unmeasured" }
+
+# Slate runner (I5): screen runs use one tree cap (200); ablation cost per key piece.
+tree_screen:   { core_s_per_seed: 23, source: "docs/ideation.md section 4: tree ~23 s at cap 200 (Spark L90, from docs/tree.md)" }
+ablation:
+  unique:      { core_s: 70,  source: "ASSUMED: one few-slot gear search (best-rare replacement) = gear_per_slot_few.realloc_0; unmeasured" }
+  support:     { core_s: 116, source: "supports.core_s_per_seed: a swap tries every eligible support (~370 evals)" }
+  tree_node:   { core_s: 2,   source: "ASSUMED: one dealloc + one evaluation; unmeasured" }

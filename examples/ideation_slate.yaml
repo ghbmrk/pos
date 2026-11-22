@@ -1,0 +1,58 @@
+# Three-candidate slate for the slate runner (I5). Validate: python -m pos_pipeline slate validate examples/ideation_slate.yaml
+# Run: python -m pos_pipeline slate run examples/ideation_slate.yaml weapon='Acrid Wand' amulet='Lapis Amulet' --deepen-k 1 --out OUT
+# Candidates are deliberately cheap (same bases, two searched slots); the ring unique stays in the final build, so its
+# ablation exercises the best-rare replacement. Claims are quotes from catalogue text only (no numbers).
+slate: 1
+pob_sha: "601768b"
+prompt: "lightning, cold or fire caster that handles Arbiter of Ash on a mid budget"
+brief:
+  benchmarks: [arbiter_ash]
+  tiers: [mid]
+candidates:
+  - name: "Spark with cold-immune ring"
+    archetype: { defence: energy_shield }
+    spec:
+      pob_sha: "601768b"
+      class: Sorceress
+      ascendancy: Stormweaver
+      level: 90
+      main_skill: { gem: Spark }
+      tiers: [mid]
+      fixed: { uniques: ["Dream Fragments"], keystones: ["Eldritch Battery"] }
+    key_pieces: [ { kind: unique, id: "Dream Fragments" }, { kind: keystone, id: "Eldritch Battery" } ]
+    claims:
+      - text: "The ring makes the character immune to chill and freeze"
+        cites: [ { kind: unique, id: "Dream Fragments", quote: "You cannot be Chilled or Frozen" } ]
+      - text: "Mana pool takes over from the energy shield pool"
+        cites: [ { kind: keystone, id: "Eldritch Battery", quote: "Convert 100% of maximum Energy Shield to maximum Mana" } ]
+    source: llm
+  - name: "Ice Nova power charges"
+    archetype: { defence: life }
+    spec:
+      pob_sha: "601768b"
+      class: Sorceress
+      ascendancy: Stormweaver
+      level: 90
+      main_skill: { gem: Ice Nova }
+      tiers: [mid]
+      fixed: { keystones: ["Resonance"] }
+    key_pieces: [ { kind: keystone, id: "Resonance" } ]
+    claims:
+      - text: "Power charges replace frenzy charges for the caster"
+        cites: [ { kind: keystone, id: "Resonance", quote: "Gain Power Charges instead of Frenzy Charges" } ]
+    source: llm
+  - name: "Flameblast channel"
+    archetype: { defence: life }
+    spec:
+      pob_sha: "601768b"
+      class: Sorceress
+      ascendancy: Stormweaver
+      level: 90
+      main_skill: { gem: Flameblast }
+      tiers: [mid]
+      fixed: { keystones: ["Avatar of Fire"] }
+    key_pieces: [ { kind: keystone, id: "Avatar of Fire" } ]
+    claims:
+      - text: "Most damage is converted to fire"
+        cites: [ { kind: keystone, id: "Avatar of Fire", quote: "Damage Converted to Fire Damage" } ]
+    source: llm
