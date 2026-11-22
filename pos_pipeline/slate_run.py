@@ -82,11 +82,27 @@ def bench_value(b: Mapping[str, Any] | None) -> tuple[float | None, bool]:
     return b.get("clear_s"), False
 
 
-def rank_by_benchmarks(cells: Mapping[str, Mapping[str, Mapping[str, Any] | None]], bids: Sequence[str]) -> list[tuple[str, str]]:
+def artefact_flag(stats: Mapping[str, Any] | None, bench: Mapping[str, Any] | None) -> str | None:
+    """G5 audit flag for a candidate: FullDPS > OUTLIER_FACTOR x TotalDPS while a boss time-to-kill rests on FullDPS (the
+    Fiery Death pattern: a hidden trigger inflates FullDPS). Returns the note text, or None. Time-to-kill on TotalDPS is not
+    affected by FullDPS, so it is not flagged."""
+    from pos_pipeline.supports import OUTLIER_FACTOR
+    full, total = (stats or {}).get("FullDPS"), (stats or {}).get("TotalDPS")
+    if not full or not total or full <= OUTLIER_FACTOR * total:
+        return None
+    if not any(isinstance(b, Mapping) and b.get("dps_metric") == "FullDPS" and "ttk_s" in b for b in (bench or {}).values()):
+        return None
+    return f"ARTEFACT AUDIT: FullDPS {full:,.0f} > {OUTLIER_FACTOR:g}x TotalDPS {total:,.0f}; time-to-kill rests on FullDPS, ranked after unflagged candidates"
+
+
+def rank_by_benchmarks(cells: Mapping[str, Mapping[str, Mapping[str, Any] | None]], bids: Sequence[str],
+                       audit: Mapping[str, str] | None = None) -> list[tuple[str, str]]:
     """`cells[name][bid]` -> [(name, note)] best first. Per benchmark the candidates with a value are ordered by
     (survival-failed last, value, name) and given positions; a candidate's score is (benchmarks available, mean position),
     so a candidate missing a benchmark ranks after one that has it, with the gap stated in the note. Ties and the
-    no-benchmark-available group are ordered by name, so the output is deterministic."""
+    no-benchmark-available group are ordered by name, so the output is deterministic. `audit[name]` (from `artefact_flag`)
+    puts a candidate after every unflagged one and states the reason in its note."""
+    audit = audit or {}
     names = list(cells)
     pos: dict[str, dict[str, int]] = {n: {} for n in names}
     dies: dict[str, list[str]] = {n: [] for n in names}
@@ -102,7 +118,7 @@ def rank_by_benchmarks(cells: Mapping[str, Mapping[str, Mapping[str, Any] | None
             pos[n][bid] = i
     def key(n: str):
         p = pos[n]
-        return (-len(p), (sum(p.values()) / len(p)) if p else 0.0, n)
+        return (n in audit, -len(p), (sum(p.values()) / len(p)) if p else 0.0, n)
     out = []
     for n in sorted(names, key=key):
         missing = [b for b in bids if b not in pos[n]]
@@ -111,8 +127,14 @@ def rank_by_benchmarks(cells: Mapping[str, Mapping[str, Mapping[str, Any] | None
             note.append("no value for " + ", ".join(missing))
         if dies[n]:
             note.append("survival check FAILED on " + ", ".join(dies[n]))
+        if n in audit:
+            note.append(audit[n])
         out.append((n, "; ".join(note)))
     return out
+
+
+def _audit(tier_runs: Mapping[str, Mapping[str, Any]]) -> dict[str, str]:
+    return {n: f for n, tr in tier_runs.items() if (f := artefact_flag(tr.get("stats"), tr.get("bench")))}
 
 
 def best_run(res: RunResult | dict, tier: str) -> dict | None:
@@ -226,7 +248,8 @@ def run_slate(slate: Slate, rep: SlateReport, runner: CandidateRunner, *, k: int
         log(f"screen {c.name}: done")
 
     ok = [c for c in out.candidates if c.status == "screened"]
-    order = rank_by_benchmarks({c.name: c.screen["tier_run"].get("bench") or {} for c in ok}, bids)
+    order = rank_by_benchmarks({c.name: c.screen["tier_run"].get("bench") or {} for c in ok}, bids,
+                               _audit({c.name: c.screen["tier_run"] for c in ok}))
     for n, (name, note) in enumerate(order, 1):
         runs[name].screen_rank, runs[name].rank_note = n, note
     top = [name for name, _ in order[:k]]
@@ -244,8 +267,9 @@ def run_slate(slate: Slate, rep: SlateReport, runner: CandidateRunner, *, k: int
         cr.deep = {t: b for t in tiers if (b := best_run(res, t))}
         log(f"deepen {name}: done")
     for t in slate.brief.get("tiers") or [tier]:
-        have = {c.name: c.deep[t]["tier_run"].get("bench") or {} for c in out.candidates if c.deep and t in c.deep}
-        for n, (name, _) in enumerate(rank_by_benchmarks(have, bids), 1):
+        runs_t = {c.name: c.deep[t]["tier_run"] for c in out.candidates if c.deep and t in c.deep}
+        have = {n: r.get("bench") or {} for n, r in runs_t.items()}
+        for n, (name, _) in enumerate(rank_by_benchmarks(have, bids, _audit(runs_t)), 1):
             runs[name].deep_rank[t] = n
     out.notes.append("ranking basis: benchmark metrics only (boss time-to-kill with its survival check, pack clear proxy); a candidate "
                      "missing a benchmark value ranks after those that have it. Per-skill DPS is shown but never ranks across archetypes.")
