@@ -91,6 +91,7 @@ for gid, g in pairs(gems) do
     weapon = g.weaponRequirements,
   }
   if s then
+    e.description = s.description
     e.skill_types = typeNames(s.skillTypes and (function()
       local l = {}; for id in pairs(s.skillTypes) do l[#l + 1] = id end; table.sort(l); return l end)())
     if isSupport then
@@ -127,7 +128,50 @@ end
 baseFiles:close()
 table.sort(bases, function(a, b) return a.name < b.name end)
 
--- Uniques: text blocks, line 1 = name, line 2 = base type. Slot comes from the file name.
+-- Uniques: text blocks, line 1 = name, line 2 = base type, then header lines (Variant:, Implicits: N, ...), then mod lines.
+-- Mod lines may carry `{variant:1,2}`, `{tags:...}`, `{range:..}` etc. prefixes; `{variant:}` is kept as `variants`, the rest dropped.
+local HEADERS = { "Variant", "Implicits", "League", "Source", "Version", "Sockets", "Limited to", "Selected Variant",
+  "Selected Alt Variant", "Has Alt Variant", "Radius", "Right ring slot", "Left ring slot", "Crafted", "Allow Duplicate Variants" }
+local function isHeader(line)
+  local key = line:match("^([%a ]+):")
+  if not key then return false end
+  key = key:gsub(" Two$", ""):gsub(" Three$", "")
+  for _, h in ipairs(HEADERS) do if key == h then return true end end
+  return false
+end
+local function parseUnique(block)
+  local rows = {}
+  for line in (block .. "\n"):gmatch("([^\n]*)\n") do
+    line = line:gsub("\r$", "")
+    if line:match("%S") then rows[#rows + 1] = line:gsub("^%s+", "") end
+  end
+  if #rows < 2 then return nil end
+  local u = { name = rows[1], base = rows[2] }
+  local variants, lines, nImplicit = {}, {}, 0
+  for i = 3, #rows do
+    local line = rows[i]
+    local n = line:match("^Implicits:%s*(%d+)")
+    if n then nImplicit = tonumber(n)
+    elseif line:match("^Requires Level%s+%d+") then u.req_level = tonumber(line:match("%d+"))
+    elseif line:match("^Variant:") then variants[#variants + 1] = line:match("^Variant:%s*(.-)%s*$")
+    elseif not isHeader(line) then
+      local vs
+      while true do
+        local tag = line:match("^(%b{})")
+        if not tag then break end
+        local v = tag:match("^{variant:([%d,]+)}$")
+        if v then vs = {}; for d in v:gmatch("%d+") do vs[#vs + 1] = tonumber(d) end end
+        line = line:sub(#tag + 1)
+      end
+      lines[#lines + 1] = { text = line, variants = vs }
+    end
+  end
+  -- implicits are the first N mod lines
+  for i, l in ipairs(lines) do if i <= nImplicit then l.implicit = true end end
+  if #variants > 0 then u.variants = variants end
+  u.lines = lines
+  return u
+end
 local uniques = {}
 local uf = io.popen('ls "' .. src .. '/Data/Uniques"')
 for fn in uf:lines() do
@@ -135,8 +179,8 @@ for fn in uf:lines() do
   if slot then
     local list = dofile(src .. "/Data/Uniques/" .. fn)
     for _, block in ipairs(list) do
-      local name, base = block:match("^%s*([^\n]+)\n([^\n]+)")
-      if name then uniques[#uniques + 1] = { name = name, base = base, file = slot } end
+      local u = parseUnique(block)
+      if u then u.file = slot; uniques[#uniques + 1] = u end
     end
   end
 end

@@ -92,7 +92,7 @@ def real():
 
 def test_committed_catalogue_shape(real):
     d = real.data
-    assert d["pob_sha"].startswith("601768b") and d["schema"] == 1
+    assert d["pob_sha"].startswith("601768b") and d["schema"] == 2
     assert len(d["skills"]) > 300 and len(d["supports"]) > 500 and len(d["bases"]) > 1000
     assert len(d["classes"]) == 8 and len(d["keystones"]) > 20 and len(d["notables"]) > 1000
     assert all(s["skill_types"] for s in d["skills"] if not s.get("no_skill_data"))
@@ -119,3 +119,58 @@ def test_committed_catalogue_matches_pinned_pob(tmp_path, real):
     assert committed.exists(), "PoB pin moved: re-export the catalogue (tools/repin.sh does this)"
     path = export_catalogue(out_dir=tmp_path)
     assert path.read_text(encoding="utf-8") == committed.read_text(encoding="utf-8")
+
+
+# --- ideation queries (I2) ---------------------------------------------------------------------
+
+def test_committed_catalogue_has_text(real):
+    d = real.data
+    assert sum(1 for g in d["skills"] + d["supports"] if g.get("description")) > 900
+    assert all("lines" in u for u in d["uniques"])
+    assert sum(1 for u in d["uniques"] if u["lines"]) >= len(d["uniques"]) - 5
+    for u in d["uniques"]:  # header lines never leak into mod text
+        assert not any(l["text"].startswith(("Variant:", "Implicits:", "Requires Level", "League:", "Source:", "{")) for l in u["lines"])
+
+
+def test_unique_variant_lines_use_newest_variant(real):
+    ch = real.explain("unique", "Carnage Heart")
+    assert "(100-200)% increased amount of Life Leeched" in ch["text"]
+    assert "100% increased amount of Life Leeched" not in ch["text"]
+    assert ch["variants"][-1] == "Current" and ch["implicit_count"] == 1
+    assert any(l.get("variants") == [1] for l in ch["all_lines"])  # old variants stay available
+
+
+def test_explain_kinds(real):
+    s = real.explain("support", "SupportAbidingHexPlayer")
+    assert "Curse" in s["text"][0] and s["require_types"] == ["AppliesCurse"]
+    k = real.explain("keystone", "Ancestral Bond")
+    assert "Your Totem Limit is doubled" in k["text"]
+    with pytest.raises(KeyError):
+        real.explain("keystone", "Nope")
+
+
+def test_search_filters(real):
+    hits = real.search("support", skill_types=["AppliesCurse"], limit=5)
+    assert hits and all("AppliesCurse" in h["require_types"] for h in hits)
+    assert all(n["ascendancy"] == "Invoker" for n in real.search("notable", ascendancy="Invoker"))
+    assert real.search("unique", text="freeze buildup lightning damage converted")
+    assert real.search("keystone", text="totem")
+    assert real.search("support", text="zzzzqq") == []
+    assert real.search("skill", tags=["spell"], limit=3)
+
+
+def test_word_start_matching():
+    c = Catalogue({"pob_sha": "0" * 40, "classes": [], "ascendancies": [], "skills": [], "supports": [], "uniques": [],
+                   "bases": [], "keystones": [{"name": "A", "node": 1, "stats": ["Fireball is hot", "Misfire is not"]}], "notables": []})
+    assert c.search("keystone", text="fire")
+    assert c.search("keystone", text="hot fire")
+    assert not c.search("keystone", text="ire")
+
+
+def test_enablers_and_bridges(real):
+    e = real.enablers("Totem")
+    assert e["keystones"] and e["notables"] and set(e) == {"supports_adding", "keystones", "notables", "uniques"}
+    assert any("Freeze" in " ".join(real_text) for real_text in
+               [[l["text"] for l in u["lines"]] for u in real.bridges("Freeze", "Lightning")["uniques"]])
+    b = real.bridges("Armour", "Energy Shield", limit=3)
+    assert all(len(v) <= 3 for v in b.values())
