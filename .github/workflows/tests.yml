@@ -15,4 +15,4 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - run: bash tools/build_luajit.sh
-      - run: pytest pos_tiers pos_engine/tests -q
+      - run: pytest pos_tiers pos_pool pos_engine/tests -q
