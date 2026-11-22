@@ -115,6 +115,8 @@ def _gear(path: str, tier: str, base_args: list[str], workers: int = 2) -> int:
     from .gear import SLOTS, search_gear
 
     bases = dict(a.split("=", 1) for a in base_args)
+    if "ring" in bases:                       # one base for both rings
+        bases.setdefault("ring_1", bases["ring"]); bases.setdefault("ring_2", bases.pop("ring"))
     spec = load_spec(path)
     cat = Catalogue.load(pob_sha=spec.pob_sha)
     rep = validate(spec, cat)

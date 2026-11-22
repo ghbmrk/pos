@@ -113,3 +113,46 @@ def test_priced_unique_is_considered_within_budget(cat, pool, eng, seed):
     assert u.points == g.t.raw["unique_bands"]["cheap"]["points"]
     assert g._best_unique(seed, "amulet", budget=1) == (None, None)     # band costs more than the budget
     assert g._best_unique(seed, "weapon", budget=None) == (None, None)  # not a weapon
+
+
+ALL_BASES = {**BASES, "ring_1": "Emerald Ring", "ring_2": "Emerald Ring", "helmet": "Ancestral Tiara",
+             "gloves": "Adherent Cuffs", "boots": "Adherent Leggings", "belt": "Heavy Belt"}
+
+
+def test_slot_budgets_split_rings_and_sum_to_allocation(cat, pool, eng):
+    g = GearSearcher(cat, pool, eng, unique_prices={})
+    from pos_pipeline.gear import SLOTS
+    b = {s: g.slot_budget("mid", s) for s in SLOTS}
+    assert b["ring_1"] == b["ring_2"] == pytest.approx(g.t.slot_budget("mid", "ring") / 2)
+    assert sum(b.values()) == pytest.approx(g.t.budget("mid"))          # allocation sums to 1
+    assert g.slot_budget("mirror", "ring_1") is None
+
+
+def test_slot_of_base_covers_all_slots(cat, pool, eng):
+    from pos_pipeline.gear import kind_of
+    g = GearSearcher(cat, pool, eng, unique_prices={})
+    for s, base in ALL_BASES.items():
+        assert g._slot_of_base(base) == kind_of(s), s
+    assert g._slot_of_base("Emerald Ring") != "amulet"
+
+
+def test_standard_floor_stat_keys_exist(cat, pool, eng, seed):
+    from pos_pipeline.gear import STANDARD_FLOORS
+    g = GearSearcher(cat, pool, eng, metric="FullDPS", floors=STANDARD_FLOORS, unique_prices={})
+    st = g.stats(seed)
+    for k in g.floors.keys:     # PoB omits a Req* stat when the requirement is 0; _Floors reads that as 0
+        assert k in st or k.startswith("Req"), k
+    assert st["ReqInt"] > 0 and g.floors.deficit(st) > 0
+
+
+@pytest.mark.parametrize("slot", ["ring_1", "helmet", "gloves", "boots", "belt"])
+def test_new_slot_item_is_legal(cat, pool, eng, seed, slot):
+    g = GearSearcher(cat, pool, eng, metric="FullDPS", floors={"FireResist": -20}, shortlist=4, unique_prices={})
+    opts = g.affix_options(ALL_BASES[slot])
+    assert opts, f"no spawnable parsed affixes for {ALL_BASES[slot]}"
+    budget = g.slot_budget("mid", slot)
+    ch, obj = g.best_item(seed, slot, ALL_BASES[slot], budget, opts)
+    assert obj is not None and ch.points <= budget + 1e-9
+    assert len({a.group for a in ch.affixes}) == len(ch.affixes)
+    assert eng.call("check_item", raw=ch.raw)["unparsed"] == []
+    assert g.equip(seed, slot, ch.raw)       # engine accepts it in that slot (Ring 1 etc.)

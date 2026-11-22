@@ -1,16 +1,21 @@
-# Gear search (G7): weapon, body armour, amulet
+# Gear search (G7, G7b): all slots
 
-`pos_pipeline/gear.py`; pipeline stage 3, gear row (docs/pipeline.md). G7b extends it to the other slots.
+`pos_pipeline/gear.py`; pipeline stage 3, gear row (docs/pipeline.md). G7 built weapon, body armour and amulet; G7b added both rings, helmet, gloves, boots and belt.
 
 ## API
 - `GearSearcher(cat, pool, engine, metric=..., floors=..., shortlist=8, beam=2, roll=0.5, item_level=82, unique_prices=...)`
-  `.search(seed_xml, tier, bases, slots=("weapon","body_armour","amulet"), passes=2, realloc_rounds=4) -> GearSearch`.
+  `.search(seed_xml, tier, bases, slots=<all of SLOTS>, passes=2, realloc_rounds=4) -> GearSearch`.
   `search_gear(...)` wraps both.
 - `bases`: base type per slot (catalogue name, e.g. `{"weapon": "Acrid Wand"}`). Required: the weapon base is the
   spec's `weapon_base` axis (deferred to gear by the assembler), and body/amulet bases are a caller choice.
 - `GearSearch`: chosen item per slot (affixes as group, pricing rank, mod id, points; or a unique and its band),
   final slot budgets, baseline (unmodded bases) and final metric, floor deficit, final stats and build XML,
   `PriceModel` estimate, eval counts, rejected (unparsed) mod ids, notes.
+- Slots (`SLOTS`): `weapon, body_armour, amulet, ring_1, ring_2, helmet, gloves, boots, belt`. The tier table has one
+  `ring` allocation "per build, split over both rings", so each ring slot gets half (`GearSearcher.slot_budget`). Pricing
+  treats each ring as a `ring` item. `ring=Base` on the CLI sets both rings. Uniques are one per name across slots.
+- `STANDARD_FLOORS`: resistance caps 75 and `Str/Dex/Int` vs `Req*`, for a build with every slot searched. PoB omits a
+  `Req*` stat when the requirement is 0; floors read that as 0. Off-hand/second weapon is not searched.
 - CLI: `python -m pos_pipeline gear spec.yaml TIER weapon="Acrid Wand" amulet="Absent Amulet" body_armour="Abyssal Cuirass"`.
 
 ## Method
@@ -46,6 +51,22 @@ About 1,000-1,500 engine evaluations per seed x tier for three slots; reallocati
 estimate (600-900 for all eight slots) is about 3x low; G8a should budget roughly 500 per slot before G7b tunes
 `shortlist`, `beam` and `realloc_rounds`.
 
+## G7b measurement (4 vCPU, same Spark seed, FullDPS, `STANDARD_FLOORS`, all 9 slots)
+
+| Tier | Realloc rounds | FullDPS | Submitted evals (cache hits) | Time | Floors |
+|---|---|---|---|---|---|
+| mid | 0 | 88 -> 865 | 1,920 (91) | 71 s | met |
+| mid | 4 | 88 -> 1,045 | 6,517 (1,924) | 159 s | met |
+| budget | 4 | 88 -> 509 | 5,013 (1,361) | 148 s | met |
+
+About 210 engine evals per slot for descent alone and about 510 per slot with reallocation (4,600 engine evals for 9
+slots), so the ~500 evals/slot planning figure holds for G8a. Reallocation costs 2 x slots `best_item` calls per round and
+bought +21% FullDPS at mid, so it stays on by default; `realloc_rounds=0` is the cheap mode (about a third of the evals).
+Reallocation moved only one step in each run (the rounds stop at the first non-improving move). Defaults for `shortlist`,
+`beam`, `passes` were not changed: no run showed a failure mode that tuning would fix.
+In these runs the floors were met at both tiers; with floors on, resistance and attribute affixes take most non-weapon
+points, boots and belt took almost nothing (a DPS metric gives movement speed and life no value).
+
 ## Known weaknesses (judgement)
 - Screening scores each group alone, so a group worth nothing alone but much in combination (crit multiplier with
   no crit chance) is dropped. Same order-sensitivity as the rest of the coordinate descent (docs/pipeline.md).
@@ -55,4 +76,5 @@ estimate (600-900 for all eight slots) is about 3x low; G8a should budget roughl
 - `item_level` 82 and `roll` 0.5 are assumptions; implicit values use the same roll.
 - Mod families beyond `group` (e.g. two "+level" mods of different groups on one wand) are not restricted; PoB data
   has no family field in the dump, unverified whether the game forbids such pairs.
+- Rings share one allocation and are searched independently, so two rings may end up with different budgets after reallocation.
 - Uniques are only considered when hand-priced in `data/unique_prices.yaml` (empty today).
