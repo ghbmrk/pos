@@ -92,22 +92,53 @@ def search_tree(
     )
 
 
+DEFAULT_CAPS = (100, 200, 400)
+
+
+def search_tree_caps(
+    engine: PobEngine,
+    xml: str,
+    metric: str = "TotalDPS",
+    *,
+    caps: Sequence[int] = DEFAULT_CAPS,
+    **kw: Any,
+) -> TreeSearch:
+    """`search_tree` once per candidate cap on the same engine; keep the best final `metric`.
+
+    The greedy is non-monotonic in `candidates` (docs/tree.md), so one cap can be far from best. Each run reloads
+    `xml`, so runs are independent. Weighted `goals` have no scalar value to compare: the first cap is kept.
+    The winner's notes list every cap's result; if all runs fail the last error is returned."""
+    runs = [(c, search_tree(engine, xml, metric, candidates=c, **kw)) for c in dict.fromkeys(caps)]
+    ok = [(c, r) for c, r in runs if r.ok]
+    if not ok:
+        return runs[-1][1]
+    if kw.get("goals"):
+        c, best = ok[0]
+    else:
+        c, best = max(ok, key=lambda t: float("-inf") if t[1].final is None else t[1].final)
+    best.seconds = sum(r.seconds for _, r in runs)
+    best.notes = [*best.notes, "candidate caps: " + ", ".join(
+        f"{k}={'FAILED' if not r.ok else r.final}" for k, r in runs) + f"; kept {c}"]
+    return best
+
+
 def search_trees(
     xmls: Sequence[str],
     metric: str = "TotalDPS",
     *,
     workers: int | None = None,
     engine_factory: Callable[[], PobEngine] = PobEngine,
+    caps: Sequence[int] | None = None,
     **kw: Any,
 ) -> list[TreeSearch]:
-    """One tree search per seed XML, `workers` at a time, each on its own engine (recycled after the call
+    """One tree search per seed XML (with `caps`: best of several candidate caps, `search_tree_caps`), `workers` at a time, each on its own engine (recycled after the call
     because `load_build_xml` leaks engine memory, docs/engine-pool.md). A failed seed is retried once on a
     fresh engine; a second failure is returned with `error` set."""
     def one(x: str) -> TreeSearch:
         r = None
         for _ in (1, 2):
             with engine_factory() as eng:
-                r = search_tree(eng, x, metric, **kw)
+                r = search_tree_caps(eng, x, metric, caps=caps, **kw) if caps else search_tree(eng, x, metric, **kw)
             if r.ok:
                 break
         return r  # type: ignore[return-value]

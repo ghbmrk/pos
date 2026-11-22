@@ -19,6 +19,6 @@ Defaults: `reset=True` (re-plan regular nodes from scratch so `require`d nodes f
 
 ## Findings (judgement from the table)
 - The `candidates` cap picks the nearest nodes by path distance, so a small cap strands points (25: 79 unspent, 630 DPS) and a huge cap lets the greedy buy expensive nodes early and finish worse (1000: 2048 DPS). Quality is non-monotonic; 200 is the default (best DPS-per-second knee here), 400 for a final pass.
-- The greedy is order-dependent and a local optimum. Mitigation if reports show it matters: run 2-3 candidate caps per seed and keep the best (they are cheap in parallel).
+- The greedy is order-dependent and a local optimum. Mitigation (implemented): `search_tree_caps` / `search_trees(..., caps=...)` runs each cap (`DEFAULT_CAPS` = 100/200/400) on the seed's engine and keeps the best final metric; notes list every cap's result. Cost is the sum of the runs (~75 s on the Spark L100 bench). The CLI uses the caps unless an explicit `[candidates]` is given.
 - Metric must be a `mainOutput` key; for triggered/granted-skill supports `FullDPS` is inflated (see `docs/supports.md`, Fiery Death audit).
 - Jewels, weapon-set points and ascendancy ordering are as in the engine; not modelled here.

@@ -3,7 +3,7 @@ import sys
 
 from pos_catalogue import Catalogue
 
-from . import SpecError, load_spec, validate
+from . import SpecError, data, load_spec, validate
 
 
 def _print_issues(issues) -> None:
@@ -54,6 +54,7 @@ def _supports(path: str, workers: int) -> int:
     if not rep.ok:
         print(f"{len(rep.errors)} validation error(s); not searching")
         return 1
+    allow = [cat.resolve("support", n).entry["id"] for n in data.profiles()[spec.config_profile].get("allow_triggered") or []]
     with PobEngine() as eng, EnginePool(workers=workers) as pool:
         for v in variants(spec):
             a = assemble(spec, cat, eng, v)
@@ -62,7 +63,7 @@ def _supports(path: str, workers: int) -> int:
                 continue
             skill = cat.resolve("skill", v.get("main_skill", spec.main_skill)).entry
             fixed = [cat.resolve("support", s).entry["id"] for s in spec.supports]
-            r = search_supports(cat, pool, a.xml, skill["id"], fixed, rep.metric)
+            r = search_supports(cat, pool, a.xml, skill["id"], fixed, rep.metric, allow_triggered=allow)
             names = lambda ids: ", ".join(cat.get("support", i)["name"] for i in ids) or "(none)"  # noqa: E731
             print(f"variant {v or '(none)'}: {r.metric} {r.baseline.value:.1f} -> {r.best.value:.1f} ({r.gain:+.1%}); "
                   f"supports: {names(r.best.supports)}; {r.evals} evals ({r.cached} cached, {r.failures} failed)")
@@ -75,7 +76,7 @@ def _tree(path: str, workers: int, candidates: int) -> int:
     from pos_engine.engine import PobEngine
 
     from .assemble import assemble, variants
-    from .tree import search_trees
+    from .tree import DEFAULT_CAPS, search_trees
 
     spec = load_spec(path)
     cat = Catalogue.load(pob_sha=spec.pob_sha)
@@ -93,7 +94,8 @@ def _tree(path: str, workers: int, candidates: int) -> int:
             else:
                 print(f"variant {v or '(none)'}: seed FAILED"); _print_issues(a.issues)
     require = list(spec.keystones) + list(spec.notables)
-    out = search_trees([x for _, x in seeds], rep.metric, workers=workers, candidates=candidates, require=require)
+    out = search_trees([x for _, x in seeds], rep.metric, workers=workers, require=require,
+                       **({"candidates": candidates} if candidates else {"caps": DEFAULT_CAPS}))
     bad = 0
     for (v, _), r in zip(seeds, out):
         if not r.ok:
@@ -167,13 +169,13 @@ def main(argv: list[str]) -> int:
     if len(argv) >= 2 and argv[0] == "supports":
         return _supports(argv[1], int(argv[2]) if len(argv) > 2 else 2)
     if len(argv) >= 2 and argv[0] == "tree":
-        return _tree(argv[1], int(argv[2]) if len(argv) > 2 else 2, int(argv[3]) if len(argv) > 3 else 200)
+        return _tree(argv[1], int(argv[2]) if len(argv) > 2 else 2, int(argv[3]) if len(argv) > 3 else 0)
     if len(argv) >= 3 and argv[0] == "gear":
         return _gear(argv[1], argv[2], [a for a in argv[3:] if "=" in a])
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates] | gear spec.yaml TIER slot=Base... | import code.pobcode")
+        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode")
         return 2
     try:
         spec = load_spec(argv[1])

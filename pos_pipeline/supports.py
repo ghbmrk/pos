@@ -8,7 +8,7 @@ still counting it as socketed (measured, docs/supports.md): such a candidate wou
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Sequence
+from typing import Any, Collection, Sequence
 
 from pos_catalogue import Catalogue
 from pos_catalogue.catalogue import can_support
@@ -82,10 +82,19 @@ def compatible(skill: dict, chosen: Sequence[dict]) -> bool:
     return effective_types(skill, chosen) is not None
 
 
-def eligible(cat: Catalogue, skill: dict, fixed: Sequence[dict]) -> list[dict]:
-    """Supports that may join `fixed` on `skill` (fixed ones excluded)."""
+def is_triggered(entry: dict) -> bool:
+    """True for supports that grant a triggered skill (catalogue tag `Trigger`). PoB adds such a skill to
+    `FullDPS` without any trigger-rate or condition scaling (docs/supports.md, Fiery Death audit)."""
+    return "Trigger" in [t.strip() for t in (entry.get("tags") or "").split(",")]
+
+
+def eligible(cat: Catalogue, skill: dict, fixed: Sequence[dict], allow_triggered: Collection[str] | None = None) -> list[dict]:
+    """Supports that may join `fixed` on `skill` (fixed ones excluded). Triggered-skill supports are left out
+    unless their id is in `allow_triggered` (the config profile sets their trigger condition); `None` = no gate."""
     fixed_ids = {e["id"] for e in fixed}
-    return [s for s in cat.entries("support") if s["id"] not in fixed_ids and compatible(skill, [*fixed, s])]
+    return [s for s in cat.entries("support")
+            if s["id"] not in fixed_ids and compatible(skill, [*fixed, s])
+            and (allow_triggered is None or not is_triggered(s) or s["id"] in allow_triggered)]
 
 
 def _job(cat: Catalogue, skill: dict, ids: Sequence[str], keys: tuple[str, ...], xml: str) -> Job:
@@ -104,12 +113,14 @@ def search_supports(
     beam: int = DEFAULT_BEAM,
     top: int = DEFAULT_TOP,
     extra_keys: Sequence[str] = (),
+    allow_triggered: Collection[str] | None = (),
 ) -> SupportSearch:
     """Best support set for `skill_id` in seed build `xml`, maximising `metric` (a PoB stat key).
 
     `fixed` supports always stay (spec `fixed.supports`); the search fills the remaining slots
     (`slots` default: `data/rules.yaml` max_supports). Everything is scored by the pool, so results are cached.
-    Set order is irrelevant to the score (sets are deduplicated as unordered).
+    Triggered-skill supports (tag `Trigger`) are excluded unless listed in `allow_triggered` (support ids whose
+    trigger condition the config profile sets); pass `None` to disable the gate. Set order is irrelevant to the score (sets are deduplicated as unordered).
     """
     skill = cat.get("skill", skill_id)
     fixed_e = [cat.get("support", i) for i in fixed]
@@ -143,7 +154,13 @@ def search_supports(
     if free == 0:
         return _finish(out, stats)
 
-    cands = eligible(cat, skill, fixed_e)
+    cands = eligible(cat, skill, fixed_e, allow_triggered)
+    if allow_triggered is not None:
+        ids = {c["id"] for c in cands}
+        gated = [e["name"] for e in eligible(cat, skill, fixed_e) if e["id"] not in ids]
+        if gated:
+            out.notes.append(f"{len(gated)} triggered-skill support(s) gated out (profile sets no trigger condition): "
+                             + ", ".join(sorted(gated)))
     singles = score([(*fixed_t, c["id"]) for c in cands])
     eps = MIN_GAIN * max(1.0, abs(base.value))
     out.singles = sorted(((s.supports[-1], None if s.value is None else s.value - base.value) for s in singles),
