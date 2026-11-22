@@ -12,9 +12,24 @@ class SpecError(ValueError):
     """Structural problem (wrong type, unknown key). Game-data problems are Issues from validate()."""
 
 
-_TOP = {"pob_sha", "class", "ascendancy", "level", "main_skill", "fixed", "axes", "tiers", "config_profile", "objective", "benchmarks"}
+_TOP = {"pob_sha", "class", "ascendancy", "level", "main_skill", "fixed", "axes", "tiers", "config_profile", "objective", "benchmarks", "companion"}
 _FIXED = {"keystones", "notables", "uniques", "supports"}
 _OBJ = {"maximise", "floors"}
+_COMP = {"kind", "skills", "gear"}
+
+
+@dataclass
+class CompanionSkill:
+    gem: str
+    supports: list[str] = field(default_factory=list)
+
+
+@dataclass
+class Companion:
+    """Second actor (docs/second-actor.md): its own skills and gear bases. Effects come from data/actors.yaml."""
+    kind: str
+    skills: list[CompanionSkill] = field(default_factory=list)
+    gear: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -34,6 +49,7 @@ class BuildSpec:
     benchmarks: list[str] = field(default_factory=list)   # ids from data/benchmarks.yaml, scored per tier (B4)
     maximise: str = "auto"
     floors: dict[str, Any] = field(default_factory=lambda: {"resist_capped": True})
+    companion: Companion | None = None
 
 
 def _only(d: Any, allowed: set[str], where: str) -> dict:
@@ -51,6 +67,27 @@ def _strs(v: Any, where: str) -> list[str]:
     if not isinstance(v, list) or not all(isinstance(x, str) and x for x in v):
         raise SpecError(f"{where} must be a list of non-empty strings")
     return list(v)
+
+
+def _companion(v: Any) -> Companion | None:
+    if v is None:
+        return None
+    c = _only(v, _COMP, "companion")
+    if not isinstance(c.get("kind"), str) or not c["kind"]:
+        raise SpecError("companion.kind must be a non-empty string")
+    skills_raw = c.get("skills") or []
+    if not isinstance(skills_raw, list):
+        raise SpecError("companion.skills must be a list")
+    skills = []
+    for i, sk in enumerate(skills_raw):
+        sk = _only(sk, {"gem", "supports"}, f"companion.skills[{i}]")
+        if not isinstance(sk.get("gem"), str) or not sk["gem"]:
+            raise SpecError(f"companion.skills[{i}].gem must be a non-empty string")
+        skills.append(CompanionSkill(sk["gem"], _strs(sk.get("supports"), f"companion.skills[{i}].supports")))
+    gear = c.get("gear") or {}
+    if not isinstance(gear, dict) or not all(isinstance(k, str) and isinstance(b, str) and b for k, b in gear.items()):
+        raise SpecError("companion.gear must be a mapping of slot -> base name")
+    return Companion(c["kind"], skills, dict(gear))
 
 
 def parse_spec(data: Any) -> BuildSpec:
@@ -87,7 +124,7 @@ def parse_spec(data: Any) -> BuildSpec:
         axes={k: _strs(v, f"axes.{k}") for k, v in axes.items()},
         tiers=_strs(d["tiers"], "tiers"),
         config_profile=d.get("config_profile", "pinnacle_boss"), benchmarks=_strs(d.get("benchmarks"), "benchmarks"),
-        maximise=obj.get("maximise", "auto"), floors=floors,
+        maximise=obj.get("maximise", "auto"), floors=floors, companion=_companion(d.get("companion")),
     )
 
 

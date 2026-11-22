@@ -1,0 +1,20 @@
+# Effects a second actor can apply to the player's calc (docs/second-actor.md). Each maps to PoB config options.
+# Every option key must exist on the pinned PoB (tested via list_config_options in test_actors.py).
+# `{count}` in an option value is filled from the effect's params; params lists the ones an effect needs.
+schema_version: 1
+effects:
+  power_charges:     { options: { usePowerCharges: true, overridePowerCharges: "{count}" }, params: [count] }
+  frenzy_charges:    { options: { useFrenzyCharges: true, overrideFrenzyCharges: "{count}" }, params: [count] }
+  endurance_charges: { options: { useEnduranceCharges: true, overrideEnduranceCharges: "{count}" }, params: [count] }
+  enemy_on_shocked_ground:     { options: { conditionEnemyOnShockedGround: true } }
+  enemy_on_chilled_ground:     { options: { conditionEnemyOnChilledGround: true } }
+  enemy_on_scorched_ground:    { options: { conditionEnemyOnScorchedGround: true } }
+  enemy_on_brittle_ground:     { options: { conditionEnemyOnBrittleGround: true } }
+  enemy_on_sapped_ground:      { options: { conditionEnemyOnSappedGround: true } }
+  enemy_on_consecrated_ground: { options: { conditionEnemyOnConsecratedGround: true } }
+  enemy_on_profane_ground:     { options: { conditionEnemyOnProfaneGround: true } }
+  enemy_on_fungal_ground:      { options: { conditionEnemyOnFungalGround: true } }
+  player_on_consecrated_ground: { options: { conditionOnConsecratedGround: true } }
+  banner_planted:      { options: { bannerPlanted: true } }
+  companion_in_presence: { options: { companionInPresence: true } }
+  nearby_allies:       { options: { multiplierNearbyAlly: "{count}" }, params: [count] }

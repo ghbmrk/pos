@@ -118,6 +118,10 @@ def validate(spec: BuildSpec, cat: Catalogue, tiers: TierTable | None = None) ->
     # axes
     _check_axes(spec, cat, cls, resolve, add)
 
+    # second actor (docs/second-actor.md)
+    if spec.companion is not None:
+        _check_companion(spec, cat, cls, resolve, add)
+
     # tiers
     tiers = tiers or TierTable.load()
     known = tiers.tier_names
@@ -197,6 +201,58 @@ def _check_supports(spec, cat, skill, resolve, add) -> None:
             add("warning", "minion_support", f"fixed.supports[{i}]",
                 f"{e['name']} is tagged Minion but {skill['name']} is not a minion skill; "
                 "it may only affect minions, so check it does something")
+
+
+def _check_companion(spec, cat, cls, resolve, add) -> None:
+    comp = spec.companion
+    reg = data.actors()
+    if comp.kind not in reg:
+        add("error", "actor_kind", "companion.kind", f"unknown actor kind {comp.kind!r}", sorted(reg))
+        return
+    a = reg[comp.kind]
+    if a.get("status") != "available":
+        add("error", "actor_unavailable", "companion.kind",
+            f"{comp.kind} is pending: its mechanics are not sourced, so it cannot be simulated. Unknowns: "
+            + "; ".join(a.get("unknowns") or ["unlisted"]))
+    req = a.get("requires") or {}
+    if req.get("class") and req["class"] != (cls or {}).get("name", spec.class_):
+        add("error", "actor_requires", "companion.kind", f"{comp.kind} requires class {req['class']}, spec is {spec.class_}")
+    ascs = {spec.ascendancy, *spec.axes.get("ascendancy", [])} - {None}
+    if req.get("ascendancy") and ascs != {req["ascendancy"]}:
+        add("error", "actor_requires", "companion.kind",
+            f"{comp.kind} requires ascendancy {req['ascendancy']} in every variant, spec has {sorted(ascs) or 'none'}")
+    mx = a.get("max_skills")
+    if mx is not None and len(comp.skills) > mx:
+        add("error", "companion_skills", "companion.skills", f"{comp.kind} takes at most {mx} skills, spec lists {len(comp.skills)}")
+    slots = a.get("gear_slots")
+    for slot in comp.gear:
+        if slots is not None and slot not in slots:
+            add("error", "companion_slot", f"companion.gear.{slot}", f"{comp.kind} has no slot {slot!r}", list(slots))
+    base_types = {b["type"].casefold() for b in cat.entries("base")}
+    base_names = {b["name"].casefold() for b in cat.entries("base")}
+    for slot, base in comp.gear.items():
+        if base.casefold() not in base_names | base_types:
+            add("error", "unresolved", f"companion.gear.{slot}", f"base {base!r} not in catalogue")
+    for i, sk in enumerate(comp.skills):
+        p = f"companion.skills[{i}]"
+        skill = resolve("skill", sk.gem, f"{p}.gem")
+        sub = _CompanionGroup(sk.supports)
+        _check_supports(sub, cat, skill, _prefixed(resolve, p), _prefixed_add(add, p))
+
+
+class _CompanionGroup:
+    """Adapter so a companion skill group reuses the main skill's support checks."""
+
+    def __init__(self, supports):
+        self.supports = supports
+
+
+def _prefixed(resolve, prefix):
+    return lambda kind, text, path: resolve(kind, text, f"{prefix}.{path.replace('fixed.', '', 1)}")
+
+
+def _prefixed_add(add, prefix):
+    return lambda sev, code, path, msg, sug=(), conf=None: add(sev, code, f"{prefix}.{path.replace('fixed.', '', 1)}", msg, sug, conf)
 
 
 def _check_axes(spec, cat, cls, resolve, add) -> None:

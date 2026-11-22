@@ -5,7 +5,7 @@ Split of G3 (per `docs/pipeline.md`): **G3a** is this layer (schema, catalogue/c
 Run: `python -m pos_pipeline validate spec.yaml` (exit 1 on errors). Library: `load_spec`, `validate(spec, catalogue)` -> `Report(issues, metric, metric_note, profile_hash)`.
 
 ## Schema
-`pob_sha, class, ascendancy?, level, main_skill.gem, fixed.{supports,keystones,notables,uniques}, axes, tiers, config_profile, objective.{maximise,floors}`. Unknown keys and wrong types raise `SpecError`; game-data problems are `Issue`s (error or warning) with suggestions, never silent repairs. `main_skill.gem` and supports accept a catalogue id, gem_id or name.
+`pob_sha, class, ascendancy?, level, main_skill.gem, fixed.{supports,keystones,notables,uniques}, axes, tiers, config_profile, objective.{maximise,floors}, companion?` (second actor: `docs/second-actor.md`). Unknown keys and wrong types raise `SpecError`; game-data problems are `Issue`s (error or warning) with suggestions, never silent repairs. `main_skill.gem` and supports accept a catalogue id, gem_id or name.
 
 ## Checks
 - pob_sha prefix (>= 7 hex) matches the catalogue; class, ascendancy-of-class, level range.

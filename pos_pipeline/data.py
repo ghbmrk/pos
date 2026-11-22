@@ -56,3 +56,11 @@ def metric_for(skill_types: list[str]) -> dict:
 
 def ideation() -> dict:
     return _load("ideation.yaml")
+
+
+def actors() -> dict[str, dict]:
+    return _load("actors.yaml")["actors"]
+
+
+def actor_effects() -> dict[str, dict]:
+    return _load("actor_effects.yaml")["effects"]
