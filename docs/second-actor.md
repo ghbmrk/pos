@@ -83,6 +83,15 @@ reallocation step then moves points across both actors, so the search decides wh
 the Squire or on the player. Score = combined metric after effects. Floors (res, attributes) apply to the
 player only unless the actor can die (unknown).
 
+Built (K3): `search_two_actors(player, companion, main_xml, comp_xml, tier, bases, comp_bases, kind=, share=)`.
+Each gear set is a lane with its own `GearSearcher` (own metric; companion has no floors) and build XML; lanes are
+independent given their budgets because the player XML already carries the effects (K2). Companion slot budget =
+`budget_share` x total x tier-table weight of its slot kind, normalised over the companion's slots; player slots keep
+their share x `(1 - budget_share)`. Reallocation moves `REALLOC_STEP` points between any two namespaced slots. A
+pending actor raises `ActorUnavailable` before any work; missing `budget_share` is a ValueError. Tested with a toy
+scoring model (no engine); the real-engine path rests on the G7 `best_item` and is unmeasured for cost until K4.
+`GearSearcher.search` is untouched; folding it onto lanes is a later cleanup.
+
 ## 6. Report columns
 
 Per variant: `metric (with effects)`, `companion metric`, `combined`, `effects` (id x uptime, blended flag),
@@ -95,7 +104,7 @@ Per variant: `metric (with effects)`, `companion metric`, `combined`, `effects` 
 |---|---|---|---|
 | K1 | this doc; spec `companion`; validator; `data/actors.yaml` (squire pending); `data/actor_effects.yaml` (keys verified on pinned PoB); `pos_pipeline/actors.py` (effects, merge, blend, pending stub); tests | no | done |
 | K2 | companion assembly (`separate_build`), orchestrator wiring (effects into config, on/off blend, combined metric), report columns; tested with a test-only fake actor | no | Sonnet |
-| K3 | two-gear-set search: namespaced slots, budget split, realloc across actors | no | Sonnet |
+| K3 | two-gear-set search: namespaced slots, budget split, realloc across actors (`pos_pipeline/gear_actors.py`, built; fakes only) | no | done |
 | K4 | at 1.0 (2026-12-11, after re-pin): source Squire facts (PoB code + game data), choose `native_pob` vs `separate_build`, fill `actors.yaml`, flip to `available`; re-check build 1 and 2 skill names | yes | Opus |
 | K5 | ideation: slate fields and sweeps over companion skills | after K4 | Sonnet |
 

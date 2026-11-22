@@ -53,7 +53,7 @@
 
 - K1 · done (PR open) · docs/second-actor.md + spec `companion` (kind, skills+supports, gear bases) + validator (actor_kind/actor_unavailable/actor_requires/companion_slot/companion_skills, companion supports reuse main checks) + data/actors.yaml (squire `pending`, unknowns listed) + data/actor_effects.yaml (charges, ground, banner, companion keys; all verified as config keys on pinned PoB) + pos_pipeline/actors.py (effects from registry only, merge with conflict errors, uptime blend, PendingActorModel raises). Findings: no Duelist class in pinned data; Cyclone not in PoE2 (Whirling Slash/Assault nearest); PoE2 Elemental Discharge is a Spell support consuming ailments, not charges, and cannot support minion skills, so target build 2 does not work as written on current data · thread "Add Squire second-actor support"
 - K2 · startable · companion assembly (separate_build) + orchestrator wiring (effects into config, on/off blend, combined metric) + report columns; test-only fake actor (Sonnet)
-- K3 · startable · two-gear-set search in one tier budget: namespaced slots, budget_share split, realloc across actors (Sonnet)
+- K3 · done · two-gear-set search (pos_pipeline/gear_actors.py, fake-tested; real engine unrun, no LuaJIT here) · thread "Build two-gear-set search"
 - K4 · waits for 1.0 re-pin (2026-12-11) · source Squire facts, choose native_pob vs separate_build, fill data/actors.yaml, flip to available, re-check build 1/2 skill names (Opus)
 - K5 · blocked on K4 · ideation slate fields + sweeps over companion skills (Sonnet)
 - K? · needs owner decision, not asked · pre-1.0 "what-if" runs with spec-declared, labelled assumed effects
