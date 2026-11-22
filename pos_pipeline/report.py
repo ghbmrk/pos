@@ -28,7 +28,10 @@ def run_meta(spec, bench_ids: list[str]) -> dict[str, Any]:
                    "unsourced": [u.split(".", 1)[1] for u in unsourced], "assumptions": assumptions}
     return {"pob_sha": spec.pob_sha, "class": spec.class_, "ascendancy": spec.ascendancy, "level": spec.level,
             "main_skill": spec.main_skill, "config_profile": spec.config_profile, "tiers": list(spec.tiers) or ["mid"],
-            "benchmarks": bm, "limitations": [], "metric_note": ""}
+            "benchmarks": bm, "metric_note": "",
+            "limitations": ([f"companion {spec.companion.kind}: separate_build model (own PoB build, effects applied as config options "
+                             "from data/actors.yaml); the table's metric column is the player without effects, the companion's "
+                             "gear is not searched (K3)"] if getattr(spec, "companion", None) else [])}
 
 
 def _cells(b: dict):
@@ -39,6 +42,18 @@ def _cells(b: dict):
 # ---- formatting helpers ------------------------------------------------------------------------------------
 def _num(x, nd: int = 0) -> str:
     return "n/a" if x is None else f"{x:,.{nd}f}"
+
+
+def _effects(ac: dict) -> str:
+    txt = ", ".join(f"{e['id']} x{e['uptime']:g}" for e in ac["effects"])
+    return txt + (" (uptime-blended: linear on/off approximation)" if ac.get("blended") else "")
+
+
+def _actor_cells(ac: dict) -> list[str]:
+    if not ac or ac.get("error"):
+        return ["n/a"] * 4
+    return [_num(ac.get("main"), 1) + ("*" if ac.get("blended") else ""), _num(ac.get("companion"), 1),
+            _num(ac.get("total"), 1), _num(ac.get("without_companion"), 1)]
 
 
 def _gate(g) -> str:
@@ -108,9 +123,12 @@ def render_markdown(d: dict) -> str:
             continue
         best = rows[0][1]["value"]
         bids = list(m.get("benchmarks", {}))
+        has_actor = any((tr.get("actor") or {}) for _, tr in rows)
         head = ["#", "variant", metric, "vs best", "EHP", "Life / ES", "min res", "price", "floors"] + bids
+        if has_actor:
+            head += [f"{metric} with effects", "companion", "combined", "without companion"]
         a("| " + " | ".join(head) + " |")
-        a("|---|---|---:|---:|---:|---:|---|---|---|" + "---|" * len(bids))
+        a("|---|---|---:|---:|---:|---:|---|---|---|" + "---|" * len(bids) + ("---:|---:|---:|---:|" if has_actor else ""))
         for n, (s, tr) in enumerate(rows, 1):
             st = tr.get("stats") or {}
             delta = "best" if n == 1 else f"{(tr['value'] / best - 1):+.1%}" if best else "n/a"
@@ -119,6 +137,8 @@ def render_markdown(d: dict) -> str:
                      f"{_num(st.get('Life'))} / {_num(st.get('EnergyShield'))}", _res(st), price,
                      {True: "met", False: "NOT met", None: "n/a"}[tr.get("floors_met")]]
             cells += [_bench_cell((tr.get("bench") or {}).get(b)) for b in bids]
+            if has_actor:
+                cells += _actor_cells(tr.get("actor") or {})
             a("| " + " | ".join(cells) + " |")
         a("")
         for n, (s, tr) in enumerate(rows, 1):
@@ -126,6 +146,10 @@ def render_markdown(d: dict) -> str:
               f"({s.get('tree_points')} points); gear {_num(tr['baseline'], 1)} -> {_num(tr['value'], 1)} {metric}, {tr['evals']} engine evals.")
             for slot, desc in tr["items"].items():
                 a(f"  - {slot}: {desc}")
+            if (tr.get("actor") or {}).get("effects"):
+                a("  - companion effects: " + _effects(tr["actor"]))
+            if (tr.get("actor") or {}).get("error"):
+                a(f"  - companion FAILED: {tr['actor']['error']}")
             if tr.get("unparsed"):
                 a(f"  - candidate mods rejected, PoB cannot parse: {', '.join(tr['unparsed'])}")
             for note in tr.get("notes", []):

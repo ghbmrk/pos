@@ -98,6 +98,7 @@ def test_effects_from_registry_only(fake_registry):
     eff = actors.effects_for(comp, ["FireballPlayer", "Unlisted"])
     assert [e.id for e in eff] == ["power_charges", "enemy_on_shocked_ground"]
     assert eff[0].options == {"usePowerCharges": True, "overridePowerCharges": 3} and eff[0].uptime == 0.5
+    fake_registry["squire"]["model"] = "native_pob"
     with pytest.raises(NotImplementedError):
         actors.model_for("squire")
 
@@ -161,3 +162,82 @@ def test_effect_option_keys_exist_in_pinned_pob():
             r = eng.list_config_options(query=k, limit=200)
             found |= {o.get("var") for o in r.get("options", [])}
         assert keys <= found, f"not PoB config keys: {sorted(keys - found)}"
+
+
+# ---- K2: separate_build model, orchestrator wiring, report -------------------------------------------------------
+from types import SimpleNamespace as NS  # noqa: E402
+
+
+def _eff(*specs):
+    return [actors.make_effect(i, p, u, "test") for i, p, u in specs]
+
+
+def _metric(xml, opts):
+    """Fake player: 100 base, +50 with shocked ground, +20 per power charge."""
+    return 100 + (50 if opts.get("conditionEnemyOnShockedGround") else 0) + 20 * (opts.get("overridePowerCharges") or 0)
+
+
+def test_separate_build_on_off_and_blend():
+    m = actors.SeparateBuildModel("squire", _metric, lambda x: 7.0)
+    c = m.evaluate("m", "c", _eff(("enemy_on_shocked_ground", None, 1.0)))
+    assert (c.main, c.without_companion, c.companion, c.total, c.blended) == (150, 100, 7.0, 157.0, False)
+    c = m.evaluate("m", "c", _eff(("power_charges", {"count": 3}, 0.5), ("enemy_on_shocked_ground", None, 1.0)))
+    assert c.main == pytest.approx(0.5 * 210 + 0.5 * 150) and c.blended
+    c = m.evaluate("m", None, _eff(("power_charges", {"count": 3}, 0.25), ("enemy_on_shocked_ground", None, 0.5)))
+    exp = sum(wp * ws * (100 + 60 * p + 50 * sh) for p, wp in ((1, .25), (0, .75)) for sh, ws in ((1, .5), (0, .5)))
+    assert c.main == pytest.approx(exp) and c.companion == 0.0
+
+
+def test_separate_build_conflict_with_profile_is_error_and_too_many_partial():
+    m = actors.SeparateBuildModel("squire", _metric, None, base={"conditionEnemyOnShockedGround": False})
+    with pytest.raises(actors.EffectConflict):
+        m.evaluate("m", None, _eff(("enemy_on_shocked_ground", None, 1.0)))
+    many = _eff(*[(e, None, 0.5) for e in ("enemy_on_shocked_ground", "enemy_on_chilled_ground", "enemy_on_scorched_ground",
+                                           "enemy_on_brittle_ground", "enemy_on_sapped_ground")])
+    with pytest.raises(ValueError, match="at most"):
+        actors.SeparateBuildModel("squire", _metric).evaluate("m", None, many)
+
+
+def test_reset_options_goes_back_to_profile_or_off():
+    e = _eff(("power_charges", {"count": 3}, 1.0), ("banner_planted", None, 1.0))
+    assert actors.reset_options({"bannerPlanted": True}, e) == {"usePowerCharges": False, "overridePowerCharges": 0, "bannerPlanted": True}
+
+
+def test_model_for_pending_stub_and_available(fake_registry):
+    assert isinstance(actors.model_for("squire", player_metric=_metric), actors.SeparateBuildModel)
+    with pytest.raises(ValueError):
+        actors.model_for("squire")
+
+
+def test_pending_squire_stays_loud_in_run():
+    from pos_pipeline.orchestrate import run
+    s = spec(companion=COMP)
+    with pytest.raises(actors.ActorUnavailable, match="pending"):
+        run(s, NS(actor=None), metric="FullDPS", slots=1, workers=1, skill_id="x", dry_run=True)
+    with pytest.raises(actors.ActorUnavailable):
+        actors.model_for("squire").evaluate("m", None, [])
+
+
+def test_run_wires_actor_stage_and_report(fake_registry, tmp_path):
+    from pos_pipeline.orchestrate import Stages, run
+    from pos_pipeline.report import render_markdown
+    s = spec(companion=COMP, tiers=["mid"])
+    s.companion.kind = "squire"
+    eff = _eff(("power_charges", {"count": 3}, 0.5), ("enemy_on_shocked_ground", None, 1.0))
+    m = actors.SeparateBuildModel("squire", _metric, lambda x: 7.0)
+    item = NS(unique=None, affixes=[], base="B")
+    st = Stages(lambda v: NS(ok=True, xml="<x>", issues=[], deferred_axes={}),
+                lambda xml, sk: NS(best=NS(supports=[]), gain=0.0, notes=[]), lambda xml, sk, ids: xml,
+                lambda xmls: [NS(ok=True, xml=x, error="", gain=0.0, points_used=0, notes=[]) for x in xmls],
+                lambda xml, tier, v: NS(value=100.0, baseline=1.0, xml=xml, items={"weapon": item}, price=NS(label="p"),
+                                        floors_met=True, evals=1, notes=[]),
+                actor=lambda xml, v: m.evaluate(xml, "<c>", eff))
+    r = run(s, st, metric="FullDPS", slots=1, workers=1, skill_id="x", out_dir=tmp_path)
+    ac = r.seeds[0].tiers["mid"].actor
+    assert ac["main"] == pytest.approx(180) and ac["companion"] == 7.0 and ac["without_companion"] == 100 and ac["blended"]
+    md = (tmp_path / "report.md").read_text()
+    assert "with effects" in md and "without companion" in md and "power_charges x0.5" in md and "separate_build" in md
+    # no actor stage while a companion is declared: loud
+    with pytest.raises(actors.ActorUnavailable):
+        run(s, Stages(st.assemble, st.supports, st.apply_supports, st.trees, st.gear),
+            metric="FullDPS", slots=1, workers=1, skill_id="x")
