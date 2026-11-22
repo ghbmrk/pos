@@ -12,6 +12,26 @@ def _print_issues(issues) -> None:
         print(f"{tag} {i.path}: {i.message}" + (f"  suggestions: {', '.join(i.suggestions)}" if i.suggestions else ""))
 
 
+def _slate(argv: list[str]) -> int:
+    from . import slate as sl
+
+    if len(argv) != 2 or argv[0] != "validate":
+        print("usage: python -m pos_pipeline slate validate slate.yaml")
+        return 2
+    try:
+        s = sl.load_slate(argv[1])
+    except SpecError as e:
+        print(f"error: {e}")
+        return 1
+    rep = sl.validate_slate(s, Catalogue.load(pob_sha=s.pob_sha))
+    _print_issues(rep.issues)
+    for r in rep.candidates:
+        print(f"{'KEPT    ' if r.kept else 'REJECTED'} {r.name}" + (f"  [{r.vector['delivery']}/{r.vector['damage']}, metric {r.metric}]" if r.vector else ""))
+        _print_issues(r.issues)
+    print(f"{len(rep.kept)} of {len(rep.candidates)} kept; " + ("OK" if rep.ok else "slate NOT ok"))
+    return 0 if rep.ok else 1
+
+
 def _assemble(path: str, out_dir: str | None) -> int:
     from pathlib import Path
 
@@ -252,6 +272,8 @@ def _sweep(path: str, kind: str, workers: int, top: int, pieces: list[str] | Non
 
 
 def main(argv: list[str]) -> int:
+    if argv and argv[0] == "slate":
+        return _slate(argv[1:])
     if argv and argv[0] == "run":
         return _run(argv[1:])
     if argv and argv[0] == "report":
@@ -277,7 +299,7 @@ def main(argv: list[str]) -> int:
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | sweep spec.yaml KIND [workers] [top] (KIND keystone|ascendancy|unique:<slot>|support) | ablate spec.yaml kind:id[@slot]... | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
+        print("usage: python -m pos_pipeline validate spec.yaml | slate validate slate.yaml | sweep spec.yaml KIND [workers] [top] (KIND keystone|ascendancy|unique:<slot>|support) | ablate spec.yaml kind:id[@slot]... | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
         return 2
     try:
         spec = load_spec(argv[1])

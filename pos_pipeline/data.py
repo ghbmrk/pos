@@ -52,3 +52,7 @@ def metric_for(skill_types: list[str]) -> dict:
             continue
         return {"metric": r["metric"], "note": r["note"]}
     return dict(m["default"])
+
+
+def ideation() -> dict:
+    return _load("ideation.yaml")

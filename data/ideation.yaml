@@ -1,0 +1,30 @@
+# Thresholds and vocabularies for slate validation (docs/ideation.md, I3). Tunable by I7; nothing here is game data
+# except the skill-type -> archetype maps, which only label (names/numbers still come from the catalogue and engine).
+schema_version: 1
+slate:
+  max_kept: 8               # the gate keeps at most this many passing candidates (prompt asks for 8-12)
+  min_candidates: 3         # fewer submitted candidates than this is a slate error
+  key_pieces: { min: 1, max: 3 }
+  claims: { min: 1 }
+  quote_min_chars: 12       # a quote shorter than this proves nothing
+diversity:
+  min_differing_fields: 2   # of: class_asc, delivery, damage, defence, main_skill, key_pieces
+  min_distinct: 3           # distinct delivery OR damage values across kept candidates, when the brief leaves them open
+# Claims may not state numbers (numbers come only from the engine). Digits, percent signs and these words are rejected.
+number_words: [zero, one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, twenty, thirty,
+               forty, fifty, hundred, thousand, million, twice, thrice, half, third, quarter]
+# Archetype labels derived from the main skill's catalogue skill_types (first match wins).
+delivery:
+  - { label: minion, any: [Minion, CreatesMinion] }
+  - { label: channel, any: [Channel] }
+  - { label: projectile, any: [Projectile, ProjectilesFromUser] }
+  - { label: melee, any: [Melee] }
+  - { label: area_spell, any: [AreaSpell, Nova] }
+  - { label: spell, any: [Spell] }
+  - { label: attack, any: [Attack] }
+  - { label: other, any: [] }
+# A fixed support that requires one of these skill types changes the delivery (checked before the table above).
+delivery_support_requires: { SummonsTotem: totem, Trappable: trap, Mineable: mine }
+damage: [Physical, Fire, Cold, Lightning, Chaos]   # skill types read as the damage element; several = "mixed" label sorted+joined
+key_piece_kinds: [keystone, notable, unique, support]
+cite_kinds: [keystone, notable, unique, skill, support, base]

@@ -41,9 +41,9 @@
 
 - I1 · done (PR open) · docs/ideation.md: creative ideation within MCP-only (no revisit needed): LLM slate of 6-10 BuildSpecs + engine sweeps (keystone/unique/support marginals) as second generator; gates = exact PoE2 resolution, quote-substring mechanism citations, diversity distance, ablation of key pieces; screen at one tier then deepen top 3; cross-archetype ranking on benchmark metrics only; finding: catalogue lacks unique mod lines and gem text (I2) · thread "Design creative build ideation"
 - I2 · done (PR open) · catalogue schema 2: unique `lines`/`variants`/`req_level` + gem `description`; pos_catalogue/query.py `search`/`enablers`/`bridges`/`explain` + CLI; `texts()` = quotable text for I3 citations; repin diff covers new fields; docs/catalogue-queries.md · thread "Build ideation task I2"
-- I3 · startable · slate schema + validate_slate + data/ideation.yaml (Sonnet)
+- I3 · done (PR open) · pos_pipeline/slate.py: slate schema + `validate_slate` (spec validate, exact resolution, quote-substring citations via query.texts, no numbers in claims, key pieces in spec, rankability, diversity distance >= 2 of 6 fields, coverage, cap 8) + data/ideation.yaml thresholds; CLI `slate validate`; docs/slate.md · thread "Build idea slate validator"
 - I4 · done (PR open) · pos_pipeline/sweep.py: sweep (keystone, ascendancy, unique:<slot>, support) with G5 artefact flags + ablate (verdicts confirmed / not_load_bearing / possibly_unmodelled / not_testable); CLI `sweep` / `ablate`; docs/sweep.md. Spark L90 4 workers: keystone 22 s, ascendancy 10 s, unique:weapon 7 s, support 20 s. Finding: keystone delta includes path nodes (use a tree-searched seed); unique ablation = unequip (upper bound), best-rare replacement left to I5 · thread "Build ideation task I4"
-- I5 · blocked on I3, I4, G8b · slate runner: screen, ablation, halving, slate report (Sonnet)
+- I5 · blocked on G8b (I3, I4 done) · slate runner: screen, ablation, halving, slate report (Sonnet)
 - I6 · blocked on I5, G9 · MCP ideate prompt + tools (Opus writes text)
 - I7 · blocked on I6 · 5-prompt evaluation, tune thresholds (Opus)
 
