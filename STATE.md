@@ -22,6 +22,7 @@
 - S3 · done · rare-item price tiers decided (docs/price-tiers.md, PR #2 merged) · thread "Plan rare-item price tiers"
 - G2 · done (PR open) · catalogue export: tools/export_catalogue.lua + pos_catalogue/ (export, Catalogue.resolve with suggestions, can_support); data/catalogue/601768b.json committed; `python -m pos_catalogue export` after any re-pin (test fails until re-exported) · thread "Build game-data catalogue export"
 - G3a · done (PR open) · pos_pipeline/: BuildSpec schema + validator (catalogue ids, support type/add_types/family, class/ascendancy, axes, tiers), data/config_profiles.yaml (+cache-key hash), data/metrics.yaml (per-skill-type metric; minion/buff skills have none), data/limitations.yaml (verified vs suspected); socket limit 5 is an unverified guess (G5 verifies); `python -m pos_pipeline validate`; docs/spec.md. G3b (assembler, unparsed-mod check, PoB import) not built · thread "Build build-spec validator"
+- G3b · done (PR open) · pos_pipeline/assemble.py (assemble, variants, import_pob, unparsed_lines) + engine methods check_build/check_item/unique_text; CLI `assemble`/`import`; socket limit 5 verified vs PoB (now a validator error); finding: config profile `none` is not unresisted (PoB default enemy res 50%); docs/assemble.md · thread "Build the build assembler"
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.

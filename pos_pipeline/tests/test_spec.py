@@ -96,7 +96,7 @@ def test_support_family_duplicate_and_socket_limit(cat):
     assert "support_family" in codes(run(cat, fixed={"supports": ["Fire Mastery", "Fire Mastery II"]}))
     assert "duplicate" in codes(run(cat, fixed={"supports": ["A", "A"]}))
     rep = run(cat, fixed={"supports": ["A", "B", "C", "D", "F", "Fire Mastery"]})
-    assert "socket_limit" in codes(rep, "warning") and rep.ok  # unverified limit is a warning
+    assert "socket_limit" in codes(rep) and not rep.ok  # limit verified against PoB (G3b): an error
 
 
 def test_minion_support_on_non_minion_skill_warns(cat):
