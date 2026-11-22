@@ -19,6 +19,16 @@
 - S1 · done · prior-art memo docs/prior-art.md + reuse-vs-build decision · thread "Evaluate existing PoE2 build tools" (cmsg_01RxGYnd78N9kMbbAJ5pWDhUXjKQcaEQwYS7APh7ozgeRB)
 - P1 · done (PR open) · data/tiers.yaml + pos_tiers/ (tier table, ModItem rank resolver, PriceModel/AnchorSumModel, hand-set unique bands) + .github/workflows/tests.yml; anchors empty until sampled; poe.ninja fetch (price-tiers step 4) still blocked · thread "Build gear tier tables and pricing"
 - S3 · done · rare-item price tiers decided (docs/price-tiers.md, PR #2 merged) · thread "Plan rare-item price tiers"
+- G1 · done (PR open, NL-front card pending) · pipeline design docs/pipeline.md · thread "Design build idea to variants pipeline" (cmsg_01RxGYnd78N9kMbbAJ5pWDhU83mMm33bteTmbpNC7yECs2)
+- G2 · startable · catalogue export from pinned PoB + resolve() (Sonnet) · see docs/pipeline.md
+- G4 · startable · engine pool + SQLite cache + large-build benchmark (Sonnet)
+- G3 · blocked on G2 · BuildSpec schema, validator, assembler, PoB-code import (Sonnet)
+- G5 · blocked on G3, G4 · support search (Sonnet)
+- G6 · blocked on G3, G4 · tree stage via optimize_passives (Sonnet)
+- G7 · blocked on G3, G4 · gear search within tier budgets (Sonnet)
+- G8 · blocked on G5-G7 · orchestrator, report, CLI, golden e2e (Sonnet)
+- G9 · blocked on G8 and NL-front decision · MCP server + usage guide (Sonnet; Opus reviews tool text)
+- G10 · blocked on G2, G3; run at 1.0 (2026-12-11) · repin.sh, catalogue diff, spec revalidation (Sonnet)
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.
