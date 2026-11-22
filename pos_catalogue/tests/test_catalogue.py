@@ -174,3 +174,14 @@ def test_enablers_and_bridges(real):
                [[l["text"] for l in u["lines"]] for u in real.bridges("Freeze", "Lightning")["uniques"]])
     b = real.bridges("Armour", "Energy Shield", limit=3)
     assert all(len(v) <= 3 for v in b.values())
+
+
+def test_cli_explain_accepts_name_or_id(capsys):
+    """I7: clients called `explain skill "<name>"` and failed; the CLI now resolves a name like the MCP tool does."""
+    import json as _json
+    from pos_catalogue.__main__ import main
+    assert main(["explain", "skill", "Spark"]) == 0
+    assert _json.loads(capsys.readouterr().out)["id"] == "SparkPlayer"
+    assert main(["explain", "skill", "SparkPlayer"]) == 0
+    capsys.readouterr()
+    assert main(["explain", "skill", "Cyclone"]) == 1

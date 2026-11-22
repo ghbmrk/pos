@@ -1,0 +1,81 @@
+slate: 1
+pob_sha: "601768b"
+prompt: "fast Breach clearing without a bow"
+brief: { benchmarks: [breach_t15], tiers: [mid], constraints: {}, floors: {} }
+candidates:
+  - name: "Electrocute Staff Slam"
+    archetype: { defence: evasion, engine: "quarterstaff slam fires lightning forward and electrocuted kills chain-explode through the pack" }
+    spec: { pob_sha: "601768b", class: Monk, ascendancy: Invoker, level: 90, main_skill: { gem: "Falling Thunder" }, tiers: [mid],
+            fixed: { keystones: [Resonance], notables: [], uniques: [], supports: ["Eonyr's Thunder"] } }
+    key_pieces: [ { kind: support, id: SupportEonyrsThunderPlayer }, { kind: keystone, id: Resonance } ]
+    claims:
+      - text: "Slain electrocuted enemies explode, spreading damage through a dense Breach pack."
+        cites: [ { kind: support, id: SupportEonyrsThunderPlayer, quote: "Enemies slain while Electrocuted by Supported Skills explode" } ]
+      - text: "The slam consumes power charges, which this keystone favours, to throw projectiles forward."
+        cites: [ { kind: skill, id: FallingThunderPlayer, quote: "Consumes your Power Charges to fire Lightning Projectiles forwards from the impact." }, { kind: keystone, id: Resonance, quote: "Gain Power Charges instead of Frenzy Charges" } ]
+    bases: { weapon: "Arcing Quarterstaff" }
+    source: llm
+  - name: "Frozen Cascade Chayula"
+    archetype: { defence: energy_shield, engine: "freeze buildup then the final spike consumes freeze for heavy damage and detonates ice crystals" }
+    spec: { pob_sha: "601768b", class: Monk, ascendancy: "Acolyte of Chayula", level: 90, main_skill: { gem: "Glacial Cascade" }, tiers: [mid],
+            fixed: { keystones: [], notables: [Shattering], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Shattering } ]
+    claims:
+      - text: "Frozen enemies take heavy damage from the final spike, so freeze buildup feeds the damage."
+        cites: [ { kind: skill, id: GlacialCascadePlayer, quote: "Frozen enemies hit by the final spike are dealt heavy damage" }, { kind: notable, id: Shattering, quote: "increased Freeze Buildup" } ]
+    bases: { weapon: "Arcing Quarterstaff" }
+    source: llm
+  - name: "Molten Fissure Titan"
+    archetype: { defence: armour, engine: "branching fissure plus a different slam spawns spreading aftershocks across the pack" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: Titan, level: 90, main_skill: { gem: "Volcanic Fissure" }, tiers: [mid],
+            fixed: { keystones: [], notables: [Aftershocks], uniques: [], supports: [Reverberate] } }
+    key_pieces: [ { kind: notable, id: Aftershocks }, { kind: support, id: SupportReveberatePlayer } ]
+    claims:
+      - text: "Slam skills you use gain wider aftershocks from this notable."
+        cites: [ { kind: notable, id: Aftershocks, quote: "Slam Skills you use yourself have 30% increased Aftershock Area of Effect" } ]
+      - text: "Slower slams are more likely to aftershock."
+        cites: [ { kind: support, id: SupportReveberatePlayer, quote: "have increased chance to cause Aftershocks the longer their Attack time" } ]
+    bases: { weapon: "Anvil Maul" }
+    source: llm
+  - name: "Chain Spear Amazon"
+    archetype: { defence: evasion, engine: "thrown spear bursts into lightning bolts at many enemies, chaining further" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Amazon, level: 90, main_skill: { gem: "Lightning Spear" }, tiers: [mid],
+            fixed: { keystones: [], notables: [], uniques: [], supports: ["Chain I"] } }
+    key_pieces: [ { kind: support, id: SupportChainPlayer } ]
+    claims:
+      - text: "Chain adds further chains to the secondary bolts that spread across the pack."
+        cites: [ { kind: support, id: SupportChainPlayer, quote: "Supports Projectile skills and any other skills that Chain" } ]
+    bases: { weapon: "Akoyan Spear" }
+    source: llm
+  - name: "Infusion Ball Lightning"
+    archetype: { defence: energy_shield, engine: "slow orb discharges bolts at nearby enemies while infusion remnants are redirected" }
+    spec: { pob_sha: "601768b", class: Sorceress, ascendancy: Stormweaver, level: 90, main_skill: { gem: "Ball Lightning" }, tiers: [mid],
+            fixed: { keystones: ["Elemental Equilibrium"], notables: [], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: "Elemental Equilibrium" } ]
+    claims:
+      - text: "The orb passes through enemies and repeatedly discharges at those nearby, suiting dense packs."
+        cites: [ { kind: skill, id: BallLightningPlayer, quote: "repeatedly discharges bolts of Lightning at nearby enemies" } ]
+      - text: "The keystone changes which infusion remnants appear."
+        cites: [ { kind: keystone, id: "Elemental Equilibrium", quote: "Create Lightning Infusion Remnants instead of Fire" } ]
+    bases: { weapon: "Attuned Wand" }
+    source: llm
+  - name: "Corpse Reuse Detonation"
+    archetype: { defence: life, engine: "detonating corpses without destroying them so each corpse is reused across the pack" }
+    spec: { pob_sha: "601768b", class: Witch, ascendancy: Infernalist, level: 90, main_skill: { gem: "Detonate Dead" }, tiers: [mid],
+            fixed: { keystones: [], notables: ["Meat Recycling"], uniques: [], supports: ["Corpse Conservation"] } }
+    key_pieces: [ { kind: support, id: SupportCorpseConservationPlayer }, { kind: notable, id: "Meat Recycling" } ]
+    claims:
+      - text: "Skills that consume corpses can take effect without destroying them, keeping ammunition for the next blast."
+        cites: [ { kind: support, id: SupportCorpseConservationPlayer, quote: "giving them a chance to take effect without destroying the Corpse" } ]
+    bases: { weapon: "Attuned Wand" }
+    source: llm
+  - name: "Wildfire Fireball"
+    archetype: { defence: energy_shield, engine: "ignites spread to neighbours after a delay so the pack burns itself" }
+    spec: { pob_sha: "601768b", class: Sorceress, ascendancy: Chronomancer, level: 90, main_skill: { gem: "Fireball" }, tiers: [mid],
+            fixed: { keystones: [], notables: [], uniques: [], supports: [Wildfire] } }
+    key_pieces: [ { kind: support, id: SupportWildfirePlayer } ]
+    claims:
+      - text: "Ignites inflicted spread to nearby enemies after a delay."
+        cites: [ { kind: support, id: SupportWildfirePlayer, quote: "Spreading Ignites it inflicts to nearby enemies after a delay" } ]
+    bases: { weapon: "Attuned Wand" }
+    source: llm

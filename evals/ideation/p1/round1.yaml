@@ -1,0 +1,87 @@
+slate: 1
+pob_sha: "601768b"
+prompt: "a tanky lightning build that deletes Arbiter on a budget"
+brief: { benchmarks: [arbiter_ash, breach_t15], tiers: [budget], constraints: {}, floors: {} }
+candidates:
+  - name: "Titan Conduit Armour-Lightning"
+    archetype: { defence: armour, engine: "armour counts against lightning hits while a shock-hungry cone spell hits the boss" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: Titan, level: 90, main_skill: { gem: Lightning Conduit },
+            tiers: [budget], fixed: { keystones: [], notables: [Shockproof], uniques: ["Doryani's Prototype"], supports: [] } }
+    key_pieces: [ { kind: notable, id: Shockproof }, { kind: unique, id: "Doryani's Prototype" } ]
+    claims:
+      - text: "Armour also mitigates lightning hits, so the lightning-heavy boss is blunted by the same layer the build stacks."
+        cites: [ { kind: notable, id: Shockproof, quote: "+30% of Armour also applies to Lightning Damage" } ]
+      - text: "The body armour extends armour to lightning even further."
+        cites: [ { kind: unique, id: "Doryani's Prototype", quote: "+100% of Armour also applies to Lightning Damage" } ]
+      - text: "The main skill hits harder against shocked targets, rewarding the shock-focused setup."
+        cites: [ { kind: skill, id: LightningConduitPlayer, quote: "dealing significantly more damage to Shocked enemies" } ]
+    bases: { weapon: Attuned Wand }
+    source: llm
+  - name: "Invoker Power-Charge Thunder"
+    archetype: { defence: evasion, engine: "Resonance turns charge generation into power charges that the slam consumes for projectiles" }
+    spec: { pob_sha: "601768b", class: Monk, ascendancy: Invoker, level: 90, main_skill: { gem: Falling Thunder },
+            tiers: [budget], fixed: { keystones: [Resonance], notables: [], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: Resonance } ]
+    claims:
+      - text: "The keystone swaps the charge types so power charges accrue where frenzy charges normally would."
+        cites: [ { kind: keystone, id: Resonance, quote: "Gain Power Charges instead of Frenzy Charges" } ]
+      - text: "The slam spends power charges to throw lightning projectiles."
+        cites: [ { kind: skill, id: FallingThunderPlayer, quote: "Consumes your Power Charges to fire Lightning Projectiles forwards from the impact." } ]
+    bases: { weapon: Wyrm Quarterstaff }
+    source: llm
+  - name: "Stormweaver Arc Inoculated"
+    archetype: { defence: energy_shield, engine: "life reduced to the minimum so all defence is energy shield, chaining lightning with boosted lightning damage" }
+    spec: { pob_sha: "601768b", class: Sorceress, ascendancy: Stormweaver, level: 90, main_skill: { gem: Arc },
+            tiers: [budget], fixed: { keystones: [Chaos Inoculation], notables: [Brain Storm], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: Chaos Inoculation }, { kind: notable, id: Brain Storm } ]
+    claims:
+      - text: "Chaos immunity is the tankiness plan: the keystone makes the character immune to the damage type that bypasses shield."
+        cites: [ { kind: keystone, id: Chaos Inoculation, quote: "Immune to Chaos Damage and Bleeding" } ]
+      - text: "A cheap notable adds lightning damage."
+        cites: [ { kind: notable, id: Brain Storm, quote: "20% increased Lightning Damage" } ]
+    bases: { weapon: Attuned Wand }
+    source: llm
+  - name: "Amazon Frenzy Spear"
+    archetype: { defence: evasion, engine: "extra frenzy charge capacity feeds a spear throw that spends a frenzy charge to split" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Amazon, level: 90, main_skill: { gem: Lightning Spear },
+            tiers: [budget], fixed: { keystones: [], notables: [], uniques: [Darkray Vectors], supports: [] } }
+    key_pieces: [ { kind: unique, id: Darkray Vectors } ]
+    claims:
+      - text: "The boots raise the frenzy charge ceiling."
+        cites: [ { kind: unique, id: Darkray Vectors, quote: "+1 to Maximum Frenzy Charges" } ]
+      - text: "The spear throw spends a frenzy charge to multiply into several bursting copies."
+        cites: [ { kind: skill, id: LightningSpearPlayer, quote: "Consumes a Frenzy Charge if possible to cause the main spear to split" } ]
+    bases: { weapon: Akoyan Spear }
+    source: llm
+  - name: "Mercenary Electrocute Armour-Break"
+    archetype: { defence: armour, engine: "grenade electrocution buildup plus a support that breaks armour of electrocuted enemies" }
+    spec: { pob_sha: "601768b", class: Mercenary, ascendancy: Witchhunter, level: 90, main_skill: { gem: Voltaic Grenade },
+            tiers: [budget], fixed: { keystones: [], notables: [], uniques: [], supports: [Breachlord's Rift] } }
+    key_pieces: [ { kind: support, id: "Breachlord's Rift" } ]
+    claims:
+      - text: "Electrocuted enemies lose armour, so the boss takes more physical-adjacent follow-up and the grenade setup opens it up."
+        cites: [ { kind: support, id: SupportBreachlordsRift, quote: "Break Armour of enemies it Freezes or Electrocutes" } ]
+      - text: "The grenade makes all lightning hits build electrocution."
+        cites: [ { kind: skill, id: ShockGrenadePlayer, quote: "contribute to Electrocution buildup for a duration" } ]
+    bases: { weapon: Alloy Crossbow }
+    source: llm
+  - name: "Warbringer Storm Wave Break"
+    archetype: { defence: armour, engine: "armour counts against lightning plus extra armour-break damage amplification on a fissure staff skill" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: Warbringer, level: 90, main_skill: { gem: Storm Wave },
+            tiers: [budget], fixed: { keystones: [], notables: [Shockproof], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Shockproof } ]
+    claims:
+      - text: "The same armour layer now covers lightning."
+        cites: [ { kind: notable, id: Shockproof, quote: "10% increased Armour" } ]
+    bases: { weapon: Wyrm Quarterstaff }
+    source: llm
+  - name: "Witchhunter Shard Penetration"
+    archetype: { defence: evasion, engine: "chaining crossbow bolts with lightning resistance penetration" }
+    spec: { pob_sha: "601768b", class: Mercenary, ascendancy: Witchhunter, level: 90, main_skill: { gem: Galvanic Shards },
+            tiers: [budget], fixed: { keystones: [], notables: [Overload], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Overload } ]
+    claims:
+      - text: "Damage ignores part of the target's lightning resistance."
+        cites: [ { kind: notable, id: Overload, quote: "Damage Penetrates 15% Lightning Resistance" } ]
+    bases: { weapon: Alloy Crossbow }
+    source: llm

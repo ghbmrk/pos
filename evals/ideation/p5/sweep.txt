@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/user/pos/pos_pipeline/__main__.py", line 385, in <module>
+    sys.exit(main(sys.argv[1:]))
+             ~~~~^^^^^^^^^^^^^^
+  File "/home/user/pos/pos_pipeline/__main__.py", line 354, in main
+    return _sweep(argv[1], argv[2], int(argv[3]) if len(argv) > 3 else 2, int(argv[4]) if len(argv) > 4 else 15)
+  File "/home/user/pos/pos_pipeline/__main__.py", line 331, in _sweep
+    s = sweep(cat, pool, a.xml, kind, rep.metric, skill_id=sk, engine=eng)
+  File "/home/user/pos/pos_pipeline/sweep.py", line 161, in sweep
+    raise RuntimeError("sweep: the probe seed failed to evaluate")
+RuntimeError: sweep: the probe seed failed to evaluate

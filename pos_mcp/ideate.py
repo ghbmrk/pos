@@ -17,10 +17,15 @@ hypotheses; the engine and the slate gate decide what is true.
    every game name you remember as a guess until `resolve` returns it as `exact` (or it came back from `search`,
    `enablers`, `bridges` or `explain`). If a name is unresolved, use a suggestion or drop the idea; never respell it to
    force a match. Skills that share a name with a PoE1 skill can work differently: read `explain` before relying on one.
+   If the user's own idea names something that does not resolve (for example a PoE1 skill), tell the user in one line
+   that it is not in this PoE2 data, name the PoE2 substitute you use for each candidate, and keep the idea's intent.
 2. Every mechanism claim cites PoE2 text. A cite is {{kind, id, quote}} where `quote` is copied verbatim from a `text` line
-   of `explain(kind, id)` (at least {quote_min} characters). Paraphrase in `text`, never in `quote`.
+   of `explain(kind, id)` (at least {quote_min} characters). Paraphrase in `text`, never in `quote`. Quote the
+   clause that carries the condition too: a quote cut off before "if", "while" or "count as ..." passes the gate but
+   misstates the mechanic. Ascendancy passives are notables: find them with `search(kind='notable', ascendancy=...)`.
 3. No numbers you made up, anywhere. Claims may not contain digits, % or number words ({number_words_sample}, ...).
-   Do not estimate DPS, EHP, time-to-kill, clear speed or prices in chat either. Numbers come only from
+   Quotes are exempt (verbatim game text may contain numbers). Do not estimate DPS, EHP, time-to-kill, clear speed
+   or prices in chat either. Numbers come only from
    `get_report`; quote them from there, with the benchmark or tier they belong to.
 4. Rankable skills only: the main skill must deal damage itself. Minion and buff-only main skills have no metric yet and
    are rejected (`no_metric`); say so if the idea needs one, and offer the nearest damage-dealing take.
@@ -42,7 +47,8 @@ the reading in one line. Default: benchmarks [arbiter_ash, breach_t15], tiers [m
   `GeneratesCharges`, `ConsumesCharges`, `SkillConsumesFreeze`) and passives or uniques that name it. Skill types are
   exact catalogue names; read real ones from `explain(kind='skill')` or `explain(kind='support')`.
 - Optional, engine: `sweep(spec, kind)` on at most two probe specs (keystone | ascendancy | support | unique:<slot>),
-  about one to two minutes each, one job at a time. Entries with a large positive delta are leads you did not think
+  about one to two minutes each, one job at a time. The probe seed carries no gear, so an attack main skill cannot
+  be evaluated (`probe seed failed to evaluate`): probe with a spell main skill, or skip the sweep. Entries with a large positive delta are leads you did not think
   of. The metric is damage, so defensive entries show zero by design; `possibly_unmodelled` on an entry whose text
   should raise damage means PoB may not model it (label it, do not call it a dud); `audit_outlier` means check for an
   engine artefact first; `over_budget` deltas are added on top of a full tree, not traded for other points. Build at least one candidate on a sweep lead when you ran a sweep, with
@@ -77,7 +83,9 @@ candidates:
 Gear: the runner searches rares in the slots given in `bases` (per candidate, or the `bases` argument of `run_slate` as
 a default). Give each candidate a weapon base its main skill can use (`explain` the skill: a Bow skill needs a bow, a
 Spear skill a spear; resolve the base with kind 'base'); a shared default only suits candidates with the same weapon
-type. A fixed unique in a searched slot is overwritten and its ablation becomes `not_testable`: put fixed uniques in
+type. Give a body armour base matching the candidate's defence layer as well (and an amulet if the budget allows): a
+weapon-only screen leaves life, defences and resistances near zero, so every candidate fails the boss survival check
+and the ranking says little. A fixed unique in a searched slot is overwritten and its ablation becomes `not_testable`: put fixed uniques in
 slots you do not search.
 
 ## Step 3. Gate

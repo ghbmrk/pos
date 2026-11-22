@@ -1,0 +1,7 @@
+pob_sha: "601768b"
+class: Warrior
+ascendancy: Titan
+level: 90
+main_skill: { gem: Boneshatter }
+tiers: [mid]
+fixed: { keystones: [], notables: [], uniques: [], supports: [] }
