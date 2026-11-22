@@ -14,7 +14,7 @@
 - D1 · standing · Decisions 1 (cmsg_01RxGYnd78N9kMbbAJ5pWDhULpAd6m9DDdnmdwnR4WgH67)
 - A1 · retired · Alerts 1 (blockers go to Decisions)
 - Q1 · standing · Questions 1 (Opus)
-- S2 · startable · re-pin spike: fork MaxWilk engine layer into pos, pin PoB-PoE2 dev as submodule, aim zero PoB patches, run golden tests; report keep-fork vs own-wrapper
+- S2 · done (PR open) · re-pin spike: result STAY ON FORK; engine layer in pos_engine/, PoB-PoE2 submodule at 601768b, zero patches; docs/engine-fork.md · thread "Test updating the PoB engine fork"
 - R1 · done · ghbmrk/pos scaffolded (README, .gitignore), STATE.md moved into repo · thread "Set up the pos repo"
 - S1 · done · prior-art memo docs/prior-art.md + reuse-vs-build decision · thread "Evaluate existing PoE2 build tools" (cmsg_01RxGYnd78N9kMbbAJ5pWDhUXjKQcaEQwYS7APh7ozgeRB)
 - S3 · done · rare-item price tiers decided (docs/price-tiers.md, PR #2 merged) · thread "Plan rare-item price tiers"
