@@ -12,6 +12,7 @@
 - 2026-11-22 · Benchmark content: Arbiter of Ash (uber as hard setting) + Breach T15+ density proxy; numbers re-sourced from 1.0 data (docs/benchmarks.md) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUEx7vFAPsHTmhjjy3Gx6rKW
 - 2026-11-22 · Pipeline NL front: MCP server + CLI, no embedded LLM/API key (docs/pipeline.md) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUAqzfwd83TbFbqwuWojhQ3V
 - 2026-11-22 · Creative ideation from high-level prompts · cmsg_01RxGYnd78N9kMbbAJ5pWDhU6o4n9NQafMk2fcJq7WYpEm
+- 2026-11-22 · Use current pre-1.0 data to build/test/validate; keep data pinned and swappable · cmsg_01RxGYnd78N9kMbbAJ5pWDhUUgS6By69FAnTchmtmGQpzb
 
 ## Open work
 <!-- id · state · owner thread -->
@@ -46,6 +47,8 @@
 - I5 · done (PR open) · pos_pipeline/slate_run.py: `slate run` (preflight, screen at one tier + key-piece ablation incl. best-rare replacement for uniques, benchmark-only cross-archetype ranking, halving to top K full runs, slate_report.md + slate_results.sqlite); candidate `bases:` key; docs/slate-run.md · thread "Build ideation run and ablation stage"
 - I6 · blocked on I5, G9 · MCP ideate prompt + tools (Opus writes text)
 - I7 · blocked on I6 · 5-prompt evaluation, tune thresholds (Opus)
+- B3 · done (PR open) · data/benchmarks.yaml filled from poe2db game-file pages (0.5.x): Arbiter evasion/armour/life, 2 named hits (basic_attack, chasm_slam); PoB overrides verified (docs/benchmarks.md section 7; `none` profile fixed, `pob_default` added). Still null: arbiter_ash_uber life/level/hits (no poe2db uber page), Magic/Rare life_mult (no source reachable). poe2db blocked from shell, readable via WebFetch · thread "Fill benchmark data from current patch"
+- B3b · done (PR open) · Magic x2.48 / Rare x8 life mults sourced (repoe-fork/poe2 mods.json MonsterMagic2 +148%, MonsterRare2 +700%, 0.5.5.1; Unique +2800% = x29 cross-checks Arbiter base life) so breach_t15 clear now computes (proxy, Spark golden: complete). Still null: arbiter_ash_uber life/level/hits. Tried: PoB-PoE2 Bosses.lua/Misc.lua (armour/evasion mults only), repoe-fork export (no monster tables; MapUberBoss_Monolith = the L74 fight, map_pinnacle_boss_difficulty_+ = 0), poe2db, mobalytics (tiers 0-4 qualitative); poe2wiki blocked. Remaining route: poe2db/wiki tier tables or a GGPK dat read (MonsterVarieties, pinnacle difficulty) · thread "Source uber Arbiter and mob multipliers"
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.

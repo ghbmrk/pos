@@ -6,9 +6,12 @@
 schema_version: 1
 profiles:
   none:
-    # G3b finding: PoB's default enemy elemental resistance is already 50% (same DPS as Pinnacle for lightning), so this
-    # profile is NOT 'unresisted'. Use enemyIsBoss: None (sets 0%) in a new profile if that is wanted.
-    description: PoB defaults (no enemyIsBoss option; PoB's default enemy resists are 50%).
+    # PoB's enemyIsBoss default index is 3 = Pinnacle, so with no option PoB evaluates against a Pinnacle boss (verified
+    # 2026-11-22: identical outputs to enemyIsBoss: Pinnacle). The old description ("50% resists") was a symptom of that.
+    description: Normal (non-boss) enemy, no resistances (enemyIsBoss None).
+    options: { enemyIsBoss: None }
+  pob_default:
+    description: No option set; PoB then defaults to a Pinnacle boss (same results as pinnacle_boss).
     options: {}
   boss:
     description: Standard boss enemy.
