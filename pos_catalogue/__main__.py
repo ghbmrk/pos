@@ -27,7 +27,7 @@ def main(argv=None) -> int:
     b.add_argument("term_a")
     b.add_argument("term_b")
     b.add_argument("--limit", type=int, default=15)
-    x = sub.add_parser("explain", help="the full text of one entry (id: name for uniques/keystones/notables, gem id for skills/supports)")
+    x = sub.add_parser("explain", help="the full text of one entry (name, or catalogue id: gem id for skills/supports)")
     x.add_argument("kind", choices=KINDS)
     x.add_argument("id")
     a = ap.parse_args(argv)
@@ -45,9 +45,13 @@ def main(argv=None) -> int:
         else:
             try:
                 r = cat.explain(a.kind, a.id)
-            except KeyError as ex:
-                print(ex, file=sys.stderr)
-                return 1
+            except KeyError as ex:   # accept a name too (as the MCP `explain` does): resolve it to the catalogue id
+                from .catalogue import _KINDS
+                res = cat.resolve(a.kind, a.id)
+                if not res.matches:
+                    print(ex, json.dumps({"suggestions": [s["name"] for s in res.suggestions]}), file=sys.stderr)
+                    return 1
+                r = cat.explain(a.kind, res.matches[0][_KINDS[a.kind][1]])
         print(json.dumps(r, indent=1, ensure_ascii=False))
         return 0
     res = Catalogue.load().resolve(a.kind, a.text)

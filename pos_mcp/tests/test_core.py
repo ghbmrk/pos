@@ -196,6 +196,8 @@ def test_ideate_prompt_carries_live_vocabulary_and_rules():
     for rule in ("PoE1", "verbatim", "No numbers", "no_metric", "key_pieces", "validate_slate", "preflight_slate", "run_slate",
                  "get_report", "not_load_bearing", "possibly_unmodelled"):
         assert rule in t, rule
+    for rule in ("not in this PoE2 data", "Quotes are exempt", "ascendancy=", "probe with a spell", "weapon-only screen"):   # I7 fixes
+        assert rule in t, rule
     import re
     assert not re.search(r"\{[a-z_0-9]+\}", t)                       # no unfilled placeholders
     assert "(no idea given" in ideate.render("  ")
