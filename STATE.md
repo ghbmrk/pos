@@ -12,6 +12,7 @@
 - 2026-11-22 · Benchmark content: Arbiter of Ash (uber as hard setting) + Breach T15+ density proxy; numbers re-sourced from 1.0 data (docs/benchmarks.md) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUEx7vFAPsHTmhjjy3Gx6rKW
 - 2026-11-22 · Pipeline NL front: MCP server + CLI, no embedded LLM/API key (docs/pipeline.md) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUAqzfwd83TbFbqwuWojhQ3V
 - 2026-11-22 · Creative ideation from high-level prompts · cmsg_01RxGYnd78N9kMbbAJ5pWDhU6o4n9NQafMk2fcJq7WYpEm
+- 2026-11-22 · Use current pre-1.0 data to build/test/validate; keep data pinned and swappable · cmsg_01RxGYnd78N9kMbbAJ5pWDhUUgS6By69FAnTchmtmGQpzb
 
 ## Open work
 <!-- id · state · owner thread -->
@@ -46,6 +47,7 @@
 - I5 · blocked on G8b (I3, I4 done) · slate runner: screen, ablation, halving, slate report (Sonnet)
 - I6 · blocked on I5, G9 · MCP ideate prompt + tools (Opus writes text)
 - I7 · blocked on I6 · 5-prompt evaluation, tune thresholds (Opus)
+- B3 · done (PR open) · data/benchmarks.yaml filled from poe2db game-file pages (0.5.x): Arbiter evasion/armour/life, 2 named hits (basic_attack, chasm_slam); PoB overrides verified (docs/benchmarks.md section 7; `none` profile fixed, `pob_default` added). Still null: arbiter_ash_uber life/level/hits (no poe2db uber page), Magic/Rare life_mult (no source reachable). poe2db blocked from shell, readable via WebFetch · thread "Fill benchmark data from current patch"
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.

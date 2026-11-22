@@ -9,8 +9,8 @@
 
 | # | variant | FullDPS | vs best | EHP | Life / ES | min res | price | floors | arbiter_ash | breach_t15 |
 |---|---|---:|---:|---:|---:|---|---|---|---|---|
-| 1 | ascendancy=Chronomancer | 1,500.0 | best | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | NOT met | TTK 3799.2s FAIL; survival n/a (named hits unsourced); EHP 9,000 incomplete | clear n/a; coverage 100% incomplete |
-| 2 | ascendancy=Stormweaver | 1,000.0 | -33.3% | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | NOT met | TTK 5698.7s FAIL; survival n/a (named hits unsourced); EHP 9,000 incomplete | clear n/a; coverage 100% incomplete |
+| 1 | ascendancy=Chronomancer | 1,500.0 | best | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | NOT met | TTK 3799.2s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear n/a; coverage 100% incomplete |
+| 2 | ascendancy=Stormweaver | 1,000.0 | -33.3% | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | NOT met | TTK 5698.7s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear n/a; coverage 100% incomplete |
 
 **1. ascendancy=Chronomancer**: supports Chain, Fork; tree +50.0% (100 points); gear 10.0 -> 1,500.0 FullDPS, 700 engine evals.
   - weapon: Added Lightning r2 [Acrid Wand]
@@ -26,7 +26,6 @@ Benchmark flags:
 
 - arbiter_ash: FullDPS includes all-hits-landing and ailment/DoT: an upper bound
 - arbiter_ash: named hits unsourced: survival not judged, generic PoB hit shown (generic_hits_to_die)
-- arbiter_ash: incomplete: hits.phase2_sword_combo.physical, hits.phase2_sword_combo.fire
 - breach_t15: density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1
 - breach_t15: incomplete: monsters.magic.life_mult, monsters.rare.life_mult
 
@@ -35,8 +34,8 @@ Benchmark flags:
 
 | # | variant | FullDPS | vs best | EHP | Life / ES | min res | price | floors | arbiter_ash | breach_t15 |
 |---|---|---:|---:|---:|---:|---|---|---|---|---|
-| 1 | ascendancy=Chronomancer | 75,000.0 | best | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | met | TTK 3799.2s FAIL; survival n/a (named hits unsourced); EHP 9,000 incomplete | clear n/a; coverage 100% incomplete |
-| 2 | ascendancy=Stormweaver | 50,000.0 | -33.3% | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | met | TTK 5698.7s FAIL; survival n/a (named hits unsourced); EHP 9,000 incomplete | clear n/a; coverage 100% incomplete |
+| 1 | ascendancy=Chronomancer | 75,000.0 | best | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | met | TTK 3799.2s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear n/a; coverage 100% incomplete |
+| 2 | ascendancy=Stormweaver | 50,000.0 | -33.3% | 9,000 | 1,200 / 3,000 | 60% (<75 uncapped) | ~1.5 div, 12 samples, 2026-11-20 | met | TTK 5698.7s FAIL; survival n/a (named hits unsourced); EHP 9,000 | clear n/a; coverage 100% incomplete |
 
 **1. ascendancy=Chronomancer**: supports Chain, Fork; tree +50.0% (100 points); gear 10.0 -> 75,000.0 FullDPS, 700 engine evals.
   - weapon: Added Lightning r2 [Acrid Wand]
@@ -50,7 +49,6 @@ Benchmark flags:
 
 - arbiter_ash: FullDPS includes all-hits-landing and ailment/DoT: an upper bound
 - arbiter_ash: named hits unsourced: survival not judged, generic PoB hit shown (generic_hits_to_die)
-- arbiter_ash: incomplete: hits.phase2_sword_combo.physical, hits.phase2_sword_combo.fire
 - breach_t15: density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1
 - breach_t15: incomplete: monsters.magic.life_mult, monsters.rare.life_mult
 
@@ -67,7 +65,6 @@ Axis `ascendancy`: best FullDPS per value, by tier (winner in bold).
 ## Benchmarks
 
 - `arbiter_ash` (boss, patch 0.5.2): Arbiter of Ash (pinnacle).
-  - incomplete, unsourced inputs: hits.phase2_sword_combo.physical, hits.phase2_sword_combo.fire (metrics depending on them are n/a, never guessed)
   - ASSUMPTION constants (owner-tunable, not game data): gates.ttk_s_max, uptime
 - `breach_t15` (pack, patch 0.5.2): Breach in a tier-15+ waystone (density proxy, not real seconds).
   - incomplete, unsourced inputs: monsters.magic.life_mult, monsters.rare.life_mult (metrics depending on them are n/a, never guessed)

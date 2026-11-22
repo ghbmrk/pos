@@ -125,3 +125,17 @@ Advisor review (2026-11-22) corrected the first draft: poe2db carries game-file 
 Sources: [Switchblade pinnacle guide (0.5.2, modified 2026-10-10)](https://www.switchbladegaming.com/path-of-exile-2/endgame-boss-guide/), [Timesaver Arbiter of Ash guide (0.5, updated 2026-06-24)](https://timesaver.gg/blog/poe2-arbiter-of-ash-guide), [Maxroll pinnacle bosses (2024, pre-0.5)](https://maxroll.gg/poe2/resources/pinnacle-bosses); PoB-PoE2 `601768b`: `src/Modules/ConfigOptions.lua`, `src/Data/BossSkills.lua`, `src/Data/Misc.lua`, `src/Modules/CalcDefence.lua`.
 
 B2 as built: YAML cells are `{value, source}`; `null` = unsourced. Survival uses `<Type>MaximumHitTaken / hit damage` from one evaluation per benchmark (max hit does not depend on enemy damage), so no per-hit evaluation was needed; while hits are null, `survive` is None and PoB's generic `TotalNumberOfHits` is shown. Pack `clear_s` stays None until every rarity's `life_mult` is sourced. Projectile skills without an AoE radius use coverage = projectiles / monsters. Not yet checked: which of `enemyLevel`/res/armour overrides PoB applies on top of `enemyIsBoss: Pinnacle` (B3).
+
+## 7. B3 findings (2026-11-22, pre-1.0 data, PoB pin `601768b`)
+
+Decision: current pre-1.0 data is used to build and validate now; data stays pinned and swappable (cmsg_01RxGYnd78N9kMbbAJ5pWDhUUgS6By69FAnTchmtmGQpzb).
+
+**Hosts (this cloud env):** poe2db.tw and poe2wiki.net are refused by the egress proxy from the shell (403 "no rule allows this host"); poe2db pages were readable through the WebFetch path; poe2wiki.net answers with an Anubis bot block there. poe.ninja etc. as in docs/prior-art.md.
+
+**What PoB applies on top of `enemyIsBoss`** (engine probes + `ConfigOptions.lua`):
+- The option default is Pinnacle (index 3). No option = Pinnacle; `None` = normal enemy, 0% resists.
+- Placeholders (enemy damage, armour, evasion, pen, level) do apply headless. Explicit `enemyArmour`, `enemyEvasion`, `enemy*Damage` win. Resists: the engine wrapper sets the tier default (Boss 30, Pinnacle/Uber 50, None 0) unless `enemy*Resist` is given.
+- Under Pinnacle/Uber an `enemyLevel` below 82 behaves as 82 for the damage/armour/evasion defaults (identical outputs at 74 and 82); above 82 is honoured. Under None/Boss the level is honoured.
+- Uber adds `DamageTaken -70%` ("Boss") in PoB, so DPS under Uber is already reduced; TTK = life / DPS must not apply it twice.
+
+**Filled:** Arbiter evasion 803, armour 4,099, life 4,274,058 (consistent with 147,381 x ~29), two hits (basic attack, chasm slam) from poe2db skill rows. **Unsourced (null, reported by the validator):** Arbiter uber life, level and hits (no poe2db row), Magic and Rare life multipliers (no poe2db page carries them; poe2wiki blocked). Unconfirmed: poe2db shows boss Damage 802 on the Monolith page and 1,259 on the boss page.
