@@ -12,7 +12,7 @@ Checked 2026-11-22 by cloning each repo and reading code; the X summary in the g
 | Project | Exists | Licence | Last commit (total) | Calc engine | Container headless | Fit for parallel variants |
 |---|---|---|---|---|---|---|
 | [PathOfBuildingCommunity/PathOfBuilding-PoE2](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2) | yes | MIT | 2026-11-10 on `dev`; last release v0.23.1 2026-07-28 | is the engine (Lua) | **yes**: ships `src/HeadlessWrapper.lua` and a Dockerfile used for its test suite | base layer for everything |
-| [MaxWilk/poe2-build-mcp](https://github.com/MaxWilk/poe2-build-mcp) | yes | MIT | 2026-06-23 (53 commits, all 2026-06-18..23) | upstream PoB driven via LuaJIT subprocess, JSON-RPC over stdio; pinned `a82a33b` + 1 patch | **yes, verified here** (see below) | best: already has a multi-process engine pool, `compare_to` A/B, optimizers |
+| [MaxWilk/poe2-build-mcp](https://github.com/MaxWilk/poe2-build-mcp) | yes | MIT | 2026-06-23 (53 commits, all 2026-06-18..23) | upstream PoB driven via LuaJIT subprocess, JSON-RPC over stdio; pinned `a82a33b` + 1 patch | **yes, verified here** (see below) | best available: `compare_to` A/B, optimizers; a thread pool of independent engine processes exists only inside `optimize_build` (`server/compute/buildopt.py` `_run_levers`), not as a general batch API |
 | [HivemindOverlord/poe2-mcp](https://github.com/HivemindOverlord/poe2-mcp) | yes | MIT + "contribution restriction" clause (forking allowed) | 2026-10-25 (351 commits since 2025-11) | **own Python calculators** (`src/calculator/*`); optional TCP bridge into a running *desktop* PoB | no (bridge needs GUI PoB) | weak: numbers are a reimplementation, not PoB |
 | [SFerenczy/poe2-agent](https://github.com/SFerenczy/poe2-agent) | yes | MIT | 2026-04-15 (99 commits) | upstream PoB Lua in-process via Rust `mlua` (vendored LuaJIT) | likely (claimed; not run) | Q&A agent tied to OpenAI Responses API; has a rate-limit-aware trade client |
 | [deepwa7er/poe2-mcp](https://github.com/deepwa7er/poe2-mcp) | yes | **none** (all rights reserved) | 2026-06-20 (45 commits) | upstream PoB via `luajit` driver | likely (claimed; not run) | analysis only; code not reusable without a licence |
@@ -42,9 +42,12 @@ Implication: **rare-item prices cannot be fetched at scale legitimately.** Uniqu
 
 Facts above; this section is judgement.
 
+0. **Decision boundary: a timeboxed re-pin spike.** Move MaxWilk's driver onto current PoB-PoE2 `dev` (232 commits ahead) and run its engine tests. Small changes: stay with the fork. Large breakage: switch to option 4 (same ~1.9k lines). Aim for zero patches to PoB (pin as a submodule, move the one patch into the wrapper), because 1.0 on 2026-12-11 guarantees another re-pin within weeks.
 1. **Reuse the engine layer, build the orchestration.** Fork MaxWilk's engine pieces (`pob/pob_headless.lua`, `server/compute/engine.py`, `pob_code.py`, its tests) into this repo as a library under MIT, re-pinned to current PoB-PoE2. Build our own layer on top: build spec (from natural language), variant generator, parallel engine pool, price-tier model, result table. Expose it as MCP later if wanted.
-2. Do not depend on MaxWilk's MCP server as-is: it is a single-build interactive session designed for chat, dormant since June, and its update path depends on one person before a 1.0 data change.
+2. Do not depend on MaxWilk's MCP server as-is: its tools act on one loaded build per session, designed for chat (the general variant pool is work we build), dormant since June, and its update path depends on one person before a 1.0 data change.
 3. Do not use HivemindOverlord's calculators: they are not PoB.
 4. Writing our own PoB wrapper from `HeadlessWrapper.lua` is the fallback if the fork proves tangled; cost is roughly the size of `pob_headless.lua` + `engine.py`, and MaxWilk's code shows the path.
 
-Open questions for later tasks: how to model rare-item price tiers; whether the cloud environment should allow poe.ninja for live prices.
+Constraints: personal, non-commercial use only (PoB's MIT does not cover GGG game data; GGG disallows commercial use of its IP).
+
+Open questions for later tasks: how to model rare-item price tiers (the hardest part of the goal; inputs include poe.ninja economy data and GGG's documented public Currency Exchange API, hourly history, poe2 realm); whether the cloud environment should allow poe.ninja for live prices.
