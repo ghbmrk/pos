@@ -5,88 +5,195 @@ from typing import Any
 
 from mcp.server.mcpserver import MCPServer
 
-from . import core
+from . import core, ideate as _ideate
 
-INSTRUCTIONS = """Path of Sim: test PoE2 build ideas with real Path of Building calculations at gear price tiers.
-Workflow: (1) turn the user's idea into a build spec; every name (class, ascendancy, skill, support, unique, base,
-keystone, notable) MUST come from `resolve` - never type a game name from memory. (2) `validate_spec` until ok.
-(3) `preflight` and tell the user the estimated time; (4) `run` with a base per gear slot; (5) poll `run_status`;
-(6) `get_report` and summarise. Quote numbers only from the report; do not estimate DPS, EHP or prices yourself.
-Read the report's limitations and any 'unsourced'/incomplete flags aloud rather than smoothing them over."""
+INSTRUCTIONS = """Path of Sim: test PoE2 build ideas with real Path of Building calculations on pinned PoE2 data, at gear price tiers,
+against benchmark content (a pinnacle boss and a dense map pack).
+Ground rules for every path: (a) game names come only from the catalogue (`resolve` exact, or the query tools); your memory
+of Path of Exile is mostly PoE1 and is wrong here. (b) Numbers (DPS, EHP, time-to-kill, prices) come only from reports;
+never estimate them. (c) Read limitations, unsourced inputs and incomplete benchmarks out to the user.
+Two paths:
+1. The user names a build ("test Spark Stormweaver"): resolve names -> validate_spec until ok -> preflight (tell the user
+   the estimate) -> run with a base per gear slot -> run_status about once a minute -> get_report and summarise.
+2. The user gives a goal, not a build ("a tanky lightning build that kills Arbiter on a budget", "something creative
+   with ..."): call `ideation_guide` with their words first and follow it (catalogue queries, a slate of distinct
+   archetypes, validate_slate, preflight_slate, run_slate). The same procedure is the `ideate` prompt.
+One background job (run, sweep or slate) at a time; they share the CPUs."""
 
 mcp = MCPServer("path-of-sim", instructions=INSTRUCTIONS)
 
 
+# ---- naming and specs -------------------------------------------------------------------------------------------
 @mcp.tool()
 def resolve(kind: str, names: list[str], pob_sha: str | None = None) -> dict[str, Any]:
     """Look up game names in the pinned PoE2 catalogue. kind: class | ascendancy | skill | support | unique | base | keystone | notable.
-    Per name returns status exact | ambiguous | unresolved plus near-match suggestions. Never guesses: use only exact matches
-    (ask the user to choose between ambiguous or suggested ones). Run this before putting any name in a spec."""
+    Per name: status exact | ambiguous | unresolved, plus near-match suggestions. Only exact matches may go in a spec or slate.
+    Never respell a name to force a match: pick a listed match/suggestion (ask the user if they named it themselves), or drop the idea.
+    A name that does not resolve is usually PoE1-only."""
     return core.resolve(kind, names, pob_sha)
 
 
 @mcp.tool()
 def validate_spec(spec: str | dict[str, Any]) -> dict[str, Any]:
-    """Validate a build spec (YAML text or object; schema in docs/spec.md) against the catalogue and the engine's known limits.
-    Returns ok, the metric the run will rank by, and issues (error/warning with code and suggestions). Fix every error before `run`;
-    report warnings and 'limitation' issues to the user. Required keys: pob_sha, class, level, main_skill {gem}, tiers (e.g. [starter, mid]).
-    Optional: ascendancy, fixed {supports,keystones,notables,uniques}, axes (name -> values to vary), objective, benchmarks."""
+    """Validate a build spec (YAML text or object) against the catalogue and the engine's known limits. Returns ok, the metric the run
+    ranks by, and issues (error/warning with code and suggestions). Fix every error before `run`; tell the user about warnings and
+    'limitation' issues. Required: pob_sha, class, level, main_skill {gem}, tiers (from: starter, budget, mid, high, mirror).
+    Optional: ascendancy; fixed {supports, keystones, notables, uniques} (lists of exact names); axes (ascendancy | main_skill |
+    weapon_base -> list of values, one seed per combination); objective {maximise, floors}; config_profile; benchmarks
+    (arbiter_ash, arbiter_ash_uber, breach_t15). Minion and buff-only main skills have no metric yet (error no_metric)."""
     return core.validate_spec(spec)
 
 
 @mcp.tool()
 def import_pob(code: str) -> dict[str, Any]:
-    """Convert a Path of Building share code (or build XML) into a draft spec plus warnings for anything dropped. Edit the draft, then validate_spec."""
+    """Convert a Path of Building share code (or build XML) into a draft spec (YAML) plus warnings for anything dropped
+    (gear is not carried over: the run searches it). Edit the draft, then validate_spec."""
     return core.import_pob(code)
 
 
+# ---- single-build runs ------------------------------------------------------------------------------------------
 @mcp.tool()
 def preflight(spec: str | dict[str, Any], bases: dict[str, str] | None = None, workers: int | None = None,
               realloc_rounds: int | None = None) -> dict[str, Any]:
-    """Estimate wall time without running (also validates). bases maps gear slot -> base item name, e.g. {"weapon": "Acrid Wand", "ring": "Iron Ring"}
-    (slots: weapon, body, amulet, ring_1, ring_2, helmet, gloves, boots, belt; `ring` sets both). More slots, seeds (axes) and tiers cost more.
-    over_cap=true means the run will be refused unless forced: tell the user the estimate and let them decide."""
+    """Estimate wall time of `run` without running (also validates). bases maps gear slot -> exact base name (resolve kind 'base'),
+    e.g. {"weapon": "Acrid Wand", "amulet": "Lapis Amulet"}; slots: weapon, body, amulet, ring_1, ring_2, helmet, gloves, boots, belt
+    (`ring` sets both). Cost grows with slots, seeds (axes combinations) and tiers. over_cap=true: the run will be refused unless
+    forced; give the user the estimate and let them decide."""
     return core.preflight(spec, bases, workers, realloc_rounds)
 
 
 @mcp.tool()
 def run(spec: str | dict[str, Any], bases: dict[str, str], workers: int | None = None, realloc_rounds: int | None = None,
         max_minutes: float | None = None, force: bool = False) -> dict[str, Any]:
-    """Start a run in the background and return a run_id at once (minutes to tens of minutes). Validates first and refuses an invalid spec or an
-    estimate above the cap (default 45 min) unless force=true - set force only after the user has seen the estimate. realloc_rounds=0 is a
-    cheaper, weaker gear search. One run at a time. Poll run_status."""
+    """Start a single-build run in the background (supports, passive tree, then gear per tier; minutes to tens of minutes) and return a
+    run_id at once. Validates first; refuses an invalid spec, missing bases, or an estimate above the cap (default 45 min) unless
+    force=true, which you set only after the user has seen the estimate. realloc_rounds=0 is a cheaper, weaker gear search.
+    One background job at a time. Then poll run_status and call get_report."""
     return core.start_run(spec, bases, workers=workers, realloc_rounds=realloc_rounds, max_minutes=max_minutes, force=force)
 
 
 @mcp.tool()
 def run_status(run_id: str) -> dict[str, Any]:
-    """State of a run: running | done | failed | cancelled, elapsed seconds, and the last log lines. Poll sparingly (every minute or more)."""
+    """State of any background job (run, sweep or slate): running | done | failed | cancelled, elapsed seconds, the estimate,
+    and the last log lines. Poll about once a minute, not faster. On failed, show the user the log tail."""
     return core.run_status(run_id)
 
 
 @mcp.tool()
 def cancel_run(run_id: str) -> dict[str, Any]:
-    """Stop a running run."""
+    """Stop a running background job (run, sweep or slate) and all its engine processes."""
     return core.cancel_run(run_id)
 
 
 @mcp.tool()
 def get_report(run_id: str, max_chars: int = 20000) -> dict[str, Any]:
-    """The finished run's ranked report (markdown): per tier the best variants with DPS/EHP/resists, gear, supports, benchmark results,
-    price labels and limitation notes; and which axis value wins at which budget. These numbers are the only ones to quote."""
+    """The finished job's report (markdown). Run: per tier the best variants with DPS/EHP/resists, gear, supports, benchmark results,
+    price labels, limitations, and which axis value wins at which budget. Slate: candidates ranked on benchmark metrics with
+    ablation verdicts. Sweep: one-change-at-a-time deltas on a probe seed. These numbers are the only ones to quote, with their
+    labels (tier, benchmark, 'upper bound', 'incomplete')."""
     return core.get_report(run_id, max_chars)
 
 
 @mcp.tool()
 def compare(run_a: str, run_b: str) -> dict[str, Any]:
-    """Best result per tier in two finished runs and the % delta (same metric only)."""
+    """Best result per tier in two finished single-build runs and the % delta. Only meaningful when both used the same metric
+    (returned note says when they differ); for different archetypes compare benchmark results in the reports instead."""
     return core.compare(run_a, run_b)
 
 
 @mcp.tool()
 def list_runs(limit: int = 10) -> dict[str, Any]:
-    """Recent run ids and states."""
+    """Recent background jobs: run_id, job (run | sweep | slate), state."""
     return core.list_runs(limit)
+
+
+# ---- ideation (docs/ideation.md) ------------------------------------------------------------------------------
+@mcp.prompt(name="ideate", title="Ideate PoE2 builds",
+            description="Turn a high-level goal into a slate of distinct, catalogue-grounded build archetypes, gate them, and run them.")
+def ideate(idea: str, constraints: str = "") -> str:
+    return _ideate.render(idea, constraints)
+
+
+@mcp.tool()
+def ideation_guide(idea: str, constraints: str = "") -> str:
+    """The step-by-step procedure for open-ended requests (a goal rather than a named build): explore the catalogue, propose a slate
+    of distinct archetypes with PoE2 text citations, gate it with validate_slate, run it with run_slate, report. Call this first
+    and follow it. Same text as the `ideate` prompt, with the current benchmark ids, tiers and thresholds filled in."""
+    return _ideate.render(idea, constraints)
+
+
+@mcp.tool()
+def search(kind: str, text: str | None = None, skill_types: list[str] | None = None, tags: list[str] | None = None,
+           ascendancy: str | None = None, class_name: str | None = None, limit: int = 25) -> dict[str, Any]:
+    """Find catalogue entries of one kind (skill | support | unique | keystone | notable | base | ascendancy | class). Filters AND
+    together. text: words that must each start a word in the name or game text ('freez' finds Freeze/Frozen; lexical, not semantic).
+    skill_types: exact catalogue skill types (e.g. Spell, Projectile, Channel; read real ones from explain). tags: gem or base tags.
+    ascendancy: notables of that ascendancy. class_name: ascendancies of that class. Returns names with trimmed text."""
+    return core.search(kind, text, skill_types, tags, ascendancy, class_name, limit)
+
+
+@mcp.tool()
+def bridges(term_a: str, term_b: str, limit: int = 10) -> dict[str, Any]:
+    """Entries (keystones, notables, uniques, supports, skills) whose name or text mentions both terms, e.g. ('Armour', 'Lightning')
+    or ('Ignite', 'Minion'). Pairing terms from different domains surfaces non-obvious combinations; co-occurrence is lexical,
+    so read the text and judge."""
+    return core.bridges(term_a, term_b, limit)
+
+
+@mcp.tool()
+def enablers(skill_type: str, limit: int = 15) -> dict[str, Any]:
+    """What grants or names a skill type: supports that add it to the skill they support (e.g. CreatesGroundEffect, GeneratesCharges,
+    SkillConsumesFreeze), plus keystones, notables and uniques whose text names it. skill_type is an exact catalogue type name
+    (case-sensitive; read real ones from explain)."""
+    return core.enablers(skill_type, limit)
+
+
+@mcp.tool()
+def explain(kind: str, name: str) -> dict[str, Any]:
+    """Full PoE2 game text of one entry (skill | support | unique | keystone | notable | base), resolved exactly by name. `text`
+    lines are what a slate claim may quote: copy the quote verbatim from one line. Also returns structure (skill types,
+    support require/exclude/add types, unique base and slot). Unresolved names return suggestions."""
+    return core.explain(kind, name)
+
+
+@mcp.tool()
+def sweep(spec: str | dict[str, Any], kind: str, searched: bool = True, top: int = 20, workers: int | None = None) -> dict[str, Any]:
+    """Engine sweep, background job (returns run_id; read with get_report): measure the change in the spec's metric from adding each
+    catalogue entry of one kind, one at a time, on a probe seed built from the spec. kind: keystone | ascendancy (own ascendancy's
+    notables) | support | unique:<slot> (slot as in preflight). searched=true (default) searches supports and the passive tree first,
+    about 1-2 min in all; false is quicker but keystone deltas then include their path nodes. Flags: audit_outlier (check for an
+    engine artefact), possibly_unmodelled (zero delta on an entry with text; PoB may not model it). Use for leads, at most two
+    probe specs per slate; deltas are not finished-build numbers."""
+    return core.start_sweep(spec, kind, searched=searched, top=top, workers=workers)
+
+
+@mcp.tool()
+def validate_slate(slate: str | dict[str, Any]) -> dict[str, Any]:
+    """Gate a slate of candidate builds (YAML text or object; schema in ideation_guide). Deterministic, no engine. Per candidate: kept
+    or rejected with issues: every spec validates; key pieces (1-3) resolve exactly and are fixed in the spec; every claim cites
+    PoE2 text and each quote is a substring of that entry's text; claims contain no numbers; the main skill has a metric;
+    candidates differ enough (near_duplicate). Slate issues: too few candidates, coverage of deliveries/damage types, brief ids.
+    Fix or replace rejected candidates and re-run; do not paraphrase quotes."""
+    return core.validate_slate(slate)
+
+
+@mcp.tool()
+def preflight_slate(slate: str | dict[str, Any], bases: dict[str, str] | None = None, workers: int | None = None,
+                    deepen_k: int | None = None) -> dict[str, Any]:
+    """Validate a slate and estimate run_slate time (screen every kept candidate at one tier, ablate its key pieces, full run for
+    the top deepen_k, default 3). bases = default gear slot -> base for candidates without their own `bases:`. Lists rejected
+    candidates and any candidate with no bases. Give the user the estimate; over_cap means run_slate needs force."""
+    return core.preflight_slate(slate, bases, workers, deepen_k)
+
+
+@mcp.tool()
+def run_slate(slate: str | dict[str, Any], bases: dict[str, str] | None = None, workers: int | None = None, deepen_k: int | None = None,
+              max_minutes: float | None = None, force: bool = False) -> dict[str, Any]:
+    """Start a slate run in the background and return run_id: screen each kept candidate, ablate its key pieces (keystone/notable
+    removed, support swapped for the next best, unique replaced by the best rare for its slot), rank on benchmark metrics only,
+    then full runs for the top deepen_k at every brief tier. Validates first; refuses over the cap (default 45 min) unless force,
+    set only after the user has seen the estimate. Poll run_status about once a minute; then get_report."""
+    return core.start_slate(slate, bases, workers=workers, deepen_k=deepen_k, max_minutes=max_minutes, force=force)
 
 
 def main() -> None:

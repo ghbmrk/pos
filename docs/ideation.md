@@ -1,6 +1,6 @@
 # Creative ideation from high-level prompts (I1)
 
-Status: design, 2026-11-22. Owner requirement (cmsg_01RxGYnd78N9kMbbAJ5pWDhU6o4n9NQafMk2fcJq7WYpEm): from a high-level prompt ("a tanky lightning build that deletes Arbiter on a budget"), the system proposes **divergent** candidate builds, distinct archetypes, not only an optimised version of one build the user already named. Works inside the decided interface: MCP server + CLI, no embedded LLM (cmsg_01RxGYnd78N9kMbbAJ5pWDhUAqzfwd83TbFbqwuWojhQ3V, `docs/pipeline.md`).
+Status: design, 2026-11-22; built through I6 (MCP prompt and tools, docs/mcp.md). Owner requirement (cmsg_01RxGYnd78N9kMbbAJ5pWDhU6o4n9NQafMk2fcJq7WYpEm): from a high-level prompt ("a tanky lightning build that deletes Arbiter on a budget"), the system proposes **divergent** candidate builds, distinct archetypes, not only an optimised version of one build the user already named. Works inside the decided interface: MCP server + CLI, no embedded LLM (cmsg_01RxGYnd78N9kMbbAJ5pWDhUAqzfwd83TbFbqwuWojhQ3V, `docs/pipeline.md`).
 
 ## Principle
 
