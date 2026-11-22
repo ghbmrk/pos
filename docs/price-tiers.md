@@ -63,6 +63,10 @@ Ship Option 1 as the definition of tiers. Calibrate **by price, not by template*
 - 1.0 path: templates as in Option 1 on launch day; anchors marked stale at the reset and refilled when prices settle.
 - Cost: small, plus optional manual sampling.
 
+### Uniques under Option 4
+
+Uniques are priced directly, not by points: a unique's price comes from poe.ninja (or the Exchange) and converts to points through the same divines-per-point curve that the rare samples calibrate, so a variant can trade a rare for a unique inside one budget. Limits: poe.ninja prices a unique by name, so roll range, corruptions and other variants are not priced separately (use the listed price and flag high-roll assumptions); there are no unique prices at the 1.0 reset or while live price hosts stay blocked here, so until then uniques use a hand-set price band (cheap, mid, chase) per item.
+
 ### Not a separate option: ladder-observed tiers
 
 Derive templates from gear real characters wear, by percentile (poe.ninja build snapshots or GGG's OAuth character API). Access terms are unverified and there is no data on 1.0 day one, so this fits as a later calibration source behind Option 4's `PriceModel`, not as a starting option.
