@@ -1,0 +1,24 @@
+# Per-skill-type objective metric (docs/spec.md). First matching rule wins. A rule matches when the skill has
+# any type in `any` (if given), all in `all`, and none in `none`. metric null = no engine metric: the spec
+# must name one explicitly (objective.maximise) or validation fails, so a silent 0 can never rank variants.
+schema_version: 1
+# PoB output keys the engine wrapper reads (pos_engine/pob_headless.lua); a test checks this against the Lua list.
+stat_keys: [TotalDPS, FullDPS, CombinedDPS, AverageDamage, Speed, HitChance, CritChance, CritMultiplier,
+            ManaCost, Life, Mana, EnergyShield, TotalEHP, Ward, Armour, Evasion, Str, Dex, Int, ProjectileCount]
+rules:
+  - any: [Minion, CreatesMinion]
+    metric: null
+    note: "Minion damage is not read by the engine wrapper (its note: undamageable/unmodelled minions read as ~0)."
+  - any: [Aura, Buff, HasReservation, Persistent]
+    none: [Damage, Attack, Spell]
+    metric: null
+    note: "Buff/aura/reservation skills have no damage output; name the metric to maximise."
+  - any: [Projectile, ProjectilesFromUser, Nova]
+    metric: FullDPS
+    note: "TotalDPS is one hit, so it would reward fewer projectiles; FullDPS is consistent across variants but an upper bound if hits do not overlap on one target."
+  - any: [Attack, Spell, Damage]
+    metric: TotalDPS
+    note: "One hit of the main skill; damage over time and overlapping hits are not added."
+default:
+  metric: TotalDPS
+  note: "Skill types matched no rule; TotalDPS used, treat with care."
