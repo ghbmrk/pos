@@ -110,8 +110,104 @@ def test_server_over_stdio():
                 await s.initialize()
                 names = {t.name for t in (await s.list_tools()).tools}
                 res = await s.call_tool("resolve", {"kind": "skill", "names": ["Spark"]})
-                return names, res
+                prompts = {p.name: p for p in (await s.list_prompts()).prompts}
+                got = await s.get_prompt("ideate", {"idea": "a tanky lightning build"})
+                return names, res, prompts, got
 
-    names, res = asyncio.run(asyncio.wait_for(go(), 60))
-    assert {"resolve", "validate_spec", "import_pob", "preflight", "run", "run_status", "get_report", "compare", "cancel_run"} <= names
+    names, res, prompts, got = asyncio.run(asyncio.wait_for(go(), 60))
+    assert "ideate" in prompts and any(a.name == "idea" and a.required for a in prompts["ideate"].arguments)
+    assert "a tanky lightning build" in got.messages[0].content.text
+    assert {"resolve", "validate_spec", "import_pob", "preflight", "run", "run_status", "get_report", "compare", "cancel_run",
+            "ideation_guide", "search", "bridges", "enablers", "explain", "sweep", "validate_slate", "preflight_slate", "run_slate"} <= names
     assert "Spark" in json.dumps(res.structured_content or [c.text for c in res.content])
+
+
+# ---- ideation (I6) ----------------------------------------------------------------------------------------------
+ROOT = Path(__file__).resolve().parents[2]
+SLATE = (ROOT / "examples" / "ideation_slate.yaml").read_text()
+
+
+def test_catalogue_queries_are_compact_and_quotable():
+    r = core.search("keystone", text="mana")
+    assert {"Eldritch Battery", "Mind Over Matter"} <= {x["name"] for x in r["results"]} and all("text" in x for x in r["results"])
+    assert core.search("support", skill_types=["SummonsTotem"])["count"] > 0
+    assert core.search("keystone", limit=2)["truncated"]
+    assert "error" in core.search("class", text="x") and "error" in core.search("bogus")
+    b = core.bridges("Armour", "Lightning", limit=2)
+    assert sum(b["counts"].values()) > 0 and all(len(v) <= 2 for k, v in b.items() if isinstance(v, list))
+    e = core.enablers("GeneratesCharges")
+    assert e["supports_adding"] and "note" not in e
+    assert "note" in core.enablers("generatescharges")          # case-sensitive type names get a hint, not silence
+    x = core.explain("keystone", "eldritch battery")
+    assert x["ok"] and "Convert 100% of maximum Energy Shield to maximum Mana" in x["text"]
+    u = core.explain("unique", "Dream Fragments")
+    assert "You cannot be Chilled or Frozen" in u["text"] and "all_lines" not in u
+    assert core.explain("skill", "Cyclone")["status"] == "unresolved"   # PoE1-only name on the pinned data
+
+
+def test_slate_validate_preflight_and_refusals():
+    v = core.validate_slate(SLATE)
+    assert v["ok"] and v["kept"] == 3 and all(c["kept"] and c["vector"] for c in v["candidates"])
+    assert "structure_error" in core.validate_slate({"slate": 1, "bogus": 1})
+    import yaml
+    bad = yaml.safe_load(SLATE)
+    bad["candidates"][0]["claims"][0]["cites"][0]["quote"] = "You cannot be Shocked or Frozen"
+    r = core.validate_slate(bad)
+    assert not r["candidates"][0]["kept"] and any(i["code"] == "quote_mismatch" for i in r["candidates"][0]["issues"])
+    p = core.preflight_slate(SLATE, {"weapon": "Acrid Wand"}, workers=4)
+    assert p["ok"] and "min" in p["summary"] and not p["rejected"] and "missing_bases" not in p
+    assert core.preflight_slate(SLATE)["missing_bases"]
+    assert "no gear bases" in core.start_slate(SLATE)["error"]
+    assert "refused" in core.start_slate(SLATE, {"weapon": "Acrid Wand"}, max_minutes=0.01)
+    assert "unknown slot" in core.start_slate(SLATE, {"hat": "x"})["error"]
+    assert not list(Path(os.environ["POS_RUNS_DIR"]).iterdir())
+
+
+def test_sweep_refuses_bad_kind_and_invalid_spec():
+    assert "kind must be" in core.start_sweep(SPEC, "jewel")["error"]
+    assert "kind must be" in core.start_sweep(SPEC, "unique:hat")["error"]
+    assert not core.start_sweep({**SPEC, "main_skill": {"gem": "Sparkk"}}, "keystone")["ok"]
+
+
+def test_job_kinds_share_state_and_report_files(runs):
+    d = _fake_run(runs, "slate1", pid=2**22 - 1, report=False)
+    m = json.loads((d / "meta.json").read_text()); m.update(job="slate", report="slate_report.md")
+    (d / "meta.json").write_text(json.dumps(m))
+    assert core.run_status("slate1")["state"] == "failed"           # report.md is not the slate's report
+    (d / "slate_report.md").write_text("# Slate\n")
+    (d / "slate_run.json").write_text("{}")
+    st = core.run_status("slate1")
+    assert st["state"] == "done" and st["job"] == "slate"
+    g = core.get_report("slate1")
+    assert g["ok"] and g["job"] == "slate" and g["report_md"].startswith("# Slate") and "slate_json" in g["files"]
+    assert core.list_runs()["runs"][0]["job"] == "slate"
+
+
+def test_ideate_prompt_carries_live_vocabulary_and_rules():
+    from pos_catalogue import Catalogue
+    from pos_mcp import ideate
+    from pos_pipeline import data
+    t = ideate.render("tanky lightning build that kills Arbiter on a budget", "no minions")
+    cfg = data.ideation()
+    assert "tanky lightning build" in t and "User constraints: no minions" in t
+    assert Catalogue.load().pob_sha[:7] in t and "`arbiter_ash` boss" in t and "`mid`" in t
+    assert "incomplete" in t                                          # unsourced benchmark is labelled
+    assert f"at most {cfg['slate']['max_kept']}" in t and f"at least {cfg['diversity']['min_differing_fields']} of" in t
+    for rule in ("PoE1", "verbatim", "No numbers", "no_metric", "key_pieces", "validate_slate", "preflight_slate", "run_slate",
+                 "get_report", "not_load_bearing", "possibly_unmodelled"):
+        assert rule in t, rule
+    import re
+    assert not re.search(r"\{[a-z_0-9]+\}", t)                       # no unfilled placeholders
+    assert "(no idea given" in ideate.render("  ")
+
+
+def test_sweep_job_end_to_end(tmp_path):
+    """Real engine: ascendancy sweep on the unsearched Spark seed through the job entry point (about 30 s)."""
+    import yaml
+    from pos_mcp import jobs
+    (tmp_path / "spec.yaml").write_text(yaml.safe_dump({**SPEC, "benchmarks": ["arbiter_ash"]}))
+    assert jobs.sweep_job(str(tmp_path / "spec.yaml"), "ascendancy", str(tmp_path), top=5, workers=2, search=False) == 0
+    j = json.loads((tmp_path / "sweep.json").read_text())
+    assert j["kind"] == "ascendancy" and j["benchmark_options"] == "arbiter_ash" and j["entries"] and j["baseline"] > 0
+    md = (tmp_path / "report.md").read_text()
+    assert md.startswith("# Sweep: ascendancy") and "no support or tree search" in md

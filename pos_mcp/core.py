@@ -146,29 +146,37 @@ def start_run(spec: str | dict, bases: dict[str, str], *, workers: int | None = 
         return {"ok": False, "error": "no bases given: gear search needs one base per slot, e.g. {'weapon': 'Acrid Wand'}; resolve names with kind 'base'"}
     if pf["over_cap"] and not force:
         return {"ok": False, "refused": pf["summary"], "hint": "estimate is above the cap; tell the owner, then pass force=true or max_minutes"}
+    s = _spec_from(spec)
+    b, _ = _bases(bases)
+    extra = (["--workers", str(workers)] if workers else []) + (["--realloc-rounds", str(realloc_rounds)] if realloc_rounds is not None else []) \
+        + (["--max-minutes", str(max_minutes)] if max_minutes is not None else []) + (["--force"] if force else [])
+    return _launch("run", "spec.yaml", _plain(spec), lambda d: ["-m", "pos_pipeline", "run", str(d / "spec.yaml"),
+                   *[f"{k}={v}" for k, v in b.items()], "--out", str(d), *extra], pf["summary"], {"tiers": s.tiers})
+
+
+def _plain(doc: str | dict) -> Any:
+    """YAML text or object -> plain JSON-able object (what gets written to the job directory)."""
+    return json.loads(json.dumps(doc if isinstance(doc, dict) else yaml.safe_load(doc)))
+
+
+REPORTS = {"run": "report.md", "slate": "slate_report.md", "sweep": "report.md"}
+
+
+def _launch(job: str, input_name: str, doc: Any, argv, estimate: str, extra_meta: dict | None = None) -> dict:
+    """Start `python <argv(dir)>` in a new job directory, detached. One job at a time: all jobs share the CPUs."""
     live = _active()
     if live:
-        return {"ok": False, "error": f"run {live[0]} is still running (one at a time, they share the CPUs); wait or cancel_run it"}
-    rid = time.strftime("%Y%m%d-%H%M%S-") + uuid.uuid4().hex[:4]
+        return {"ok": False, "error": f"job {live[0]} is still running (one at a time, they share the CPUs); wait or cancel_run it"}
+    rid = time.strftime("%Y%m%d-%H%M%S-") + job[:2] + uuid.uuid4().hex[:4]
     d = runs_dir() / rid
     d.mkdir()
-    s = _spec_from(spec)
-    (d / "spec.yaml").write_text(yaml.safe_dump(json.loads(json.dumps(spec if isinstance(spec, dict) else yaml.safe_load(spec))), sort_keys=False), encoding="utf-8")
-    b, _ = _bases(bases)
-    cmd = [sys.executable, "-m", "pos_pipeline", "run", str(d / "spec.yaml"), *[f"{k}={v}" for k, v in b.items()], "--out", str(d)]
-    if workers:
-        cmd += ["--workers", str(workers)]
-    if realloc_rounds is not None:
-        cmd += ["--realloc-rounds", str(realloc_rounds)]
-    if max_minutes is not None:
-        cmd += ["--max-minutes", str(max_minutes)]
-    if force:
-        cmd.append("--force")
+    (d / input_name).write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    cmd = [sys.executable, *argv(d)]
     log = open(d / "log.txt", "w", encoding="utf-8")
     p = subprocess.Popen(cmd, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
-    (d / "meta.json").write_text(json.dumps({"pid": p.pid, "started": time.time(), "cmd": cmd[3:], "tiers": s.tiers,
-                                              "estimate": pf["summary"]}), encoding="utf-8")
-    return {"ok": True, "run_id": rid, "estimate": pf["summary"], "next": "poll run_status(run_id); then get_report(run_id)"}
+    (d / "meta.json").write_text(json.dumps({"pid": p.pid, "started": time.time(), "job": job, "report": REPORTS[job],
+                                              "cmd": cmd[1:], "estimate": estimate, **(extra_meta or {})}), encoding="utf-8")
+    return {"ok": True, "run_id": rid, "job": job, "estimate": estimate, "next": "poll run_status(run_id) about once a minute; then get_report(run_id)"}
 
 
 def _state(run_id: str) -> dict:
@@ -179,13 +187,13 @@ def _state(run_id: str) -> dict:
     log = (d / "log.txt").read_text(encoding="utf-8", errors="replace").splitlines() if (d / "log.txt").exists() else []
     if (d / "cancelled").exists():
         state = "cancelled"
-    elif (d / "report.md").exists():
+    elif (d / meta.get("report", "report.md")).exists():
         state = "done"
     elif _alive(meta["pid"]):
         state = "running"
     else:
         state = "failed"
-    return {"state": state, "elapsed_s": round((time.time() - meta["started"]) if state == "running" else
+    return {"state": state, "job": meta.get("job", "run"), "elapsed_s": round((time.time() - meta["started"]) if state == "running" else
                                                 ((d / "log.txt").stat().st_mtime - meta["started"]) if log else 0),
             "estimate": meta["estimate"], "log_tail": log[-8:]}
 
@@ -214,9 +222,13 @@ def get_report(run_id: str, max_chars: int = MAX_REPORT_CHARS) -> dict:
     if st["state"] != "done":
         return {"ok": False, **st}
     d = runs_dir() / Path(run_id).name
-    text = (d / "report.md").read_text(encoding="utf-8")
-    return {"ok": True, "report_md": text[:max_chars], "truncated": len(text) > max_chars, "chars": len(text),
-            "files": {"report": str(d / "report.md"), "results_db": str(d / "results.sqlite"), "run_json": str(d / "run.json")}}
+    meta = json.loads((d / "meta.json").read_text(encoding="utf-8"))
+    rp = d / meta.get("report", "report.md")
+    text = rp.read_text(encoding="utf-8")
+    files = {"report": str(rp), **{k: str(d / f) for k, f in (("results_db", "results.sqlite"), ("run_json", "run.json"),
+             ("slate_db", "slate_results.sqlite"), ("slate_json", "slate_run.json"), ("sweep_json", "sweep.json")) if (d / f).exists()}}
+    return {"ok": True, "job": meta.get("job", "run"), "report_md": text[:max_chars], "truncated": len(text) > max_chars,
+            "chars": len(text), "files": files}
 
 
 def _best(run_id: str) -> dict | str:
@@ -248,4 +260,159 @@ def compare(run_a: str, run_b: str) -> dict:
 
 def list_runs(limit: int = 10) -> dict:
     ids = sorted(d.name for d in runs_dir().iterdir() if (d / "meta.json").exists())[-limit:]
-    return {"runs": [{"run_id": i, "state": _state(i)["state"]} for i in ids]}
+    return {"runs": [{"run_id": i, "job": (st := _state(i))["job"], "state": st["state"]} for i in ids]}
+
+
+# ---- ideation (I6, docs/ideation.md): catalogue queries, slate gate, sweeps, slate runs -------------------------
+SEARCH_LIMIT = 25
+TEXT_CHARS = 240
+
+
+def _card(kind: str, e: dict, lines: int = 4) -> dict:
+    """Compact entry for query results: name, quotable text (trimmed; `explain` gives it in full) and the fields that matter for ideas."""
+    from pos_catalogue.query import TEXT_KINDS, texts
+    d: dict[str, Any] = {"kind": kind, "name": e.get("name")}
+    if kind in TEXT_KINDS:
+        t = texts(kind, e)
+        d["text"] = [x if len(x) <= TEXT_CHARS else x[:TEXT_CHARS] + "..." for x in t[:lines]]
+        if len(t) > lines:
+            d["more_lines"] = len(t) - lines
+    for k in ("skill_types", "require_types", "add_types", "ascendancy", "class", "base", "file", "type", "tags"):
+        if e.get(k):
+            d["slot" if k == "file" else k] = e[k]
+    return d
+
+
+def search(kind: str, text: str | None = None, skill_types: list[str] | None = None, tags: list[str] | None = None,
+           ascendancy: str | None = None, class_: str | None = None, limit: int = SEARCH_LIMIT) -> dict:
+    from pos_catalogue import query
+    if kind not in KINDS:
+        return {"error": f"kind must be one of {list(KINDS)}"}
+    if text and kind not in query.TEXT_KINDS:
+        return {"error": f"text search needs a kind with game text: {list(query.TEXT_KINDS)}"}
+    cat = Catalogue.load()
+    hits = query.search(cat, kind, text=text, skill_types=skill_types, tags=tags, ascendancy=ascendancy, class_=class_)
+    lim = max(1, min(limit, 100))
+    return {"pob_sha": cat.pob_sha, "count": len(hits), "results": [_card(kind, e) for e in hits[:lim]],
+            **({"truncated": True} if len(hits) > lim else {})}
+
+
+def enablers(skill_type: str, limit: int = 15) -> dict:
+    from pos_catalogue import query
+    cat = Catalogue.load()
+    r = query.enablers(cat, skill_type)
+    kind_of = {"supports_adding": "support", "keystones": "keystone", "notables": "notable", "uniques": "unique"}
+    out = {k: [_card(kind_of[k], e, 2) for e in v[:limit]] for k, v in r.items()}
+    counts = {k: len(v) for k, v in r.items()}
+    note = None if any(counts.values()) else "nothing found: skill types are exact catalogue names (case-sensitive), e.g. from explain(kind='skill').skill_types"
+    return {"pob_sha": cat.pob_sha, "skill_type": skill_type, "counts": counts, **out, **({"note": note} if note else {})}
+
+
+def bridges(term_a: str, term_b: str, limit: int = 10) -> dict:
+    from pos_catalogue import query
+    cat = Catalogue.load()
+    r = query.bridges(cat, term_a, term_b)
+    return {"pob_sha": cat.pob_sha, "terms": [term_a, term_b], "counts": {k: len(v) for k, v in r.items()},
+            **{k: [_card(k[:-1], e, 3) for e in v[:limit]] for k, v in r.items()}}
+
+
+def explain(kind: str, name: str) -> dict:
+    """Full quotable text of one entry, resolved exactly by name (or catalogue id)."""
+    from pos_catalogue import query
+    from pos_catalogue.catalogue import _KINDS
+    if kind not in query.TEXT_KINDS:
+        return {"error": f"kind must be one of {list(query.TEXT_KINDS)}"}
+    cat = Catalogue.load()
+    r = cat.resolve(kind, name)
+    if r.status == "unresolved":
+        return {"ok": False, "status": "unresolved", "query": name, "suggestions": [_entry(e) for e in r.suggestions]}
+    e = r.matches[0]
+    out = {"ok": True, "pob_sha": cat.pob_sha, **query.explain(cat, kind, e[_KINDS[kind][1]])}
+    if r.status == "ambiguous":
+        out["note"] = f"{len(r.matches)} entries share this name; showing the first"
+    if kind == "unique":
+        out.pop("all_lines", None)           # older-variant lines are not quotable; `text` is the newest variant
+    out["quote_rule"] = "a slate cite's quote must be a substring of one `text` line (case/whitespace-insensitive) and at least 12 characters"
+    return out
+
+
+def _slate_from(slate: str | dict):
+    from pos_pipeline.slate import parse_slate
+    try:
+        data = yaml.safe_load(slate) if isinstance(slate, str) else slate
+    except yaml.YAMLError as e:
+        raise SpecError(f"not valid YAML/JSON: {e}") from e
+    return parse_slate(data)
+
+
+def validate_slate(slate: str | dict) -> dict:
+    from pos_pipeline.slate import validate_slate as _vs
+    try:
+        s = _slate_from(slate)
+    except SpecError as e:
+        return {"ok": False, "structure_error": str(e)}
+    rep = _vs(s, Catalogue.load(pob_sha=s.pob_sha))
+    return {"ok": rep.ok, "kept": len(rep.kept), "submitted": len(rep.candidates), "slate_issues": [_issue(i) for i in rep.issues],
+            "candidates": [{"name": r.name, "kept": r.kept, "vector": r.vector, "metric": r.metric,
+                            "issues": [_issue(i) for i in r.issues]} for r in rep.candidates]}
+
+
+def preflight_slate(slate: str | dict, bases: dict[str, str] | None = None, workers: int | None = None,
+                    deepen_k: int | None = None, max_minutes: float | None = None) -> dict:
+    """Validate the slate and estimate screen + ablation + deepen time without running."""
+    from pos_pipeline.gear import SLOTS
+    from pos_pipeline.orchestrate import DEFAULT_MAX_MINUTES
+    from pos_pipeline.slate_run import estimate_slate
+
+    v = validate_slate(slate)
+    if not v["ok"]:
+        return {"ok": False, "validation": v}
+    s = _slate_from(slate)
+    b, err = _bases(bases or {})
+    if err:
+        return {"ok": False, "error": err}
+    kept = {r["name"] for r in v["candidates"] if r["kept"]}
+    cands = [c for c in s.candidates if c.name in kept]
+    no_bases = [c.name for c in cands if not {**b, **c.bases}]
+    est = estimate_slate(cands, s.brief, {c.name: len({**b, **c.bases}) or len(SLOTS) for c in cands}, workers or os.cpu_count() or 1,
+                         max_minutes=DEFAULT_MAX_MINUTES if max_minutes is None else max_minutes, k=deepen_k)
+    out = {"ok": True, "summary": est.summary(), "over_cap": est.over_cap, "kept": sorted(kept), "rate_sources": list(est.sources),
+           "rejected": [{"name": r["name"], "errors": [i for i in r["issues"] if i["severity"] == "error"]} for r in v["candidates"] if not r["kept"]]}
+    if no_bases:
+        out["missing_bases"] = no_bases
+    return out
+
+
+def start_slate(slate: str | dict, bases: dict[str, str] | None = None, *, workers: int | None = None, deepen_k: int | None = None,
+                max_minutes: float | None = None, force: bool = False) -> dict:
+    pf = preflight_slate(slate, bases, workers, deepen_k, max_minutes)
+    if not pf["ok"]:
+        return pf
+    if pf.get("missing_bases"):
+        return {"ok": False, "error": f"no gear bases for {pf['missing_bases']}: pass bases (slot -> base) or give the candidate `bases:`; resolve names with kind 'base'"}
+    if pf["over_cap"] and not force:
+        return {"ok": False, "refused": pf["summary"], "hint": "estimate is above the cap; tell the user, then pass force=true or max_minutes, or cut candidates / deepen_k"}
+    b, _ = _bases(bases or {})
+    extra = (["--workers", str(workers)] if workers else []) + (["--deepen-k", str(deepen_k)] if deepen_k is not None else []) \
+        + (["--max-minutes", str(max_minutes)] if max_minutes is not None else []) + (["--force"] if force else [])
+    r = _launch("slate", "slate.yaml", _plain(slate), lambda d: ["-m", "pos_pipeline", "slate", "run", str(d / "slate.yaml"),
+                *[f"{k}={v}" for k, v in b.items()], "--out", str(d), *extra], pf["summary"], {"kept": pf["kept"]})
+    if r.get("ok") and pf["rejected"]:
+        r["rejected"] = pf["rejected"]
+    return r
+
+
+SWEEP_KINDS = ("keystone", "ascendancy", "support", "unique:<slot>")
+
+
+def start_sweep(spec: str | dict, kind: str, *, searched: bool = True, top: int = 20, workers: int | None = None) -> dict:
+    from pos_pipeline.gear import SLOTS
+    if not (kind in ("keystone", "ascendancy", "support") or (kind.startswith("unique:") and kind[7:] in SLOTS)):
+        return {"ok": False, "error": f"kind must be one of {list(SWEEP_KINDS)}; slots: {', '.join(SLOTS)}"}
+    v = validate_spec(spec)
+    if not v["ok"]:
+        return {"ok": False, "validation": v}
+    est = "about 2 min (probe seed: supports + tree search ~1.3 min on 4 vCPU, then the sweep 10-25 s)" if searched else "under 1 min"
+    extra = (["--workers", str(workers)] if workers else []) + ([] if searched else ["--no-search"])
+    return _launch("sweep", "spec.yaml", _plain(spec), lambda d: ["-m", "pos_mcp.jobs", "sweep", str(d / "spec.yaml"), kind,
+                   "--out", str(d), "--top", str(top), *extra], est, {"kind": kind})
