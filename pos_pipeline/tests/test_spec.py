@@ -133,7 +133,7 @@ def test_tiers_and_profile(cat):
 
 
 def test_metric_mapping_and_unmapped_skills_fail_loudly(cat):
-    assert run(cat, main_skill={"gem": "Mana Tempest"}).metric == "TotalDPS"
+    assert run(cat, main_skill={"gem": "Mana Tempest"}).metric == "HitAilmentDPS"
     assert run(cat, main_skill={"gem": "Fireball"}).metric == "FullDPS"
     assert "no_metric" in codes(run(cat, main_skill={"gem": "Raise Zombie"}))
     assert "no_metric" in codes(run(cat, main_skill={"gem": "Herald"}))
@@ -207,4 +207,9 @@ def test_real_catalogue_smoke():
                        "axes": {"weapon_base": ["staff", "wand+focus"]}})
     rep = validate(spec, real)
     assert [i.code for i in rep.errors] == ["support_incompatible"]
-    assert rep.metric == "TotalDPS"
+    assert rep.metric == "HitAilmentDPS"
+
+
+def test_attack_and_spell_skills_use_ailment_aware_metric():
+    for types in (["Attack", "Melee"], ["Spell"], ["Damage"]):
+        assert data.metric_for(types)["metric"] == "HitAilmentDPS"

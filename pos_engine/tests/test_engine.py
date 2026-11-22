@@ -497,3 +497,17 @@ def test_set_skill_computes_full_dps(engine):
     s = engine.paste_skill("Spark 20/20  1")["stats"]
     assert (s.get("FullDPS") or 0) > 0
     assert s["FullDPS"] == pytest.approx(s["TotalDPS"], rel=1e-2)
+
+
+def test_rake_bleed_counted_in_hit_ailment_dps(engine):
+    # Rake is a bleed skill: one hit is the minor part (p2 eval: hit 1.9 vs bleed 12.1). The metric used for
+    # Attack/Spell skills (HitAilmentDPS) must count PoB's own BleedDPS on top of TotalDPS.
+    engine.new_build()
+    engine.set_class("Huntress", "Amazon")
+    engine.set_level(90)
+    engine.add_item("Rarity: Rare\nB\nHunting Spear\nAdds 40 to 75 Physical Damage", slot="Weapon 1")
+    engine.paste_skill("Rake 20/0  1")
+    s = engine.get_stats(["TotalDPS", "BleedDPS", "AilmentDPS", "HitAilmentDPS"])["stats"]
+    assert s["BleedDPS"] > s["TotalDPS"] > 0
+    assert s["AilmentDPS"] == pytest.approx(s["BleedDPS"])
+    assert s["HitAilmentDPS"] == pytest.approx(s["TotalDPS"] + s["BleedDPS"])
