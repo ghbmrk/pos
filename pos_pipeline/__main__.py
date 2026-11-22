@@ -216,6 +216,41 @@ def _run(argv: list[str]) -> int:
     return 1 if any(not s.ok for s in r.seeds) else 0
 
 
+def _sweep(path: str, kind: str, workers: int, top: int, pieces: list[str] | None = None) -> int:
+    """`sweep spec.yaml KIND [workers] [top]` / `ablate spec.yaml kind:id ...` on the assembled (unsearched) seed."""
+    from pos_engine.engine import PobEngine
+    from pos_pool.pool import EnginePool
+
+    from .assemble import assemble, variants
+    from .sweep import ablate, sweep
+
+    spec = load_spec(path)
+    cat = Catalogue.load(pob_sha=spec.pob_sha)
+    rep = validate(spec, cat)
+    if not rep.ok:
+        _print_issues(rep.issues)
+        return 1
+    with PobEngine() as eng, EnginePool(workers=workers) as pool:
+        a = assemble(spec, cat, eng, variants(spec)[0])
+        if not a.ok:
+            _print_issues(a.issues)
+            return 1
+        sk = cat.resolve("skill", spec.main_skill).entry["id"]
+        if pieces is not None:
+            kp = [{"kind": k, "id": i.split("@")[0], **({"slot": i.split("@")[1]} if "@" in i else {})} for k, i in (x.split(":", 1) for x in pieces)]
+            for r in ablate(cat, pool, a.xml, kp, rep.metric, skill_id=sk, engine=eng):
+                d = "-" if r.delta_rel is None else f"{r.delta_rel:+.1%}"
+                print(f"{r.verdict:20} {r.piece['kind']}:{r.piece['id']}  worth {d}  {r.replacement or ''} {r.note}")
+            return 0
+        s = sweep(cat, pool, a.xml, kind, rep.metric, skill_id=sk, engine=eng)
+    print(f"{s.kind} sweep on {s.metric}: baseline {s.baseline:.1f}, {len(s.entries)} entries, {s.seconds:.0f} s")
+    for e in s.entries[:top]:
+        print(f"  {e.name:36} {'-' if e.delta is None else format(e.delta, '+.1f'):>10}  pts {e.points}  {','.join(e.flags)}")
+    for n in s.notes:
+        print("note:", n)
+    return 0
+
+
 def main(argv: list[str]) -> int:
     if argv and argv[0] == "run":
         return _run(argv[1:])
@@ -227,6 +262,10 @@ def main(argv: list[str]) -> int:
         write_report(load_run(argv[1]), out)
         print(f"wrote report.md and results.sqlite in {out}")
         return 0
+    if len(argv) >= 3 and argv[0] == "sweep":
+        return _sweep(argv[1], argv[2], int(argv[3]) if len(argv) > 3 else 2, int(argv[4]) if len(argv) > 4 else 15)
+    if len(argv) >= 3 and argv[0] == "ablate":
+        return _sweep(argv[1], "", 2, 0, argv[2:])
     if len(argv) >= 2 and argv[0] == "assemble":
         return _assemble(argv[1], argv[2] if len(argv) > 2 else None)
     if len(argv) >= 2 and argv[0] == "supports":
@@ -238,7 +277,7 @@ def main(argv: list[str]) -> int:
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
+        print("usage: python -m pos_pipeline validate spec.yaml | sweep spec.yaml KIND [workers] [top] (KIND keystone|ascendancy|unique:<slot>|support) | ablate spec.yaml kind:id[@slot]... | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
         return 2
     try:
         spec = load_spec(argv[1])
