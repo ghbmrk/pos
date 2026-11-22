@@ -85,6 +85,12 @@ class Catalogue:
                 files = [f for f in files if f.stem == pob_sha[:7]]
             if not files:
                 raise FileNotFoundError("no catalogue in data/catalogue; run `python -m pos_catalogue export`")
+            if len(files) > 1 and not pob_sha:
+                try:  # after a re-pin several exist; default to the pinned PoB's
+                    from .export import pob_sha as pinned
+                    files = [f for f in files if f.stem == pinned()[:7]] or files
+                except Exception:
+                    pass
             if len(files) > 1:
                 raise ValueError(f"several catalogues, pass pob_sha: {[f.stem for f in files]}")
             path = files[0]
