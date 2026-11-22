@@ -36,7 +36,7 @@
 - B1 · done · docs/benchmarks.md: nobody (PoB, MaxWilk, Hivemind, SFerenczy) models TTK/clear; PoB gives static ingredients (MaximumHitTaken per type, TotalNumberOfHits, AoE radius, AverageHit); PoB boss-skill presets are PoE1-only; design: data/benchmarks.yaml (pob_options + sourced constants with patch/source labels) + TTK/hit-margin/pack clear proxy; content decided: Arbiter of Ash + T15+ Breach. B2 (Sonnet) startable; B3 waits for 1.0 data on poe2db; B4 folds into G8b; B5 after B2 · thread "Design benchmark boss and mob sims"
 - B2 · done (PR open) · data/benchmarks.yaml (arbiter_ash, arbiter_ash_uber, breach_t15; every number {value, source}, nulls = unsourced) + pos_pipeline/benchmarks.py (boss_metrics: TTK + gate + named-hit margins; pack_metrics: hits-to-kill, coverage, clear proxy; evaluate via pool set_config mutation) + 9 engine stat_keys; unsourced inputs give None/incomplete flags, never guesses; Arbiter hits, uber life, rarity life mults still null for B3 · thread "Build benchmark metrics"
 - G8b · blocked on G8a · report + golden e2e (Sonnet)
-- G9 · blocked on G8b · MCP server + usage guide; NL front decided: MCP + CLI, no API key (Sonnet; Opus reviews tool text)
+- G9 · done (PR open) · pos_mcp/: MCP server (stdio, `python -m pos_mcp`) over the pipeline: resolve, validate_spec, import_pob, preflight, run (background process, cap 45 min), run_status, cancel_run, get_report, compare, list_runs; run state in runs/<id>/ files; docs/mcp.md has Claude Code/Desktop config. Golden Spark run through MCP stdio: 133 s, report returned. Opus review of tool text not done · thread "Build the MCP server"
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.
