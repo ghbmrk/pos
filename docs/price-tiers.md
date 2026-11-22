@@ -1,6 +1,6 @@
 # Gear price tiers for rare items (S3)
 
-Status: proposal for decision. Written 2026-11-22.
+Status: proposal for decision. Written 2026-11-22; revised after advisor review (point budgets, premium weights, price-capped sampling, ladder data as later source).
 
 ## What the tier has to do
 
@@ -27,10 +27,12 @@ Checked 2026-11-22.
 
 Each budget tier is a per-slot gear template written in **mod-tier ranks**, not numbers, e.g. "body armour, tier Mid: 4 build-relevant affixes, 2 of them in the top 3 tiers for their group, rest in top 6". Ranks resolve to concrete rolls from PoB's own `ModItem.lua` (`group` + `level`), so a template is game-data-correct by construction. Uniques are allowed by price band from poe.ninja/Exchange when available, by hand otherwise.
 
+A tier is a **total point budget** for the whole build, not a fixed per-slot template. Points are charged per (slot, affix group, rank), with a hand-authored **premium weight per affix group** (for example skill levels, spirit, movement speed cost far more than a top-rank low-demand mod, and premium mods combine multiplicatively on one item). Per-slot templates become *default allocations* of that budget; the variant generator may move points between slots, since budget split across slots is one of the main things variants should differ on. Choosing which affixes fill a slot is still an engine search per build; the tier only bounds it.
+
 Suggested starting tiers (labels, not prices): Starter (self-found, ~0-1 div), Budget (~1-10 div), Mid (~10-50 div), High (~50-300 div), Mirror (uncapped). The divine ranges are documentation only; the template is the definition.
 
-- Pros: answers tier -> gear directly (generator input, no solver); no rare price data needed; deterministic and reviewable; survives the economy reset; zero new data sources.
-- Cons: subjective; cannot report "costs X div" with any accuracy; template quality depends on the author's market knowledge; one template per slot per tier to write (about 12 slots x 5 tiers, mostly shared rules).
+- Pros: tier -> gear is a budget constraint the generator searches within, no price inversion needed; no rare price data needed; deterministic and reviewable; survives the economy reset; zero new data sources.
+- Cons: subjective, and **rank is not value**: without good premium weights, ranking inside a tier favours variants that stack premium mods for free (the main risk to the ordinal claim); cannot report "costs X div" with any accuracy; template quality depends on the author's market knowledge; one template per slot per tier to write (about 12 slots x 5 tiers, mostly shared rules).
 - 1.0 path: re-pin PoB; ranks re-resolve against new mod data automatically. Rewrite only templates whose slot rules changed (new affix groups, new slots).
 - Cost: small. A YAML file plus a resolver in the variant generator.
 
@@ -54,18 +56,22 @@ The owner (or a helper on the owner's device) copies listed items from the trade
 
 ### 4. Hybrid: Option 1 now, with cheap anchors and an upgrade slot (recommended)
 
-Ship Option 1 as the definition of tiers. Attach to each (slot, tier) cell an optional **anchor price** in divines with a date, filled from a handful of owner samples (for example 3-5 per cell for the slots that dominate cost: weapon, body, amulet, rings) and from poe.ninja for uniques. Report variant cost as the sum of anchors with an explicit "estimate, anchored on N samples dated D" label. Keep a `PriceModel` interface (gear -> price) so Option 2 or 3 can replace anchors later without touching the generator.
+Ship Option 1 as the definition of tiers. Calibrate **by price, not by template**: the owner searches trade with a price cap per tier (for example 1, 10, 50 div) on the slots that dominate cost (weapon, body, amulet, rings) and records the best item seen. That measures the tier -> gear direction the generator needs and corrects point costs and premium weights. Uniques come from poe.ninja. 3-5 asking prices per cell support order-of-magnitude accuracy only, which is enough for tiers about 5x apart; reports say so. Report variant cost as the sum of anchors with an explicit "estimate, anchored on N samples dated D" label. Keep a `PriceModel` interface (gear -> price) so Option 2 or 3 can replace anchors later without touching the generator.
 
 - Pros: everything Option 1 has, plus a rough number that is honest about its sample size; the upgrade path is an interface, not a rewrite.
 - Cons: anchors are coarse (one number per cell, not per item); still subjective at the template level.
 - 1.0 path: templates as in Option 1 on launch day; anchors marked stale at the reset and refilled when prices settle.
 - Cost: small, plus optional manual sampling.
 
+### Not a separate option: ladder-observed tiers
+
+Derive templates from gear real characters wear, by percentile (poe.ninja build snapshots or GGG's OAuth character API). Access terms are unverified and there is no data on 1.0 day one, so this fits as a later calibration source behind Option 4's `PriceModel`, not as a starting option.
+
 ## Comparison
 
 | | 1 Tables | 2 Craft cost | 3 Regression | 4 Hybrid |
 |---|---|---|---|---|
-| Tier -> gear (generator) | direct | needs solver | needs solver | direct |
+| Tier -> gear (generator) | budget constraint | needs price inversion | needs price inversion | budget constraint, calibrated |
 | Gear -> price (report) | no | yes, unvalidated | yes, measured | coarse, labelled |
 | New data sources | none | spawn weights + currency | manual samples | optional samples + currency |
 | Works on 1.0 day one | yes | partly (currency missing) | no | yes |
@@ -82,7 +88,7 @@ Challenge to the goal's framing: "expected gear price points" implies a stable c
 
 ## Next steps if Option 4 is chosen
 
-1. `data/tiers.yaml`: tier names, per-slot rank templates, empty anchor fields.
+1. `data/tiers.yaml`: tier point budgets, point cost per (slot, affix group, rank), premium weight per affix group, default per-slot allocations, empty dated anchor fields.
 2. Resolver: rank template -> concrete affix rolls from the pinned PoB `ModItem.lua` (depends on S2 engine re-pin).
 3. `PriceModel` interface with an anchor-sum implementation and the "N samples, dated D" label.
 4. Optional: price fetch for currency/uniques from the owner's device or after a network-policy change.
