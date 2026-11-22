@@ -1,6 +1,6 @@
 # Pipeline: build idea -> ranked variants per price tier (G1)
 
-Status: design for review. Written 2026-11-22. Builds on `docs/engine-fork.md` (engine), `docs/price-tiers.md` (tiers) and the code on `main` (`pos_engine/`, `pos_tiers/`, `data/tiers.yaml`).
+Status: design, revised 2026-11-22 after advisor review (validation gaps, fixed config profile, tree-stage cost, task split). Builds on `docs/engine-fork.md` (engine), `docs/price-tiers.md` (tiers) and the code on `main` (`pos_engine/`, `pos_tiers/`, `data/tiers.yaml`).
 
 ## Principle
 
@@ -44,13 +44,18 @@ axes:                     # what to compare; cartesian product = variant seeds
   ascendancy: [Stormweaver, Chronomancer]
   weapon_base: [staff, wand+focus]
 tiers: [starter, budget, mid, high]
-objective: { maximise: TotalDPS, floors: { resist_capped: true, TotalEHP: tier_default } }
+config_profile: pinnacle_boss  # fixed enemy/conditions profile, part of the cache key
+objective: { maximise: auto, floors: { resist_capped: true, TotalEHP: tier_default } }  # auto = metric chosen per skill type
 ```
 
 Validation is two-layer:
 
 1. **Schema + catalogue**: every id exists in the catalogue for `pob_sha`; compatibility checks the catalogue can answer (support gem `requireSkillTypes` vs the skill's types, item base vs slot, ascendancy vs class).
-2. **Engine round trip** (stage 2): the assembled build is loaded in PoB and checked for unparsed mod lines, unrecognised gems, empty main skill, and PoB's own warnings. `pos_engine` already surfaces an engine-limitation note for mechanics PoB does not model; these are carried into the report, not hidden.
+2. **Engine round trip** (stage 2): the assembled build is loaded in PoB and checked for unrecognised gems, empty main skill, PoB's own warnings, and **unparsed mod lines**. The wrapper has no unparsed-mod check today: `eval_items` returns `false` only when an item fails to equip, and a line PoB cannot parse is kept with `extra` set (`Classes/Item.lua`) and contributes nothing. G3 adds that check, and gear search rejects any candidate with an unparsed line, otherwise such items score as silent zeros.
+
+Limits of what is caught: `pos_engine`'s engine-limitation note is a hand-typed table with one entry (Mana Tempest), not a general detector of unmodelled mechanics. Reports say so, and new entries are added as they are found.
+
+**Comparable numbers.** PoB results depend on configuration (enemy type and resistances, charges, conditions, buffs). Every spec names a fixed **config profile** (`data/config_profiles.yaml`, applied with `set_config`), and the profile is part of the cache key. The metric is chosen per skill type rather than always `TotalDPS`: the wrapper's own note says `TotalDPS` is one hit of the main skill and `FullDPS` an upper bound that may count hits that do not overlap on one target. G3 defines the mapping and the report names the metric used.
 
 ### 2. Assemble
 
@@ -58,14 +63,16 @@ Spec -> PoB XML via the existing engine calls (`new_build`, `set_class`, `set_le
 
 ### 3. Search
 
-Full combinatorial search is out of reach (supports x tree x 8 gear slots). The search is staged coordinate descent with a narrow beam, each stage holding the others fixed, repeated twice:
+Full combinatorial search is out of reach (supports x tree x 8 gear slots). The search is staged coordinate descent with a narrow beam, each stage holding the others fixed. Supports and tree are close to tier-independent, so they run **once per seed** at a mid-tier gear placeholder; only gear runs per tier. A second support pass runs on the best gear set per tier.
 
-| Stage | Space | Method | Evals per seed x tier (estimate) |
+| Stage | Space | Method | Evals (estimate, unmeasured) |
 |---|---|---|---|
-| Supports | eligible supports for the main skill (catalogue filter) | single-swap deltas for all, then beam (width 5) over the top 12 up to the socket count | ~150 |
-| Tree | passive points at the spec level | PoB-side `optimize_passives` greedy (already in the fork; `reset` re-plans from scratch), with keystones/notables from `axes` forced on | 1 call, in-engine; seconds to a minute (not measured on large builds) |
-| Gear | per slot: affix groups x ranks from the `pos_tiers` resolver; uniques from the catalogue | per slot, synthesise ~20-40 candidate items that fit the slot's share of the tier budget; `eval_items` scores them in one engine call; then move budget points between slots (take from the slot with the lowest marginal gain per point, give to the highest) until no gain | ~600-900 |
+| Supports | eligible supports for the main skill (catalogue filter) | single-swap deltas for all, then beam (width 5) over the top 12 up to the socket count | ~150 per seed, plus a short re-check per tier |
+| Tree | passive points at the spec level | PoB-side `optimize_passives` greedy (already in the fork; `reset` re-plans from scratch), with keystones/notables from `axes` forced on | per seed: greedy with up to 50 what-if calcs per pick, so ~5,000 calcs at ~100 points; the dominant cost |
+| Gear | per slot: affix groups x ranks from the `pos_tiers` resolver; uniques from the catalogue | per slot, synthesise ~20-40 candidate items that fit the slot's share of the tier budget; `eval_items` scores them in one engine call; then move budget points between slots (take from the slot with the lowest marginal gain per point, give to the highest) until no gain | ~600-900 per seed x tier |
 | Re-check | top 5 per seed x tier | full reload + recalc, floors enforced | 5 |
+
+Outside the search for now: jewels, runes/soul cores, and weapon-set passive points. They stay as in the seed (or empty) and the report says so.
 
 Constraints enforced inside search, not after: tier point budget (`TierTable`), resistance cap and attribute requirements as floors, one unique per name, slot eligibility from mod tags.
 
@@ -76,6 +83,7 @@ Known weaknesses (judgement): coordinate descent finds local optima and is order
 - N persistent `PobEngine` processes (default: CPU count), each booted once (~1.1 s) and fed jobs `(seed_xml_hash, mutations) -> stats`.
 - Results cached in SQLite keyed by `(pob_sha, canonical XML hash, stat keys)`; repeated candidates across tiers and passes are free.
 - Measured so far: 16.5 evals/s on 4 vCPUs on a small fixture build, near-linear in processes (`docs/prior-art.md`). Large endgame builds are not measured; task G4 measures one before any further estimate is trusted.
+- The tree stage can run inside one worker per seed while other workers take gear jobs.
 - A crashed or hung worker is restarted and its job retried once; a job that fails twice is recorded as an engine failure in the report.
 
 ### 5. Report
@@ -92,17 +100,18 @@ Core is a Python library (`pos_pipeline`) with thin fronts over it:
 
 ## Cost per run
 
-Estimates, not measurements, for one idea with 4 axis combinations x 4 tiers = 16 seed-tier jobs:
+Unverified estimates for one idea with 4 seeds (axis combinations) x 4 tiers:
 
 | Item | Estimate | Basis |
 |---|---|---|
-| Engine evals | 16 x ~1,000 = ~16,000 | search table above |
-| Wall time, 4 cores | ~17 min at 16 evals/s; longer on large builds | measured fixture rate |
-| Wall time, 16 cores | ~5 min | scaling measured to 4 processes only |
+| Tree calcs | 4 seeds x ~5,000 = ~20,000 | greedy `optimize_passives`, run once per seed |
+| Support + gear evals | 4 x ~150 + 16 x ~900 = ~15,000 | search table above |
+| Wall time, 4 cores | ~35 min at 16 evals/s, if a what-if tree calc costs about one eval; unknown on large builds | measured fixture rate only |
+| Wall time, 16 cores | ~10 min | scaling measured to 4 processes only |
 | LLM tokens (MCP client) | ~20-50k to write and validate the spec, ~10-20k to read the report | tool outputs are compact ids and tables; no build XML enters the context |
 | Money | engine compute is local; LLM cost is the client's plan usage | no API calls from the pipeline |
 
-The cost lever is the number of axis combinations: it multiplies everything. The CLI prints the job count and estimated time before starting and refuses above a set cap unless forced.
+These numbers are not trusted until G4 (pool benchmark on a large build) and G6 (tree-stage timing) measure them; both gate G8. The cost lever is the number of seeds, which multiplies the tree stage, then tiers, which multiply gear. The CLI prints the job count and estimated time before starting and refuses above a set cap unless forced.
 
 ## Data and the 1.0 update path
 
@@ -126,12 +135,12 @@ Specs record `pob_sha`, so old results stay reproducible against their own pin.
 |---|---|---|---|
 | NL front | Claude Code / Desktop session | pipeline calls the API itself | both |
 | Needs API key, per-token billing | no | yes | yes |
-| Runs unattended (scheduled sweeps) | CLI only, on prepared specs | yes, idea to report | yes |
+| Runs unattended (scheduled sweeps) | yes, via scheduled headless Claude Code | yes, on any machine with an API key | yes |
 | Build cost | small | medium (prompting, retries, key handling) | largest |
 
-Decision boundary: whether the owner wants **unattended idea-to-report runs** (for example a scheduled sweep of many ideas at 1.0 launch). If not, A is cheaper and simpler, and B can be added later behind the same library without rework.
+Unattended idea-to-report runs work under A too: headless Claude Code on a schedule drives the MCP server. Decision boundary: whether runs must happen **on a machine with no Claude client** (for example a plain server or CI job calling the API with a key). If not, A is cheaper and simpler, and B can be added later behind the same library without rework.
 
-Other choices made here without a card (technical, reversible): objective default (max DPS with resist and EHP floors, overridable per spec), coordinate-descent search, SQLite cache, catalogue from PoB only.
+Other choices made here without a card (technical, reversible): objective default (max the per-skill DPS metric with resist and EHP floors, under a fixed config profile, overridable per spec), coordinate-descent search, SQLite cache, catalogue from PoB only.
 
 ## Implementation tasks
 
@@ -141,12 +150,15 @@ Each sized to a brief under 20k tokens and a finish under 150k. Model: Sonnet un
 |---|---|---|
 | G2 | Catalogue export from pinned PoB (gems, supports with skill types, uniques, bases, ascendancies, keystones/notables) + `resolve()` with fuzzy suggestions + tests | - |
 | G4 | Engine pool: N persistent workers, job API, restart/retry, SQLite cache; benchmark one large endgame build and record evals/s | - |
-| G3 | BuildSpec schema + validator (catalogue + compatibility) + assembler to PoB XML + engine round-trip checks; PoB code -> spec import | G2 |
-| G5 | Support search (single-swap deltas + beam); verify socket-count and support uniqueness rules against PoB | G3, G4 |
-| G6 | Tree stage: wrap `optimize_passives` with forced keystones/notables; measure time on a large build | G3, G4 |
-| G7 | Gear search: candidate synthesis from `pos_tiers` ranks and uniques, budget reallocation across slots, resist/attribute floors | G3, G4 |
-| G8 | Orchestrator + report + CLI (`pos run`, job-count/time preflight, cap); golden end-to-end fixture | G5, G6, G7 |
-| G9 | MCP server over the library + a short usage guide for Claude Code/Desktop (Opus reviews the tool descriptions) | G8 (resolve/validate tools can start after G3) |
-| G10 | `tools/repin.sh` + catalogue diff + spec revalidation; run at 1.0 | G2, G3 |
+| G3a | BuildSpec schema + validator (catalogue + compatibility) + config profiles + per-skill metric mapping | G2 |
+| G3b | Assembler spec -> PoB XML, round-trip checks incl. unparsed-mod detection, PoB code -> spec import | G3a |
+| G5 | Support search (single-swap deltas + beam); verify socket-count and support uniqueness rules against PoB | G3b, G4 |
+| G6 | Tree stage: wrap `optimize_passives` with forced keystones/notables; measure calcs and time on a large build (gates G8) | G3b, G4 |
+| G7 | Gear search, first 3 slots (weapon, body, amulet): candidate synthesis from `pos_tiers` ranks and uniques, unparsed-line rejection, budget reallocation, resist/attribute floors. Riskiest task | G3b, G4 |
+| G7b | Gear search: remaining slots | G7 |
+| G8a | Orchestrator (seeds x tiers, once-per-seed stages) + CLI (`pos run`, job-count/time preflight, cap) | G5, G6, G7b; G4 and G6 benchmarks |
+| G8b | Report (report.md + results.sqlite, metric/profile/limitation labels) + golden end-to-end fixture | G8a |
+| G9 | MCP server over the library + a short usage guide for Claude Code/Desktop (Opus reviews the tool descriptions) | G8b (resolve/validate tools can start after G3a) |
+| G10 | `tools/repin.sh` + catalogue diff + spec revalidation; run at 1.0 | G2, G3a |
 
 G2 and G4 can start in parallel now; neither depends on the interface decision.
