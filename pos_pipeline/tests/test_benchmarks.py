@@ -27,7 +27,7 @@ def test_every_number_has_a_source_and_nulls_are_listed():
     _, un = B.validate_benchmark("arbiter_ash_uber")
     assert "arbiter_ash_uber.life" in un
     _, un = B.validate_benchmark("breach_t15")
-    assert "breach_t15.monsters.magic.life_mult" in un and "breach_t15.monsters.rare.life_mult" in un
+    assert un == []                                                         # B3b sourced Magic/Rare life mults
     # a cell without a source is a structural error
     b = B.benchmarks()["arbiter_ash"]
     old = b["life"]
@@ -91,11 +91,11 @@ def test_boss_named_hits_survival(monkeypatch):
         b["hits"] = old
 
 
-def test_pack_incomplete_until_life_mults_sourced():
+def test_pack_complete_with_sourced_life_mults():
     st = {"AverageHit": 5000, "AreaOfEffectRadiusMetres": 3.0, "Speed": 2.0}
     r = B.pack_metrics("breach_t15", st)
-    assert r.hits_to_kill == {"normal": 7, "magic": None, "rare": None}     # ceil(33945/5000)
-    assert r.coverage == pytest.approx(0.25) and r.clear_s is None and not r.complete
+    assert r.hits_to_kill == {"normal": 7, "magic": 17, "rare": 55}         # ceil(33945*{1,2.48,8}/5000)
+    assert r.coverage == pytest.approx(0.25) and r.clear_s == pytest.approx(55 / 0.25 / 2.0) and r.complete
 
 
 def test_pack_clear_proxy_when_complete():

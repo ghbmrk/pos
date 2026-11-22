@@ -1,4 +1,4 @@
-# Golden end-to-end spec (G8b): one seed, one tier, two slots, both benchmarks. Run:
+# Golden end-to-end spec (G8b): one seed, one tier, two slots, the Arbiter, Arbiter uber (unsourced, stays incomplete) and Breach benchmarks. Run:
 #   python -m pos_pipeline run examples/spark_golden.yaml weapon='Acrid Wand' amulet='Lapis Amulet' --realloc-rounds 0 --out OUT
 pob_sha: "601768b"
 class: Sorceress
@@ -6,4 +6,4 @@ ascendancy: Stormweaver
 level: 90
 main_skill: { gem: Spark }
 tiers: [mid]
-benchmarks: [arbiter_ash, breach_t15]
+benchmarks: [arbiter_ash, breach_t15, arbiter_ash_uber]
