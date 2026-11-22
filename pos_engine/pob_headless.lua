@@ -59,12 +59,29 @@ local DEFAULT_STATS = {
 	"TotalEHP", "Ward", "Armour", "Evasion", "Str", "Dex", "Int", "ProjectileCount",
 	"AverageHit", "AreaOfEffectRadiusMetres", "TotalNumberOfHits", "EHPSurvivalTime",
 	"PhysicalMaximumHitTaken", "FireMaximumHitTaken", "ColdMaximumHitTaken", "LightningMaximumHitTaken",
-	"ChaosMaximumHitTaken",
+	"ChaosMaximumHitTaken", "BleedDPS", "PoisonDPS", "IgniteDPS", "AilmentDPS", "HitAilmentDPS",
 }
+
+-- Ailment DPS of the main skill, summed from PoB's own per-ailment outputs the same way CalcOffence builds
+-- TotalDotDPS (the Total* stacking variant when present, else the single-instance one). Derived, not a PoB key:
+-- CombinedDPS is unusable for this because PoB drops the dot terms when a skill shows average damage (Rake).
+local function ailmentDPS(out)
+	local function n(a, b) return tonumber(out[a]) or tonumber(out[b]) or 0 end
+	return n("TotalBleedDPS", "BleedDPS") + n("TotalPoisonDPS", "PoisonDPS") + n("TotalIgniteDPS", "IgniteDPS")
+end
 
 local function collectStats(keys)
 	local out = (build.calcsTab and build.calcsTab.mainOutput) or {}
 	local res = {}
+	local wantsDerived = false
+	local list0 = (type(keys) == "table") and keys or DEFAULT_STATS
+	for _, k in ipairs(list0) do
+		if k == "AilmentDPS" or k == "HitAilmentDPS" then wantsDerived = true end
+	end
+	if wantsDerived then
+		local a = ailmentDPS(out)
+		out = setmetatable({AilmentDPS = a, HitAilmentDPS = (tonumber(out.TotalDPS) or 0) + a}, {__index = out})
+	end
 	local list = (type(keys) == "table") and keys or DEFAULT_STATS
 	for _, k in ipairs(list) do
 		local v = out[k]

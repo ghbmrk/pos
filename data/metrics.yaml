@@ -7,7 +7,7 @@ stat_keys: [TotalDPS, FullDPS, CombinedDPS, AverageDamage, Speed, HitChance, Cri
             ManaCost, Life, Mana, EnergyShield, TotalEHP, Ward, Armour, Evasion, Str, Dex, Int, ProjectileCount,
             AverageHit, AreaOfEffectRadiusMetres, TotalNumberOfHits, EHPSurvivalTime,
             PhysicalMaximumHitTaken, FireMaximumHitTaken, ColdMaximumHitTaken, LightningMaximumHitTaken,
-            ChaosMaximumHitTaken]
+            ChaosMaximumHitTaken, BleedDPS, PoisonDPS, IgniteDPS, AilmentDPS, HitAilmentDPS]
 rules:
   - any: [Minion, CreatesMinion]
     metric: null
@@ -20,8 +20,8 @@ rules:
     metric: FullDPS
     note: "TotalDPS is one hit, so it would reward fewer projectiles; FullDPS is consistent across variants but an upper bound if hits do not overlap on one target."
   - any: [Attack, Spell, Damage]
-    metric: TotalDPS
-    note: "One hit of the main skill; damage over time and overlapping hits are not added."
+    metric: HitAilmentDPS
+    note: "TotalDPS (one hit) plus the main skill's bleed, poison and ignite DPS from PoB's own ailment outputs; other damage over time and overlapping hits are not added."
 default:
   metric: TotalDPS
   note: "Skill types matched no rule; TotalDPS used, treat with care."

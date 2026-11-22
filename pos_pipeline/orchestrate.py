@@ -21,7 +21,7 @@ RATES = Path(__file__).resolve().parents[1] / "data" / "rates.yaml"
 DEFAULT_MAX_MINUTES = 45.0
 DEFAULT_REALLOC_ROUNDS = 4
 # PoB outputs shown in the report next to the objective metric
-REPORT_KEYS = ("TotalDPS", "FullDPS", "Speed", "Life", "EnergyShield", "TotalEHP", "Armour", "Evasion",
+REPORT_KEYS = ("TotalDPS", "HitAilmentDPS", "FullDPS", "Speed", "Life", "EnergyShield", "TotalEHP", "Armour", "Evasion",
                "FireResist", "ColdResist", "LightningResist", "ChaosResist")
 
 
