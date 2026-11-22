@@ -234,3 +234,18 @@ def test_unique_not_in_build_is_not_testable_and_fallback_is_labelled():
     assert new == "UNIQ EMPTY" and "upper bound" in label
 
 
+
+
+class EhpPool:
+    """Damage is constant; EHP is 1000 normally and 500 when the xml carries 'NODEF' (a defensive piece removed)."""
+    def map(self, jobs):
+        return [NS(ok=True, stats={"TotalDPS": 10.0, "TotalEHP": 500.0 if "NODEF" in j.xml else 1000.0}) for j in jobs]
+
+
+def test_defensive_piece_confirmed_on_ehp_loss():
+    """I10: a piece whose removal leaves damage unchanged but halves EHP is `confirmed` on survivability; a piece worth neither stays not_load_bearing."""
+    [a] = ablate(None, EhpPool(), "X", [{"kind": "unique", "id": "U"}], "TotalDPS", replace_unique=lambda x, p: ("NODEF", "x"))
+    assert a.verdict == "confirmed" and a.delta_rel == pytest.approx(0) and a.ehp_delta_rel == pytest.approx(0.5)
+    assert (a.ehp_baseline, a.ehp_without) == (1000.0, 500.0) and "survivability" in a.note
+    [b] = ablate(None, EhpPool(), "X", [{"kind": "unique", "id": "U"}], "TotalDPS", replace_unique=lambda x, p: ("Y", "x"))
+    assert b.verdict != "confirmed" and b.ehp_delta_rel == pytest.approx(0)

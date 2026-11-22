@@ -62,6 +62,9 @@ class Ablation:
     verdict: str                    # confirmed | not_load_bearing | possibly_unmodelled | not_testable
     replacement: str | None = None  # what stood in (support / unique)
     note: str = ""
+    ehp_baseline: float | None = None   # TotalEHP before / after removal (I10); a defensive piece is confirmed on this
+    ehp_without: float | None = None
+    ehp_delta_rel: float | None = None
 
 
 def _support_id(cat: Catalogue, ref: str) -> str | None:
@@ -88,6 +91,19 @@ def _config(options: Mapping[str, Any] | None) -> tuple:
 
 def _score(pool: EnginePool, jobs: list[Job], metric: str) -> list[float | None]:
     return [float(r.stats[metric]) if r.ok and r.stats and r.stats.get(metric) is not None else None for r in pool.map(jobs)]
+
+
+EHP_KEY = "TotalEHP"
+
+
+def _score_ehp(pool: EnginePool, jobs: list[Job], metric: str) -> list[tuple[float | None, float | None]]:
+    """(metric, TotalEHP) per job; the jobs must request both stat keys (`_keys(metric, (EHP_KEY,))`)."""
+    out = []
+    for r in pool.map(jobs):
+        st = r.stats if r.ok and r.stats else {}
+        m, e = st.get(metric), st.get(EHP_KEY)
+        out.append((float(m) if m is not None else None, float(e) if e is not None else None))
+    return out
 
 
 def _finish(e: SweepEntry, base: float, value: float | None, has_text: bool) -> None:
@@ -245,13 +261,13 @@ def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapp
     makes the piece `not_testable`); without it the unique is unequipped from `slot`, which over-states the loss, so
     that verdict is an upper bound."""
     cfg = _config(options)
-    [base] = _score(pool, [Job(xml, mutations=cfg, stat_keys=_keys(metric))], metric)
+    [(base, ehp_base)] = _score_ehp(pool, [Job(xml, mutations=cfg, stat_keys=_keys(metric, (EHP_KEY,)))], metric)
     if base is None:
         raise RuntimeError("ablate: the build failed to evaluate")
     out: list[Ablation] = []
     for p in key_pieces:
         kind, id_ = p["kind"], p["id"]
-        res = Ablation(dict(p), base, None, None, "not_testable")
+        res = Ablation(dict(p), base, None, None, "not_testable", ehp_baseline=ehp_base)
         try:
             if kind in ("keystone", "notable"):
                 e = cat.resolve(kind, id_).entry
@@ -259,7 +275,7 @@ def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapp
                     res.note = f"{kind} {id_!r} not in catalogue"
                     out.append(res)
                     continue
-                job = Job(xml, mutations=(*cfg, ("dealloc_passive", {"node": e["node"]})), stat_keys=_keys(metric))
+                job = Job(xml, mutations=(*cfg, ("dealloc_passive", {"node": e["node"]})), stat_keys=_keys(metric, (EHP_KEY,)))
                 # dealloc of an unallocated node errors in the engine; check first so the failure is a clear note
                 eng = engine or PobEngine()
                 try:
@@ -271,19 +287,19 @@ def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapp
                 finally:
                     if engine is None:
                         eng.close()
-                [v] = _score(pool, [job], metric)
+                [(v, ev)] = _score_ehp(pool, [job], metric)
                 has_text = _has_text(e)
             elif kind == "unique":
                 slot = p.get("slot")
                 if replace_unique is not None:
                     new_xml, res.replacement = replace_unique(xml, p)
-                    [v] = _score(pool, [Job(new_xml, mutations=cfg, stat_keys=_keys(metric))], metric)
+                    [(v, ev)] = _score_ehp(pool, [Job(new_xml, mutations=cfg, stat_keys=_keys(metric, (EHP_KEY,)))], metric)
                 elif slot not in SLOTS:
                     res.note = "unique key piece needs a `slot`"
                     out.append(res)
                     continue
                 else:
-                    [v] = _score(pool, [Job(xml, mutations=(*cfg, ("unequip_item", {"slot": SLOTS[slot]})), stat_keys=_keys(metric))], metric)
+                    [(v, ev)] = _score_ehp(pool, [Job(xml, mutations=(*cfg, ("unequip_item", {"slot": SLOTS[slot]})), stat_keys=_keys(metric, (EHP_KEY,)))], metric)
                     res.replacement = "(slot emptied)"
                 has_text = True
             elif kind == "support":
@@ -304,16 +320,16 @@ def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapp
                 rest = [i for i in cur if i != sid]
                 fixed = [cat.get("support", i) for i in rest]
                 cands = [c for c in eligible(cat, skill, fixed) if c["id"] != sid]
-                jobs = [Job(xml, mutations=(*cfg, *_support_job(cat, skill, [*rest, c["id"]], _keys(metric), xml).mutations), stat_keys=_keys(metric)) for c in cands]
-                jobs.append(Job(xml, mutations=(*cfg, *_support_job(cat, skill, rest, _keys(metric), xml).mutations), stat_keys=_keys(metric)))
-                vals = _score(pool, jobs, metric)
-                scored = [(v, c) for v, c in zip(vals[:-1], cands) if v is not None]
-                v = vals[-1]                                   # nothing in the freed socket
+                jobs = [Job(xml, mutations=(*cfg, *_support_job(cat, skill, [*rest, c["id"]], _keys(metric, (EHP_KEY,)), xml).mutations), stat_keys=_keys(metric, (EHP_KEY,))) for c in cands]
+                jobs.append(Job(xml, mutations=(*cfg, *_support_job(cat, skill, rest, _keys(metric, (EHP_KEY,)), xml).mutations), stat_keys=_keys(metric, (EHP_KEY,))))
+                vals = _score_ehp(pool, jobs, metric)
+                scored = [(v, c, e) for (v, e), c in zip(vals[:-1], cands) if v is not None]
+                v, ev = vals[-1]                               # nothing in the freed socket
                 res.replacement = "(socket left empty)"
                 if scored:
-                    bv, bc = max(scored, key=lambda t: t[0])
+                    bv, bc, be = max(scored, key=lambda t: t[0])
                     if v is None or bv > v:
-                        v, res.replacement = bv, bc["name"]
+                        v, ev, res.replacement = bv, be, bc["name"]
                 has_text = False
             else:
                 res.note = f"kind {kind!r} cannot be ablated (keystone, notable, support, unique)"
@@ -329,8 +345,14 @@ def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapp
             continue
         res.without = v
         res.delta_rel = (base - v) / base if base else None
+        res.ehp_without = ev
+        if ehp_base and ev is not None:
+            res.ehp_delta_rel = (ehp_base - ev) / ehp_base
         if res.delta_rel is not None and res.delta_rel >= threshold:
             res.verdict = "confirmed"
+        elif res.ehp_delta_rel is not None and res.ehp_delta_rel >= threshold:
+            res.verdict = "confirmed"
+            res.note = f"confirmed on survivability: removal costs {res.ehp_delta_rel:.0%} of EHP (damage metric moves {res.delta_rel:+.1%})" if res.delta_rel is not None else "confirmed on EHP loss"
         elif abs(base - v) <= ZERO * max(abs(base), 1.0) and has_text:
             res.verdict = "possibly_unmodelled"
         else:

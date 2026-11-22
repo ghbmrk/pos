@@ -19,7 +19,7 @@ Per benchmark, candidates with a value are ordered by (survival-check failed las
 ## Ablation
 
 Run on the screen's final build, metric = the spec's objective stat under the first boss benchmark's PoB options (so it is a DPS share, not time-to-kill; the two move together but are not identical).
-- keystone / notable: deallocated; support: swapped for the best other eligible support (or left empty if better); verdicts from `sweep.ablate` (`confirmed` at or above `ablation_threshold`, else `not_load_bearing` / `possibly_unmodelled`).
+- keystone / notable: deallocated; support: swapped for the best other eligible support (or left empty if better); verdicts from `sweep.ablate` (`confirmed` at or above `ablation_threshold` on the objective metric OR on `TotalEHP` (I10: a defensive piece such as Chaos Inoculation is confirmed on survivability; the note says so), else `not_load_bearing` / `possibly_unmodelled`).
 - **unique: replaced by the best rare** for its slot at the screen tier (`GearSearcher.best_item` on the unique's own base, within the tier's slot budget, all uniques excluded). This removes the upper-bound bias of unequipping (I4 deferred it to here). If the rare search fails (base without mods, engine refusal) the slot is emptied and the label says the verdict is an upper bound. If the unique is not in the final build, because the screen's gear search overwrote its slot, the piece is `not_testable` with that reason: a unique in a searched slot is not preserved by the gear stage (G7: only priced uniques in `data/unique_prices.yaml` compete), so put fixed uniques in slots outside `slot=Base`.
 
 ## Limits (judgement)
