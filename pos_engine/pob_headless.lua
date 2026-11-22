@@ -811,6 +811,101 @@ function methods.eval_items(p)
 	return { results = out }
 end
 
+-- Mod lines PoB kept but could not parse (modLine.extra set): they contribute nothing to the calc, so a
+-- candidate carrying one scores as a silent zero. Lines that grant a skill are parsed elsewhere and are fine.
+local MODLINE_LISTS = { "implicitModLines", "explicitModLines", "enchantModLines", "runeModLines", "buffModLines" }
+local function unparsedLinesOf(item)
+	local out = {}
+	for _, listName in ipairs(MODLINE_LISTS) do
+		for _, ml in ipairs(item[listName] or {}) do
+			if ml.extra and ml.extra ~= "" then
+				local grants = (ml.line or ""):lower():match("^grants skill:") ~= nil
+				for _, pm in ipairs(ml.modList or {}) do
+					if pm.name == "ExtraSkill" then grants = true end
+				end
+				if not grants then
+					table.insert(out, { line = ml.line, unparsed = ml.extra })
+				end
+			end
+		end
+	end
+	return out
+end
+
+-- Parse raw item text WITHOUT equipping it: returns whether PoB recognised the base and which mod lines it
+-- could not parse. Used to reject gear candidates before they are scored.
+function methods.check_item(p)
+	assert(p and p.raw, "check_item requires params.raw")
+	local ok, err = pcall(function()
+		build.itemsTab:CreateDisplayItemFromRaw(p.raw)
+	end)
+	local item = build.itemsTab.displayItem
+	build.itemsTab.displayItem = nil
+	if not ok or not item or not item.base then
+		return { ok = false, error = "item not parsed: " .. tostring(err or "unrecognised base type"), unparsed = {} }
+	end
+	return { ok = true, base = item.base.type or item.baseName, unparsed = unparsedLinesOf(item) }
+end
+
+-- Round-trip checks on the loaded build: main skill resolved, every gem recognised, unparsed mod lines on
+-- equipped items, and PoB's own item/socket warnings from the last calc.
+function methods.check_build()
+	runCallback("OnFrame")
+	local res = { mainSkill = mainSkillName(), gems = {}, unrecognisedGems = {}, items = {}, unparsed = {}, warnings = {} }
+	for gi, sg in ipairs(build.skillsTab.socketGroupList) do
+		local supports = 0
+		for _, g in ipairs(sg.gemList or {}) do
+			local nm = g.nameSpec
+			if not g.gemData and not g.grantedEffect then
+				table.insert(res.unrecognisedGems, nm or "?")
+			end
+			if g.supportEffect and g.supportEffect.grantedEffect and not g.supportEffect.grantedEffect.hidden then
+				supports = supports + 1
+			end
+		end
+		table.insert(res.gems, { group = gi, label = sg.displayLabel, supports = supports, enabled = sg.enabled and true or false })
+	end
+	for slotName, sc in pairs(build.itemsTab.slots) do
+		local id = sc.selItemId
+		local it = id and id ~= 0 and build.itemsTab.items[id] or nil
+		if it then
+			table.insert(res.items, { slot = slotName, name = it.name })
+			for _, u in ipairs(unparsedLinesOf(it)) do
+				u.slot = slotName
+				table.insert(res.unparsed, u)
+			end
+		end
+	end
+	local env = build.calcsTab and build.calcsTab.mainEnv
+	local w = env and env.itemWarnings
+	for k, v in pairs(w or {}) do
+		res.warnings[k] = v
+	end
+	if next(res.warnings) == nil then res.warnings = nil end
+	return res
+end
+
+-- Raw item text for a unique from PoB's own unique database (name, optionally base), so the assembler can
+-- equip the real item with its real mods instead of a name-only stub.
+function methods.unique_text(p)
+	assert(p and p.name, "unique_text requires params.name")
+	local want = p.name:lower()
+	local found
+	for key, it in pairs(main.uniqueDB.list) do
+		if (it.title or it.name or key):lower() == want or tostring(key):lower() == want then
+			if not p.base or (it.baseName or ""):lower() == p.base:lower() then
+				found = it
+				break
+			end
+			found = found or it
+		end
+	end
+	if not found then
+		return { ok = false, error = "unique not in PoB uniqueDB: " .. p.name }
+	end
+	return { ok = true, raw = found.raw, base = found.baseName }
+end
+
 -- Clear an equipment slot (e.g. "Ring 2", "Body Armour").
 function methods.unequip_item(p)
 	local slot = p and p.slot
