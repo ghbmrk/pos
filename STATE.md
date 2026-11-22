@@ -11,6 +11,7 @@
 - 2026-11-22 · Benchmark content requirement (1 hard endgame boss + 1 mass-mob) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUEhCn1kwfA6vy3QYah3EvbX
 - 2026-11-22 · Benchmark content: Arbiter of Ash (uber as hard setting) + Breach T15+ density proxy; numbers re-sourced from 1.0 data (docs/benchmarks.md) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUEx7vFAPsHTmhjjy3Gx6rKW
 - 2026-11-22 · Pipeline NL front: MCP server + CLI, no embedded LLM/API key (docs/pipeline.md) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUAqzfwd83TbFbqwuWojhQ3V
+- 2026-11-22 · Creative ideation from high-level prompts · cmsg_01RxGYnd78N9kMbbAJ5pWDhU6o4n9NQafMk2fcJq7WYpEm
 
 ## Open work
 <!-- id · state · owner thread -->
@@ -37,6 +38,14 @@
 - B2 · done (PR open) · data/benchmarks.yaml (arbiter_ash, arbiter_ash_uber, breach_t15; every number {value, source}, nulls = unsourced) + pos_pipeline/benchmarks.py (boss_metrics: TTK + gate + named-hit margins; pack_metrics: hits-to-kill, coverage, clear proxy; evaluate via pool set_config mutation) + 9 engine stat_keys; unsourced inputs give None/incomplete flags, never guesses; Arbiter hits, uber life, rarity life mults still null for B3 · thread "Build benchmark metrics"
 - G8b · blocked on G8a · report + golden e2e (Sonnet)
 - G9 · blocked on G8b · MCP server + usage guide; NL front decided: MCP + CLI, no API key (Sonnet; Opus reviews tool text)
+
+- I1 · done (PR open) · docs/ideation.md: creative ideation within MCP-only (no revisit needed): LLM slate of 6-10 BuildSpecs + engine sweeps (keystone/unique/support marginals) as second generator; gates = exact PoE2 resolution, quote-substring mechanism citations, diversity distance, ablation of key pieces; screen at one tier then deepen top 3; cross-archetype ranking on benchmark metrics only; finding: catalogue lacks unique mod lines and gem text (I2) · thread "Design creative build ideation"
+- I2 · startable · catalogue: unique mod lines + gem text; search/enablers/bridges/explain (Sonnet)
+- I3 · blocked on I2 · slate schema + validate_slate + data/ideation.yaml (Sonnet)
+- I4 · startable · sweep + ablate on probe seed (Sonnet)
+- I5 · blocked on I3, I4, G8b · slate runner: screen, ablation, halving, slate report (Sonnet)
+- I6 · blocked on I5, G9 · MCP ideate prompt + tools (Opus writes text)
+- I7 · blocked on I6 · 5-prompt evaluation, tune thresholds (Opus)
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.
