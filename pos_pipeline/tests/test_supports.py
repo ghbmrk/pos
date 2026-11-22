@@ -79,3 +79,18 @@ def test_no_free_slots_returns_baseline(cat, seed):
     with EnginePool(workers=1) as pool:
         r = search_supports(cat, pool, seed, skill["id"], [], "TotalDPS", slots=0)
     assert r.best is r.baseline and r.evals == 1
+
+
+def test_triggered_supports_gated_unless_profile_allows(cat, seed):
+    """Fiery Death adds a hidden triggered spell that inflates FullDPS on Spark (docs/supports.md); gated by default."""
+    skill = cat.resolve("skill", "Spark").entry
+    fd = sup(cat, "Fiery Death")["id"]
+    assert fd in {s["id"] for s in eligible(cat, skill, [], None)}              # gate off
+    assert fd not in {s["id"] for s in eligible(cat, skill, [], ())}            # default: gated
+    assert fd in {s["id"] for s in eligible(cat, skill, [], [fd])}              # profile allows it
+    with EnginePool(workers=2) as pool:
+        gated = search_supports(cat, pool, seed, skill["id"], [], "FullDPS", slots=1)
+        open_ = search_supports(cat, pool, seed, skill["id"], [], "FullDPS", slots=1, allow_triggered=None)
+    assert fd not in gated.best.supports and fd not in [i for i, _ in gated.singles]
+    assert any("gated out" in n and "Fiery Death" in n for n in gated.notes)
+    assert open_.best.supports == (fd,)   # ungated, the inflated FullDPS wins (the bug the gate prevents)
