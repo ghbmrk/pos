@@ -1,0 +1,5 @@
+# Unique name -> price band (a key of unique_bands in data/tiers.yaml), hand-set until poe.ninja prices are
+# reachable (docs/price-tiers.md, "Uniques under Option 4"). Gear search (G7) only considers uniques listed
+# here, so an unpriced unique can never enter a budget-tier result for free. Empty until the owner sets bands.
+schema_version: 1
+uniques: {}

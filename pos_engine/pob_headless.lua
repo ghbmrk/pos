@@ -844,7 +844,7 @@ function methods.check_item(p)
 	if not ok or not item or not item.base then
 		return { ok = false, error = "item not parsed: " .. tostring(err or "unrecognised base type"), unparsed = {} }
 	end
-	return { ok = true, base = item.base.type or item.baseName, unparsed = unparsedLinesOf(item) }
+	return { ok = true, base = item.base.type or item.baseName, implicit = item.base.implicit, unparsed = unparsedLinesOf(item) }
 end
 
 -- Round-trip checks on the loaded build: main skill resolved, every gem recognised, unparsed mod lines on
