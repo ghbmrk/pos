@@ -23,3 +23,10 @@ Stages are injected (`Stages`), so unit tests use fakes. Benchmark metrics (B2) 
 Rates come from Spark Stormweaver L90 on 4 vCPU (not an endgame build); larger builds may cost more. See the validation run below, and re-measure by comparing `SeedRun.seconds` / `TierRun.seconds` in `run.json` with `data/rates.yaml`.
 
 Validation run (4 vCPU, Spark Stormweaver L90, 1 seed x mid, weapon + amulet, `--realloc-rounds 0`, 143 s wall): supports 28.9 s (estimated 29), tree 75.0 s (estimated 75, three caps), gear 35.4 s for 658 evals (first estimate 16 s from the 9-slot rate: few-slot searches cost about 2x more per slot, so `gear_per_slot_few` was added; its `realloc_4` entry is assumed, not measured). FullDPS 9,649 -> 30,726 over the geared seed.
+
+## Report and benchmarks (G8b, B4)
+`run` writes `run.json`, `report.md` and `results.sqlite` into `--out`; `python -m pos_pipeline report DIR [OUT]` re-renders the report from `run.json` without an engine (`pos_pipeline/report.py`).
+- Spec key `benchmarks: [ids]` (ids from `data/benchmarks.yaml`): after each tier's gear search, each benchmark is evaluated on the final build through `Stages.bench` (one pooled engine call per benchmark, `benchmarks.evaluate`); `Stages.stats` supplies EHP, life, ES and resists. A failing benchmark marks its cell `error: ...`, not the tier. Unknown ids raise before any engine work.
+- Report: per tier a ranked table (objective metric, delta vs best, EHP, life/ES, lowest resist, `~` price estimate, floors, one column per benchmark), per variant the supports, tree gain, gear items, rejected unparsed mods and notes; an across-tiers table of the best value per axis value; a benchmark section listing unsourced inputs (`incomplete`) and `ASSUMPTION` constants; a limitations section (validator limitation warnings, metric note, search gaps, failed seeds/tiers).
+- `results.sqlite`: tables `meta`, `seeds`, `tier_runs` (with `rank`), `bench` (result JSON per seed x tier x benchmark).
+- Tests: `pos_pipeline/tests/test_report.py` compares against `tests/golden/report.md` (regenerate with `UPDATE_GOLDEN=1`); `examples/spark_golden.yaml` is the engine-backed end-to-end spec.

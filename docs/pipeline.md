@@ -157,7 +157,7 @@ Each sized to a brief under 20k tokens and a finish under 150k. Model: Sonnet un
 | G7 | Gear search, first 3 slots (weapon, body, amulet): candidate synthesis from `pos_tiers` ranks and uniques, unparsed-line rejection, budget reallocation, resist/attribute floors. Riskiest task | G3b, G4 |
 | G7b | Gear search: remaining slots | G7 |
 | G8a | Orchestrator (seeds x tiers, once-per-seed stages) + CLI (`pos run`, job-count/time preflight, cap) | G5, G6, G7b; G4 and G6 benchmarks |
-| G8b | Report (report.md + results.sqlite, metric/profile/limitation labels) + golden end-to-end fixture | G8a |
+| G8b (done) | Report (report.md + results.sqlite, metric/profile/limitation labels) + golden end-to-end fixture | G8a |
 | G9 | MCP server over the library + a short usage guide for Claude Code/Desktop (Opus reviews the tool descriptions) | G8b (resolve/validate tools can start after G3a) |
 | G10 | `tools/repin.sh` + catalogue diff + spec revalidation; run at 1.0 | G2, G3a |
 
