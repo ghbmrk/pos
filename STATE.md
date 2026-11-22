@@ -25,6 +25,7 @@
 - G10 · done (PR open) · tools/repin.sh <pob_sha> (bump submodule, bump LuaJIT REF from PoB Dockerfile, engine tests, export catalogue, write docs/repin/<sha>.md: catalogue diff, saved-spec revalidation in specs/, tier-table checks); pos_repin/; rehearsed against PoB a82a33b; exporter now handles both generated-file shapes; Catalogue.load() prefers the pinned sha when several exist; docs/repin.md · thread "Build the 1.0 data update script"
 - G3b · done (PR open) · pos_pipeline/assemble.py (assemble, variants, import_pob, unparsed_lines) + engine methods check_build/check_item/unique_text; CLI `assemble`/`import`; socket limit 5 verified vs PoB (now a validator error); finding: config profile `none` is not unresisted (PoB default enemy res 50%); docs/assemble.md · thread "Build the build assembler"
 
+- G5 · done (PR open) · pos_pipeline/supports.py: single-swap deltas + beam over eligible supports (type/add_types/family/duplicate rules enforced here because PoB silently ignores clashes but counts them as socketed); CLI `supports`; docs/supports.md. Spark L90 no gear: 221 eligible, 370 evals, ~29 s on 4 workers; flags singles >3x baseline (Fiery Death +20x unaudited) · thread "Build next pipeline stage"
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.
 - PRs that record or implement something the owner already decided or approved are merged without asking · cmsg_01RxGYnd78N9kMbbAJ5pWDhUYLuCFUWcofw67uLDKo4gM3

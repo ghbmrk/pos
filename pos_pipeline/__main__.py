@@ -40,6 +40,37 @@ def _assemble(path: str, out_dir: str | None) -> int:
     return 1 if bad else 0
 
 
+def _supports(path: str, workers: int) -> int:
+    from pos_engine.engine import PobEngine
+    from pos_pool.pool import EnginePool
+
+    from .assemble import assemble, variants
+    from .supports import search_supports
+
+    spec = load_spec(path)
+    cat = Catalogue.load(pob_sha=spec.pob_sha)
+    rep = validate(spec, cat)
+    _print_issues(rep.issues)
+    if not rep.ok:
+        print(f"{len(rep.errors)} validation error(s); not searching")
+        return 1
+    with PobEngine() as eng, EnginePool(workers=workers) as pool:
+        for v in variants(spec):
+            a = assemble(spec, cat, eng, v)
+            if not a.ok:
+                print(f"variant {v or '(none)'}: seed FAILED"); _print_issues(a.issues)
+                continue
+            skill = cat.resolve("skill", v.get("main_skill", spec.main_skill)).entry
+            fixed = [cat.resolve("support", s).entry["id"] for s in spec.supports]
+            r = search_supports(cat, pool, a.xml, skill["id"], fixed, rep.metric)
+            names = lambda ids: ", ".join(cat.get("support", i)["name"] for i in ids) or "(none)"  # noqa: E731
+            print(f"variant {v or '(none)'}: {r.metric} {r.baseline.value:.1f} -> {r.best.value:.1f} ({r.gain:+.1%}); "
+                  f"supports: {names(r.best.supports)}; {r.evals} evals ({r.cached} cached, {r.failures} failed)")
+            for n in r.notes:
+                print("  note:", n)
+    return 0
+
+
 def _import(path: str) -> int:
     from pathlib import Path
 
@@ -64,10 +95,12 @@ def _import(path: str) -> int:
 def main(argv: list[str]) -> int:
     if len(argv) >= 2 and argv[0] == "assemble":
         return _assemble(argv[1], argv[2] if len(argv) > 2 else None)
+    if len(argv) >= 2 and argv[0] == "supports":
+        return _supports(argv[1], int(argv[2]) if len(argv) > 2 else 2)
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | import code.pobcode")
+        print("usage: python -m pos_pipeline validate spec.yaml | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | import code.pobcode")
         return 2
     try:
         spec = load_spec(argv[1])
