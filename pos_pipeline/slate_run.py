@@ -273,7 +273,7 @@ def run_slate(slate: Slate, rep: SlateReport, runner: CandidateRunner, *, k: int
             runs[name].deep_rank[t] = n
     out.notes.append("ranking basis: benchmark metrics only (boss time-to-kill with its survival check, pack clear proxy); a candidate "
                      "missing a benchmark value ranks after those that have it. Per-skill DPS is shown but never ranks across archetypes.")
-    out.notes.append("ablation measures the objective metric under the first benchmark's PoB options, not time-to-kill; "
+    out.notes.append("ablation measures the objective metric under the first benchmark's PoB options, not time-to-kill, and also TotalEHP: a piece is confirmed when removal costs either at least the threshold; "
                      "a unique key piece is replaced by the best rare for its slot at the screen tier.")
     if out_dir:
         d = Path(out_dir)
@@ -465,11 +465,12 @@ def render_slate_markdown(d: dict) -> str:
                 a(f"  - {ct['kind']} {ct['id']}: \"{ct['quote']}\"")
         a("")
         if c["ablations"]:
-            a("| key piece | verdict | worth | replaced by | note |")
-            a("|---|---|---:|---|---|")
+            a("| key piece | verdict | worth (damage) | worth (EHP) | replaced by | note |")
+            a("|---|---|---:|---:|---|---|")
             for ab in c["ablations"]:
                 w = "n/a" if ab["delta_rel"] is None else f"{ab['delta_rel']:+.1%}"
-                a(f"| {ab['piece']['kind']}: {ab['piece']['id']} | {ab['verdict']} | {w} | {ab['replacement'] or ''} | {ab['note']} |")
+                we = "n/a" if ab.get("ehp_delta_rel") is None else f"{ab['ehp_delta_rel']:+.1%}"
+                a(f"| {ab['piece']['kind']}: {ab['piece']['id']} | {ab['verdict']} | {w} | {we} | {ab['replacement'] or ''} | {ab['note']} |")
             a("")
     if d["rejected"]:
         a("## Dropped by the gate")
@@ -494,7 +495,7 @@ def render_slate_markdown(d: dict) -> str:
 
 SCHEMA = """
 CREATE TABLE candidates(name TEXT PRIMARY KEY, source TEXT, status TEXT, screen_rank INTEGER, rank_note TEXT, vector TEXT, error TEXT, screen TEXT, deep TEXT);
-CREATE TABLE ablations(candidate TEXT, kind TEXT, piece TEXT, verdict TEXT, delta_rel REAL, baseline REAL, without REAL, replacement TEXT, note TEXT);
+CREATE TABLE ablations(candidate TEXT, kind TEXT, piece TEXT, verdict TEXT, delta_rel REAL, baseline REAL, without REAL, replacement TEXT, note TEXT, ehp_delta_rel REAL);
 CREATE TABLE deep_rank(candidate TEXT, tier TEXT, rank INTEGER);
 CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT);
 """
@@ -511,8 +512,9 @@ def write_slate_sqlite(d: dict, path: Path) -> None:
             c.execute("INSERT INTO candidates VALUES(?,?,?,?,?,?,?,?,?)", (cr["name"], cr["source"], cr["status"], cr["screen_rank"], cr["rank_note"],
                                                                           j(cr["vector"]), cr["error"], j(cr["screen"]), j(cr["deep"])))
             for ab in cr["ablations"]:
-                c.execute("INSERT INTO ablations VALUES(?,?,?,?,?,?,?,?,?)", (cr["name"], ab["piece"]["kind"], ab["piece"]["id"], ab["verdict"],
-                                                                              ab["delta_rel"], ab["baseline"], ab["without"], ab["replacement"], ab["note"]))
+                c.execute("INSERT INTO ablations VALUES(?,?,?,?,?,?,?,?,?,?)", (cr["name"], ab["piece"]["kind"], ab["piece"]["id"], ab["verdict"],
+                                                                              ab["delta_rel"], ab["baseline"], ab["without"], ab["replacement"], ab["note"],
+                                                                              ab.get("ehp_delta_rel")))
             for t, rk in cr["deep_rank"].items():
                 c.execute("INSERT INTO deep_rank VALUES(?,?,?)", (cr["name"], t, rk))
 

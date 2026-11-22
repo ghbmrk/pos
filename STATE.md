@@ -50,7 +50,7 @@
 - I7 · done (PR open) · docs/ideation-eval.md + tools/eval_ideation.py + evals/ideation/p1-p5: 5 prompts, Sonnet client, ~78k tokens + ~2 min per slate, screen 9-14 min on 2 workers. Divergence good (7 distinct classes and skills per slate); PoE1 names caught at resolve before the gate (gate r1 35/35); engine verification weak (p1-p4: 2 of 38 key pieces confirmed; p5 damage keystones 3 of 6: ailment DPS outside metric, conditional mods zero, defence measured on DPS, weapon-only screens); sweeps cannot probe attacks. Fixed: prompt wording, CLI explain by name, support key piece by gem id. Thresholds unchanged (no evidence) · thread "Evaluate ideation quality"
 - I8 · done · ailment/DoT-aware damage metric for attack/ailment skills (TotalDPS misses bleed/poison/ignite: Rake 1.9 hit vs 12.1 bleed); re-run eval p2 (Sonnet build, Opus check)
 - I9 · done (PR) · slate ranking carries the G5 >3x FullDPS/TotalDPS audit flag (p2 rank 1 rested on Fiery Death) (Sonnet)
-- I10 · startable · ablation also measures EHP; defensive key piece confirmed on EHP loss (Sonnet)
+- I10 · done · ablation also measures EHP; defensive key piece confirmed on EHP loss (Sonnet)
 - I11 · startable · slate-declared config conditions (charges, enemy ailments, ground, corpses) applied in screen + ablation (Sonnet; Opus reviews which conditions are fair)
 - I12 · startable · sweep probe with a plain weapon base; slate run accepts a candidate with no searched slot (unarmed) (Sonnet)
 - I13 · after I8-I11 · re-run the 5-prompt eval and tune data/ideation.yaml (Opus)
