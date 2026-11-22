@@ -6,7 +6,7 @@ every effect maps to PoB config keys listed in data/actor_effects.yaml. A `pendi
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol, Sequence
+from typing import Any, Callable, Mapping, Protocol, Sequence
 
 from . import data
 from .spec import Companion
@@ -126,9 +126,62 @@ class PendingActorModel:
         raise ActorUnavailable(self.kind, actor(self.kind).get("unknowns") or [])
 
 
-def model_for(kind: str) -> ActorModel:
-    """The evaluation model for an actor. Only the pending stub exists until K2/K4 add real models."""
+class SeparateBuildModel:
+    """`separate_build` model (docs/second-actor.md section 3). The companion is its own PoB build; its effects reach the
+    player as config options.
+
+    `player_metric(xml, options)` returns the player's metric with `options` (the effect-driven config layered over
+    the config profile; keys the effects do not set must be at their profile/off value). `companion_metric(xml)`
+    returns the companion build's own metric, or None when it deals no damage. Effects with uptime < 1 are blended
+    over every on/off combination (independent uptimes), at most `MAX_PARTIAL` of them."""
+    MAX_PARTIAL = 4
+
+    def __init__(self, kind: str, player_metric: Callable[[str, Mapping[str, Any]], float],
+                 companion_metric: Callable[[str], float | None] | None = None, base: Mapping[str, Any] | None = None):
+        self.kind, self.player_metric, self.companion_metric, self.base = kind, player_metric, companion_metric, dict(base or {})
+
+    def evaluate(self, main_xml: str, companion_xml: str | None, effects: Sequence[Effect]) -> Combined:
+        sure = [e for e in effects if e.uptime >= 1.0]
+        part = [e for e in effects if e.uptime < 1.0]
+        if len(part) > self.MAX_PARTIAL:
+            raise ValueError(f"{len(part)} partial-uptime effects; at most {self.MAX_PARTIAL} (on/off combinations)")
+        reset = reset_options(self.base, effects)
+        without = self.player_metric(main_xml, {**reset})
+        main = 0.0
+        for mask in range(1 << len(part)):
+            on = [e for i, e in enumerate(part) if mask >> i & 1]
+            w = 1.0
+            for i, e in enumerate(part):
+                w *= e.uptime if mask >> i & 1 else 1.0 - e.uptime
+            if w:
+                opts = {**reset, **merge_options(self.base, [*sure, *on])}
+                main += w * self.player_metric(main_xml, opts)
+        comp = 0.0
+        if companion_xml is not None and self.companion_metric is not None:
+            comp = float(self.companion_metric(companion_xml) or 0.0)
+        return Combined(main, comp, without, list(effects), blended=bool(part))
+
+
+def reset_options(base: Mapping[str, Any] | None, effects: Sequence[Effect]) -> dict[str, Any]:
+    """Off value for every option the effects touch: the config profile's value, else False (bool) / 0 (number).
+    Lets a persistent engine config go back to 'effect off' between evaluations."""
+    out: dict[str, Any] = {}
+    for e in effects:
+        for k, v in e.options.items():
+            out[k] = (base or {}).get(k, False if isinstance(v, bool) else 0)
+    return out
+
+
+def model_for(kind: str, *, player_metric: Callable[[str, Mapping[str, Any]], float] | None = None,
+              companion_metric: Callable[[str], float | None] | None = None,
+              base: Mapping[str, Any] | None = None) -> ActorModel:
+    """The evaluation model for an actor. A pending actor gets the loud stub; `separate_build` needs the metric callables
+    (the engine-backed ones live in orchestrate.engine_stages). `native_pob` waits for K4 (1.0 data)."""
     a = actor(kind)
     if a.get("status") != "available":
         return PendingActorModel(kind)
-    raise NotImplementedError(f"actor {kind!r} is available but model {a.get('model')!r} is not built (K2)")
+    if a.get("model") == "separate_build":
+        if player_metric is None:
+            raise ValueError(f"actor {kind!r} uses separate_build: player_metric is required")
+        return SeparateBuildModel(kind, player_metric, companion_metric, base)
+    raise NotImplementedError(f"actor {kind!r} is available but model {a.get('model')!r} is not built (K4, needs 1.0 data)")

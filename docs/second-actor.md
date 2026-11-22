@@ -1,6 +1,6 @@
 # Second actor per build: Knight's Squire (K1 design)
 
-Status: K1 built (schema, registry, effect translation, loud stub). Approval: owner "Okay do it", 2026-11-22
+Status: K1 built (schema, registry, effect translation, loud stub); K2 built (separate_build model, companion assembly, orchestrator wiring, report columns; tested with a fake actor only). Approval: owner "Okay do it", 2026-11-22
 (cmsg_01RxGYnd78N9kMbbAJ5pWDhU1rV7vhNcCUFrXzAenA5jNG) on the recommendation to model a second actor with its
 own gear, own skills and cross-actor effects. Target builds: cmsg_01RxGYnd78N9kMbbAJ5pWDhU91siC64a4kvoveU2FoJ95E.
 
@@ -73,6 +73,14 @@ companion's own metric when the companion deals damage, reported separately as w
 `assemble` is unchanged for the main build. A companion assembler (K2) builds the `separate_build` XML through the
 same engine calls; under `native_pob` it adds the companion to the main build. Both go through the existing
 round-trip checks.
+
+K2 as built: `actors.SeparateBuildModel` (player metric callable, optional companion metric callable) evaluates effects off
+once and the effects on over every on/off combination of the partial-uptime effects (independent uptimes, at most 4;
+more is an error); effect options are reset to the config profile value (else off) between evaluations. `assemble_companion`
+builds the companion as its own build (one skill group; more is an error until K4). `Stages.actor(xml, variant)` runs
+per tier after the gear stage; `TierRun.actor` carries main / companion / total / without_companion / effects / blended.
+`run()` raises `ActorUnavailable` for a pending actor before any work, and when a companion is declared without an actor
+stage. The tier's search value is still the player's metric without effects (K3 changes the search score).
 
 ## 5. Gear search over two gear sets in one tier budget
 
