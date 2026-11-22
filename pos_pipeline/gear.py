@@ -25,8 +25,17 @@ from pos_tiers.price import AnchorSumModel, Estimate, GearItem
 from pos_tiers.resolver import ModIndex, default_index
 from pos_tiers.tiers import TierTable
 
-# Tier slot name -> PoB slot name, in search order.
-SLOTS = {"weapon": "Weapon 1", "body_armour": "Body Armour", "amulet": "Amulet"}
+# Search slot name -> PoB slot name, in search order. The two rings are separate search slots that share the tier
+# table's `ring` allocation (half each); everything else maps one to one.
+SLOTS = {"weapon": "Weapon 1", "body_armour": "Body Armour", "amulet": "Amulet", "ring_1": "Ring 1",
+         "ring_2": "Ring 2", "helmet": "Helmet", "gloves": "Gloves", "boots": "Boots", "belt": "Belt"}
+SLOT_KIND = {"ring_1": "ring", "ring_2": "ring"}          # search slot -> tier-table slot / base kind
+# Catalogue base `type` -> tier-table slot kind (weapons are recognised separately).
+BASE_TYPE_KIND = {"Body Armour": "body_armour", "Amulet": "amulet", "Ring": "ring", "Helmet": "helmet",
+                  "Gloves": "gloves", "Boots": "boots", "Belt": "belt"}
+# Floors for a build with every slot searched: resistance caps and attribute requirements.
+STANDARD_FLOORS: dict[str, float | str] = {"FireResist": 75, "ColdResist": 75, "LightningResist": 75,
+                                           "Str": "ReqStr", "Dex": "ReqDex", "Int": "ReqInt"}
 MAX_PREFIX = MAX_SUFFIX = 3     # PoE2 rare explicit limits
 ITEM_LEVEL = 82                 # assumed max drop item level (unverified); mods above it are excluded
 ROLL = 0.5                      # where in a mod's (min-max) range the value is taken; PoB's own default is 0.5
@@ -83,8 +92,8 @@ class Chosen:
 
     def gear_item(self) -> GearItem:
         if self.unique:
-            return GearItem(self.slot, unique_band=self.unique_band)
-        return GearItem(self.slot, [(a.group, a.rank) for a in self.affixes])
+            return GearItem(kind_of(self.slot), unique_band=self.unique_band)
+        return GearItem(kind_of(self.slot), [(a.group, a.rank) for a in self.affixes])
 
 
 @dataclass
@@ -124,6 +133,10 @@ class _Floors:
             need = float(stats.get(v) or 0.0) if isinstance(v, str) else float(v)
             d += max(0.0, need - float(stats.get(k) or 0.0))
         return d
+
+
+def kind_of(slot: str) -> str:
+    return SLOT_KIND.get(slot, slot)
 
 
 def load_unique_prices(path: Path = UNIQUE_PRICES) -> dict[str, str]:
@@ -245,7 +258,7 @@ class GearSearcher:
 
     # ---- one slot ----------------------------------------------------------------------------------------
     def best_item(self, xml: str, slot: str, base: str, budget: float | None,
-                  options: dict[str, list[Affix]] | None = None) -> tuple[Chosen, tuple[float, float] | None]:
+                  options: dict[str, list[Affix]] | None = None, exclude_uniques: Sequence[str] = ()) -> tuple[Chosen, tuple[float, float] | None]:
         """Best rare (or priced unique) for `slot` within `budget` points, others fixed as in `xml`."""
         opts = options if options is not None else self.affix_options(base)
         empty = Chosen(slot, base, raw=self.raw(base, []))
@@ -303,12 +316,12 @@ class GearSearcher:
                 best_obj = level[0][1]
                 best = Chosen(slot, base, tuple(sorted(st, key=lambda a: (a.type, a.group))),
                               points=sum(a.points for a in st), raw=self.raw(base, st))
-        u, u_obj = self._best_unique(xml, slot, budget)
+        u, u_obj = self._best_unique(xml, slot, budget, exclude_uniques)
         if u is not None and u_obj is not None and u_obj > best_obj:
             return u, u_obj
         return best, best_obj
 
-    def _best_unique(self, xml: str, slot: str, budget: float | None) -> tuple[Chosen | None, tuple[float, float] | None]:
+    def _best_unique(self, xml: str, slot: str, budget: float | None, exclude: Sequence[str] = ()) -> tuple[Chosen | None, tuple[float, float] | None]:
         bands = self.t.raw["unique_bands"]
         cands: list[Chosen] = []
         for name, band in sorted(self.uniques.items()):
@@ -320,7 +333,7 @@ class GearSearcher:
             except ValueError:
                 self.notes.append(f"unique_prices: {name!r} not in catalogue")
                 continue
-            if self._slot_of_base(e.get("base")) != slot:
+            if self._slot_of_base(e.get("base")) != kind_of(slot) or e["name"] in exclude:
                 continue
             t = self.eng.call("unique_text", name=e["name"], base=e.get("base"))
             if not t.get("ok"):
@@ -345,26 +358,30 @@ class GearSearcher:
             typ = self._base(base)["type"]
         except ValueError:
             return None
-        if typ == "Body Armour":
-            return "body_armour"
-        if typ == "Amulet":
-            return "amulet"
+        if typ in BASE_TYPE_KIND:
+            return BASE_TYPE_KIND[typ]
         b = self._base(base)
         weapon_tags = {"weapon", *self.t.slot_tags("weapon")}
         return "weapon" if b.get("weapon") or weapon_tags & set(b.get("tags", [])) else None
+
+    def slot_budget(self, tier: str, slot: str) -> float | None:
+        b = self.t.slot_budget(tier, kind_of(slot))
+        if b is None or kind_of(slot) == slot:
+            return b
+        return b / sum(kind_of(s) == kind_of(slot) for s in SLOTS)   # rings: the `ring` share split over both
 
     # ---- whole search ------------------------------------------------------------------------------------
     def search(self, xml: str, tier: str, bases: Mapping[str, str], slots: Sequence[str] = tuple(SLOTS),
                passes: int = DEFAULT_PASSES, realloc_rounds: int = DEFAULT_REALLOC_ROUNDS) -> GearSearch:
         for s in slots:
             if s not in SLOTS:
-                raise ValueError(f"slot {s!r} not searched by G7 (supported: {', '.join(SLOTS)})")
+                raise ValueError(f"slot {s!r} not searchable (supported: {', '.join(SLOTS)})")
             if s not in bases:
                 raise ValueError(f"no base given for slot {s!r}")
-            if self._slot_of_base(bases[s]) != s:
+            if self._slot_of_base(bases[s]) != kind_of(s):
                 raise ValueError(f"base {bases[s]!r} does not fit slot {s!r}")
         total = self.t.budget(tier)
-        budgets: dict[str, float | None] = {s: self.t.slot_budget(tier, s) for s in slots}
+        budgets: dict[str, float | None] = {s: self.slot_budget(tier, s) for s in slots}
         opts = {s: self.affix_options(bases[s]) for s in slots}
 
         # Baseline: all searched slots hold the unmodded base.
@@ -375,11 +392,14 @@ class GearSearcher:
         baseline = float(base_stats.get(self.metric) or 0.0)
         items = {s: Chosen(s, bases[s], raw=self.raw(bases[s], [])) for s in slots}
 
+        def others(items: dict[str, Chosen], s: str) -> list[str]:   # uniques are one per name
+            return [c.unique for t, c in items.items() if t != s and c.unique]
+
         def descend(cur: str, items: dict[str, Chosen], budgets: dict[str, float | None]) -> tuple[str, dict[str, Chosen], tuple[float, float]]:
             for _ in range(passes):
                 changed = False
                 for s in slots:
-                    ch, _ = self.best_item(cur, s, bases[s], budgets[s], opts[s])
+                    ch, _ = self.best_item(cur, s, bases[s], budgets[s], opts[s], others(items, s))
                     if ch.raw != items[s].raw:
                         items = {**items, s: ch}
                         cur = self.equip(cur, s, ch.raw)
@@ -401,7 +421,7 @@ class GearSearcher:
                         b = budgets[s] + sign * step
                         if b < 0:
                             continue
-                        _, o = self.best_item(cur, s, bases[s], b, opts[s])
+                        _, o = self.best_item(cur, s, bases[s], b, opts[s], others(items, s))
                         if o is not None:
                             gains[(s, sign)] = o
                 best_move, best_est = None, 0.0
