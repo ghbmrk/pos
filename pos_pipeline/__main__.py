@@ -421,7 +421,41 @@ def _diagnose(args: list[str]) -> int:
     return 0
 
 
+def _ceilings(args: list[str]) -> int:
+    """ceilings BUILD.xml [--metric FullDPS] [--ids a,b] [--required N] [--line id=TEXT]... [--json]"""
+    import json as _json
+
+    from . import ceilings as C
+    opt = {"--metric": "FullDPS", "--ids": "", "--required": ""}
+    lines: dict[str, str] = {}
+    rest = []
+    it = iter(args)
+    for a in it:
+        if a == "--line":
+            k, _, v = next(it, "=").partition("=")
+            lines[k] = v
+        elif a in opt:
+            opt[a] = next(it, opt[a])
+        elif a != "--json":
+            rest.append(a)
+    if len(rest) != 1:
+        print("usage: python -m pos_pipeline ceilings BUILD.xml [--metric FullDPS] [--ids id,id] [--required N] [--line id=STAT LINE] [--json]")
+        return 2
+    xml = open(rest[0], encoding="utf-8").read()
+    ids = [i for i in opt["--ids"].split(",") if i] or None
+    res = C.evaluate(xml, ids, metric=opt["--metric"], lines=lines)
+    joint = C.interaction(res, xml, metric=opt["--metric"])
+    req = float(opt["--required"]) if opt["--required"] else None
+    if "--json" in args:
+        print(_json.dumps({"results": [r.to_dict() for r in res], "joint": joint}, indent=1))
+    else:
+        print(C.render(res, opt["--metric"], req, joint))
+    return 0
+
+
 def main(argv: list[str]) -> int:
+    if argv and argv[0] == "ceilings":
+        return _ceilings(argv[1:])
     if argv and argv[0] == "slate":
         return _slate(argv[1:])
     if argv and argv[0] == "run":
@@ -457,7 +491,7 @@ def main(argv: list[str]) -> int:
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | slate validate slate.yaml | sweep spec.yaml KIND [workers] [top] [--weapon Base] (KIND keystone|ascendancy|unique:<slot>|support) | ablate spec.yaml kind:id[@slot]... | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | census spec.yaml [--kinds K] [--conditions C] [--out DIR] | diagnose BUILD.xml [--metric M] [--bench ids] [--json] | diagnose --calibrate | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
+        print("usage: python -m pos_pipeline validate spec.yaml | slate validate slate.yaml | sweep spec.yaml KIND [workers] [top] [--weapon Base] (KIND keystone|ascendancy|unique:<slot>|support) | ablate spec.yaml kind:id[@slot]... | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | census spec.yaml [--kinds K] [--conditions C] [--out DIR] | diagnose BUILD.xml [--metric M] [--bench ids] [--json] | diagnose --calibrate | ceilings BUILD.xml [--metric M] [--ids a,b] [--required N] [--line id=TEXT] [--json] | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
         return 2
     try:
         spec = load_spec(argv[1])

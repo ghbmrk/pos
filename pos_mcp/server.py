@@ -172,6 +172,19 @@ def diagnose(build: str, metric: str = "FullDPS", benchmarks: list[str] | None =
 
 
 @mcp.tool()
+def ceilings(build: str, metric: str = "FullDPS", ids: list[str] | None = None, required: float | None = None,
+             lines: dict[str, str] | None = None) -> dict[str, Any]:
+    """How much could mechanics PoB cannot time be worth to this build? `build` = PoB build XML text. For each registry entry
+    (data/ceilings.yaml: charge income/retention/spenders, Seal frequency, Infusions, Companion and Remnant lines) returns floor (pure
+    PoB, the rank key), ceiling (mechanic ON 100% of the time, from a PoB option or a parseable line) and headroom (ceiling / floor;
+    `compounding` at or above 1.5). `required` = a metric value to reach (e.g. the runner-up's): the text states the uptime needed.
+    `lines` = {id: the piece's stat line} to fill numbers. Status: native (PoB computes it already), derived (per-charge bonus read
+    from PoB skill data, upper bound), inert (nothing in this build reads the state), no_model, no_own_damage, needs_data, dropped.
+    No uptime is assumed and no ranked band is produced."""
+    return core.ceilings(build, metric, ids, required, lines)
+
+
+@mcp.tool()
 def sweep(spec: str | dict[str, Any], kind: str, searched: bool = True, top: int = 20, workers: int | None = None,
           weapon: str | None = None) -> dict[str, Any]:
     """Engine sweep, background job (returns run_id; read with get_report): measure the change in the spec's metric from adding each
