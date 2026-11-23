@@ -18,3 +18,10 @@ effects:
   banner_planted:      { options: { bannerPlanted: true } }
   companion_in_presence: { options: { companionInPresence: true } }
   nearby_allies:       { options: { multiplierNearbyAlly: "{count}" }, params: [count] }
+  # K5 (assumed Squire scenarios): keys read from ConfigOptions.lua at the pinned PoB; probed in test_actors.py
+  enemy_shocked:       { options: { conditionEnemyShocked: true } }
+  enemy_intimidated:   { options: { conditionEnemyIntimidated: true } }
+  enemy_armour_broken: { options: { conditionEnemyArmourBroken: true } }
+  whirlwind_cold:      { options: { whirlwindBuffCold: true } }
+  whirlwind_fire:      { options: { whirlwindBuffFire: true } }
+  whirlwind_lightning: { options: { whirlwindBuffLightning: true } }

@@ -14,6 +14,7 @@
 - 2026-11-22 · Creative ideation from high-level prompts · cmsg_01RxGYnd78N9kMbbAJ5pWDhU6o4n9NQafMk2fcJq7WYpEm
 - 2026-11-22 · Engine models a second actor per build (Knight's Squire: own gear, own skills, cross-actor effects); docs/second-actor.md · cmsg_01RxGYnd78N9kMbbAJ5pWDhU1rV7vhNcCUFrXzAenA5jNG
 - 2026-11-22 · Use current pre-1.0 data to build/test/validate; keep data pinned and swappable · cmsg_01RxGYnd78N9kMbbAJ5pWDhUUgS6By69FAnTchmtmGQpzb
+- 2026-11-22 · Full assumed-Squire what-if runs allowed before 1.0, labelled assumed, redone on 1.0 data (owner chose over effect-value sweeps only); docs/squire-assumed.md · cmsg_01RxGYnd78N9kMbbAJ5pWDhUBKLQGf5LDJC5En4e4zFCdx
 
 ## Open work
 <!-- id · state · owner thread -->
@@ -62,8 +63,8 @@
 - K3 · done · two-gear-set search (pos_pipeline/gear_actors.py, fake-tested; real engine unrun, no LuaJIT here) · thread "Build two-gear-set search"
 - K4 · waits for 1.0 re-pin (2026-12-11) · source Squire facts, choose native_pob vs separate_build, fill data/actors.yaml, flip to available, re-check build 1/2 skill names (Opus). Use the 1.0 check list C1-C12 and the Exposure gap + probe-effect check in docs/theorycraft-squire.md sections 5-6
 - KT · done · docs/theorycraft-squire.md: Squire theorycraft (confirmed 1.0 facts with sources, 10 ranked ideas, owner builds 1/2 rethought, 1.0 checks, engine notes). Cyclone is confirmed for 1.0 · thread "Theorycraft what the Squire unlocks"
-- K5 · blocked on K4 · ideation slate fields + sweeps over companion skills (Sonnet)
-- K? · needs owner decision, not asked · pre-1.0 "what-if" runs with spec-declared, labelled assumed effects
+- K6 · blocked on K4 · ideation slate fields + sweeps over companion skills (Sonnet)
+- K5 · done (PR open) · assumed-Squire what-if runs: data/squire_assumed.yaml (every assumption listed, scenarios debuff_bot / ground_painter / charge_provider, stand-ins named) + spec `companion.assumed` + run opt-in `--assumed` / MCP `allow_assumed` + K2 model and K3 two-gear-set search wired into the orchestrator + ASSUMED banner in report/run.json/sqlite (`assumed` column) + slates reject, MCP list_runs/compare hide/refuse; real run Huntress Whirling Slash + Squire spear ~1.5 min; docs/squire-assumed.md. Probe test confirms effect keys move a plain build (charges need a consumer) · thread "Build assumed-Squire what-if runs"
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.

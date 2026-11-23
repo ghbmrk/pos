@@ -103,8 +103,7 @@ def _bases(bases: dict[str, str]) -> tuple[dict[str, str], str | None]:
 def preflight(spec: str | dict, bases: dict[str, str] | None = None, workers: int | None = None,
               realloc_rounds: int | None = None, max_minutes: float | None = None) -> dict:
     """Cost estimate without running. Also validates the spec."""
-    from pos_pipeline.gear import SLOTS
-    from pos_pipeline.orchestrate import DEFAULT_MAX_MINUTES, DEFAULT_REALLOC_ROUNDS, run
+    from pos_pipeline.orchestrate import DEFAULT_MAX_MINUTES, DEFAULT_REALLOC_ROUNDS, gear_slot_count, run
 
     v = validate_spec(spec)
     if not v["ok"]:
@@ -113,7 +112,7 @@ def preflight(spec: str | dict, bases: dict[str, str] | None = None, workers: in
     b, err = _bases(bases or {})
     if err:
         return {"ok": False, "error": err}
-    r = run(s, None, skill_id="", dry_run=True, force=True, metric=v["metric"], slots=len(b) or len(SLOTS),  # type: ignore[arg-type]
+    r = run(s, None, skill_id="", dry_run=True, force=True, metric=v["metric"], slots=gear_slot_count(s, b),  # type: ignore[arg-type]
             workers=workers or os.cpu_count() or 1, realloc_rounds=DEFAULT_REALLOC_ROUNDS if realloc_rounds is None else realloc_rounds,
             max_minutes=DEFAULT_MAX_MINUTES if max_minutes is None else max_minutes)
     e = r.estimate
@@ -137,11 +136,16 @@ def _active() -> list[str]:
 
 
 def start_run(spec: str | dict, bases: dict[str, str], *, workers: int | None = None, realloc_rounds: int | None = None,
-              max_minutes: float | None = None, force: bool = False) -> dict:
-    """Validate, check the cost cap, then start the run as a background process. Returns a run id at once."""
+              max_minutes: float | None = None, force: bool = False, allow_assumed: bool = False) -> dict:
+    """Validate, check the cost cap, then start the run as a background process. Returns a run id at once.
+    A spec with `companion.assumed` (ASSUMED Squire what-if) runs only with allow_assumed=True."""
     pf = preflight(spec, bases, workers, realloc_rounds, max_minutes)
     if not pf["ok"]:
         return pf
+    sc = ((_spec_from(spec).companion.assumed if _spec_from(spec).companion else None) or {}).get("scenario")
+    if sc and not allow_assumed:
+        return {"ok": False, "refused": "spec uses the ASSUMED Squire what-if (companion.assumed): its numbers rest on assumptions, not game data",
+                "hint": "pass allow_assumed=true only when the owner asked for an assumed what-if; see docs/squire-assumed.md"}
     if not bases:
         return {"ok": False, "error": "no bases given: gear search needs one base per slot, e.g. {'weapon': 'Acrid Wand'}; resolve names with kind 'base'"}
     if pf["over_cap"] and not force:
@@ -149,9 +153,10 @@ def start_run(spec: str | dict, bases: dict[str, str], *, workers: int | None = 
     s = _spec_from(spec)
     b, _ = _bases(bases)
     extra = (["--workers", str(workers)] if workers else []) + (["--realloc-rounds", str(realloc_rounds)] if realloc_rounds is not None else []) \
-        + (["--max-minutes", str(max_minutes)] if max_minutes is not None else []) + (["--force"] if force else [])
+        + (["--max-minutes", str(max_minutes)] if max_minutes is not None else []) + (["--force"] if force else []) \
+        + (["--assumed"] if sc else [])
     return _launch("run", "spec.yaml", _plain(spec), lambda d: ["-m", "pos_pipeline", "run", str(d / "spec.yaml"),
-                   *[f"{k}={v}" for k, v in b.items()], "--out", str(d), *extra], pf["summary"], {"tiers": s.tiers})
+                   *[f"{k}={v}" for k, v in b.items()], "--out", str(d), *extra], pf["summary"], {"tiers": s.tiers, **({"assumed": sc} if sc else {})})
 
 
 def _plain(doc: str | dict) -> Any:
@@ -193,7 +198,7 @@ def _state(run_id: str) -> dict:
         state = "running"
     else:
         state = "failed"
-    return {"state": state, "job": meta.get("job", "run"), "elapsed_s": round((time.time() - meta["started"]) if state == "running" else
+    return {"state": state, "job": meta.get("job", "run"), "assumed": meta.get("assumed"), "elapsed_s": round((time.time() - meta["started"]) if state == "running" else
                                                 ((d / "log.txt").stat().st_mtime - meta["started"]) if log else 0),
             "estimate": meta["estimate"], "log_tail": log[-8:]}
 
@@ -244,8 +249,12 @@ def _best(run_id: str) -> dict | str:
     return {"metric": j["metric"], "best": out}
 
 
-def compare(run_a: str, run_b: str) -> dict:
-    """Best result per tier in two runs, with the delta. Only comparable when both runs used the same metric."""
+def compare(run_a: str, run_b: str, include_assumed: bool = False) -> dict:
+    """Best result per tier in two runs, with the delta. Only comparable when both runs used the same metric.
+    Runs of the ASSUMED Squire what-if are refused unless include_assumed=True, and the result then carries the banner."""
+    ass = [r for r in (run_a, run_b) if _state(r).get("assumed")]
+    if ass and not include_assumed:
+        return {"ok": False, "error": f"run(s) {ass} are ASSUMED Squire what-ifs; pass include_assumed=true to compare them (numbers rest on assumptions)"}
     a, b = _best(run_a), _best(run_b)
     for r in (a, b):
         if isinstance(r, str):
@@ -255,12 +264,20 @@ def compare(run_a: str, run_b: str) -> dict:
     for t in sorted(set(a["best"]) | set(b["best"])):
         x, y = a["best"].get(t), b["best"].get(t)
         tiers[t] = {"a": x, "b": y, "delta_pct": round(100 * (y["value"] / x["value"] - 1), 1) if x and y and x["value"] and not note else None}
-    return {"ok": True, "metric_a": a["metric"], "metric_b": b["metric"], "note": note, "tiers": tiers}
+    return {"ok": True, "metric_a": a["metric"], "metric_b": b["metric"], "note": note, "tiers": tiers,
+            **({"ASSUMED": "includes ASSUMED Squire what-if runs: numbers rest on assumptions, not game data"} if ass else {})}
 
 
-def list_runs(limit: int = 10) -> dict:
-    ids = sorted(d.name for d in runs_dir().iterdir() if (d / "meta.json").exists())[-limit:]
-    return {"runs": [{"run_id": i, "job": (st := _state(i))["job"], "state": st["state"]} for i in ids]}
+def list_runs(limit: int = 10, include_assumed: bool = False) -> dict:
+    """Recent jobs. ASSUMED Squire what-if runs are hidden unless include_assumed=True (then each is flagged)."""
+    all_ids = sorted(d.name for d in runs_dir().iterdir() if (d / "meta.json").exists())
+    rows = [(i, _state(i)) for i in all_ids]
+    hidden = sum(1 for _, st in rows if st.get("assumed"))
+    rows = [(i, st) for i, st in rows if include_assumed or not st.get("assumed")][-limit:]
+    out = {"runs": [{"run_id": i, "job": st["job"], "state": st["state"], **({"ASSUMED": st["assumed"]} if st.get("assumed") else {})} for i, st in rows]}
+    if hidden and not include_assumed:
+        out["hidden_assumed"] = hidden
+    return out
 
 
 # ---- ideation (I6, docs/ideation.md): catalogue queries, slate gate, sweeps, slate runs -------------------------

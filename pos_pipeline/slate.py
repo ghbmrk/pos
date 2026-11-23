@@ -260,6 +260,9 @@ def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg
     if c.spec is None:
         add("error", "spec_structure", "spec", c.spec_error or "spec failed to parse")
     else:
+        if c.spec.companion is not None and c.spec.companion.assumed is not None:
+            add("error", "assumed_in_slate", "spec.companion.assumed",
+                "assumed-Squire what-if specs stay out of ranked slates (their numbers rest on assumptions); run them singly with `run --assumed`")
         sr = validate(c.spec, cat, tiers)
         res.issues += [Issue(x.severity, x.code, f"{p}.spec.{x.path}", x.message, x.suggestions, x.confidence) for x in sr.issues]
         skill = _lookup(cat, "skill", c.spec.main_skill)[0]

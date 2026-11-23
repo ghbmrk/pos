@@ -91,10 +91,10 @@ def search_two_actors(player: GearSearcher, companion: GearSearcher, main_xml: s
                       bases: Mapping[str, str], comp_bases: Mapping[str, str], *, kind: str = "squire",
                       slots: Sequence[str] = tuple(SLOTS), comp_slots: Sequence[str] | None = None,
                       share: float | None = None, passes: int = DEFAULT_PASSES,
-                      realloc_rounds: int = DEFAULT_REALLOC_ROUNDS) -> ActorGearSearch:
+                      realloc_rounds: int = DEFAULT_REALLOC_ROUNDS, assumed: Mapping[str, Any] | None = None) -> ActorGearSearch:
     """Search player and companion gear together. `player`/`companion` are GearSearchers with their own metric
     (`companion` has no floors). Raises ActorUnavailable while the actor is pending."""
-    a = actors.require_available(kind)
+    a = actors.require_available(kind, assumed)
     comp_slots = tuple(comp_slots if comp_slots is not None else a.get("gear_slots") or ())
     if not comp_slots:
         raise ValueError(f"actor {kind!r} has no gear slots to search")
