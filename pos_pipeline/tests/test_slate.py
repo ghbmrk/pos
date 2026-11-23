@@ -321,3 +321,20 @@ def test_real_catalogue_poe1_name_and_true_quote():
     c = validate_slate(parse_slate(d), cat).candidates[0]
     assert not c.kept
     assert not any(i.path.endswith("claims[0].cites[0].quote") for i in c.errors)
+
+
+def test_archetype_patterns_unknown_is_error_and_too_few_is_warning(cat):
+    def unknown(d):
+        d["candidates"][0]["archetype"] = {"patterns": "stat_stacking+cast_on_crit_strike"}
+    c = run(cat, unknown).candidates[0]
+    assert not c.kept and "unknown_pattern" in {i.code for i in c.errors}
+
+    def one(d):
+        d["candidates"][0]["archetype"] = {"patterns": "stat_stacking"}
+    c = run(cat, one).candidates[0]
+    assert c.kept and "engine_not_compounding" in {i.code for i in c.issues if i.severity == "warning"}
+
+    def two(d):
+        d["candidates"][0]["archetype"] = {"patterns": "conversion_funnel + resistance_removal"}
+    c = run(cat, two).candidates[0]
+    assert c.kept and not {i.code for i in c.issues} & {"unknown_pattern", "engine_not_compounding"}

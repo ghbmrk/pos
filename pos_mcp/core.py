@@ -333,6 +333,14 @@ def bridges(term_a: str, term_b: str, limit: int = 10) -> dict:
             **{k: [_card(k[:-1], e, 3) for e in v[:limit]] for k, v in r.items()}}
 
 
+def meta_lessons(pattern: str | None = None) -> dict:
+    """Abstract scaling patterns from past metas (data/meta_lessons.yaml), without past-meta names."""
+    from pos_pipeline import meta_lessons as ml
+    if pattern and pattern not in ml.ids():
+        return {"ok": False, "error": f"unknown pattern {pattern!r}", "patterns": ml.ids()}
+    return {"ok": True, "rules": ml.load()["rules"], "patterns": ml.public(pattern)}
+
+
 def explain(kind: str, name: str) -> dict:
     """Full quotable text of one entry, resolved exactly by name (or catalogue id)."""
     from pos_catalogue import query

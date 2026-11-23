@@ -153,6 +153,14 @@ def enablers(skill_type: str, limit: int = 15) -> dict[str, Any]:
 
 
 @mcp.tool()
+def meta_lessons(pattern: str | None = None) -> dict[str, Any]:
+    """Compounding patterns that carried past PoE1/PoE2 metas (stat stacking, conversion funnels, trigger loops, layered
+    defences, ...): mechanism, why it compounds, limits, era and evidence, PoE2 starting points verified on the pinned data
+    and the probe levers it should move. Past build names are left out on purpose. Cite ids in archetype.patterns."""
+    return core.meta_lessons(pattern)
+
+
+@mcp.tool()
 def explain(kind: str, name: str) -> dict[str, Any]:
     """Full PoE2 game text of one entry (skill | support | unique | keystone | notable | base), resolved exactly by name. `text`
     lines are what a slate claim may quote: copy the quote verbatim from one line. Also returns structure (skill types,
