@@ -67,13 +67,16 @@ Meta builds across PoE1 and PoE2 won by a few compounding patterns. Use them to 
 builds are deliberately left out (they are PoE1 names, wrong here). The starting points below are PoE2 catalogue names
 verified on this pin: `explain` them, then `search`/`bridges` for more. `meta_lessons(pattern)` gives detail and evidence.
 {meta_lessons}
-A build only competes with the meta if its core interaction compounds: combine at least {min_patterns} patterns that feed
-each other (for example a conversion funnel whose single type then takes every resistance-removal layer; a stacked stat
-that several lines turn into damage and defence). One pattern plus marginal increases is not an engine.
+A build only competes with the meta if its core interaction compounds: combine at least {min_patterns} offence patterns that
+feed each other (for example a conversion funnel whose single type then takes every resistance-removal layer; a stacked
+stat that several lines turn into damage and defence). One pattern plus marginal increases is not an engine.
+The goal is the highest DPS that survives all endgame content without death, so defence is layered the same way: at least
+{min_defence} independent defence layers that cover each other's gaps (mitigation, avoidance, maximum resistance, a damage-type
+shift, control immunity, burst recovery). Prefer `[offence and defence]` patterns where one investment buys both.
 
 ## Step 2. Propose a slate of {n_lo}-{n_hi} candidates
 Make them differ in kind, not degree. For each, name its "engine" in a few words: the one interaction that makes it
-work, and the pattern ids it combines in `archetype.patterns` ("id+id"). Spread across delivery (self-cast, projectile, area, channel, melee, totem, trap, mine), damage type, defence
+work, and the pattern ids it combines in `archetype.patterns` ("id+id+..."): its offence engine and its defence layers. Spread across delivery (self-cast, projectile, area, channel, melee, totem, trap, mine), damage type, defence
 layer and class/ascendancy. Include at least one idea a typical player would not try first. Two candidates must
 differ on at least {min_diff} of: class/ascendancy, delivery, damage, defence, main skill, key-piece set; and the kept
 set must cover at least {min_distinct} distinct deliveries or damage types unless the user fixed both.
@@ -87,7 +90,7 @@ brief: {{ benchmarks: [arbiter_ash], tiers: [mid], constraints: {{}}, floors: {{
 candidates:
   - name: "<short, distinct>"
     archetype: {{ defence: <armour | evasion | energy_shield | life | ...>, engine: "<the interaction, in words>",
-                 patterns: "<pattern id>+<pattern id>" }}
+                 patterns: "<offence id>+<offence id>+<defence id>+<defence id>" }}
     spec: {{ pob_sha: "{sha7}", class: <exact>, ascendancy: <exact>, level: 90, main_skill: {{ gem: <exact> }},
             tiers: [mid], fixed: {{ keystones: [], notables: [], uniques: [], supports: [] }} }}
     key_pieces: [ {{ kind: keystone, id: <exact name> }} ]
@@ -152,5 +155,6 @@ def render(idea: str, constraints: str = "") -> str:
         n_lo=max(cfg["slate"]["min_candidates"], 6), n_hi=max_kept + 2, max_kept=max_kept,
         min_diff=cfg["diversity"]["min_differing_fields"], min_distinct=cfg["diversity"]["min_distinct"],
         slots=", ".join(SLOTS) + " (`ring` sets both)",
-        meta_lessons=meta_lessons.render(), min_patterns=meta_lessons.load()["rules"]["min_patterns_per_engine"])
+        meta_lessons=meta_lessons.render(), min_patterns=meta_lessons.load()["rules"]["min_patterns_per_engine"],
+        min_defence=meta_lessons.load()["rules"]["min_defence_layers"])
 

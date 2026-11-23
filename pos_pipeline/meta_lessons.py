@@ -39,7 +39,7 @@ def public(pattern_id: str | None = None) -> list[dict]:
     for p in patterns():
         if pattern_id and p["id"] != pattern_id:
             continue
-        q = {k: p[k] for k in ("id", "title", *_RENDERED, "levers", "pob")}
+        q = {k: p[k] for k in ("id", "title", "side", *_RENDERED, "levers", "pob")}
         q["eras"] = [{k: e[k] for k in ("game", "era", "evidence")} for e in p.get("eras", [])]
         q["poe2"] = p.get("poe2", {})
         out.append(q)
@@ -50,15 +50,25 @@ def _anchor_names(p: dict) -> list[str]:
     return [a["name"] for a in (p.get("poe2") or {}).get("anchors", [])]
 
 
+def side_of(pattern_id: str) -> str | None:
+    return next((p.get("side") for p in patterns() if p["id"] == pattern_id), None)
+
+
 def render(limit: int | None = None) -> str:
-    """Compact prompt block: one entry per pattern with a PoE2 path in the pinned data."""
+    """Compact prompt block: patterns with a PoE2 path in the pinned data, offence first, then defence."""
     lim = limit or load()["rules"]["max_rendered"]
-    lines = []
-    for p in [p for p in patterns() if not (p.get("poe2") or {}).get("absent")][:lim]:
-        anchors = ", ".join(_anchor_names(p))
-        lines.append(f"- `{p['id']}` {p['title']}. {p['principle']} Compounds: {p['compounds']} Limits: {p['limits']}"
-                     f" PoE2 starting points: {anchors}.")
-    return "\n".join(lines)
+    shown = [p for p in patterns() if not (p.get("poe2") or {}).get("absent")][:lim]
+    out = []
+    for head, sides in (("Offence (engine)", ("offence", "both")), ("Defence (layers)", ("defence", "both"))):
+        out.append(f"{head}:")
+        for p in shown:
+            if p.get("side") not in sides or (head.startswith("Defence") and p.get("side") == "both"):
+                continue
+            anchors = ", ".join(_anchor_names(p))
+            tag = " [offence and defence]" if p.get("side") == "both" else ""
+            out.append(f"- `{p['id']}` {p['title']}{tag}. {p['principle']} Compounds: {p['compounds']} Limits: {p['limits']}"
+                       f" PoE2 starting points: {anchors}.")
+    return "\n".join(out)
 
 
 def validate(cat=None, probes: dict | None = None) -> list[str]:
@@ -80,6 +90,8 @@ def validate(cat=None, probes: dict | None = None) -> list[str]:
         if pid in seen:
             problems.append(f"{pid}: duplicate id")
         seen.add(pid)
+        if p.get("side") not in ("offence", "defence", "both"):
+            problems.append(f"{pid}: side must be offence | defence | both")
         for k in ("title", *_RENDERED, "eras", "poe2", "levers", "pob"):
             if k not in p:
                 problems.append(f"{pid}: missing {k}")

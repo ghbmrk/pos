@@ -203,6 +203,7 @@ def test_ideate_prompt_carries_live_vocabulary_and_rules():
     assert "(no idea given" in ideate.render("  ")
     # meta lessons (cmsg_01RxGYnd78N9kMbbAJ5pWDhUX2GMWf6TSLPYKzmKmpb39v): patterns rendered as priors, ids citable
     assert "Priors from past metas" in t and "`stat_stacking`" in t and "archetype.patterns" in t
+    assert "Defence (layers):" in t and "`max_resistance_push`" in t and "independent defence layers" in t
     assert "Righteous Fire" not in t and "Cast On Critical Strike" not in t
 
 
