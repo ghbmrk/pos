@@ -254,7 +254,8 @@ def _run(argv: list[str]) -> int:
     import os
 
     from .gear import SLOTS
-    from .orchestrate import DEFAULT_MAX_MINUTES, DEFAULT_REALLOC_ROUNDS, RunRefused, engine_stages, run
+    from .orchestrate import (DEFAULT_MAX_MINUTES, DEFAULT_REALLOC_ROUNDS, AssumedNotAllowed, RunRefused, engine_stages,
+                              gear_slot_count, run)
 
     ap = argparse.ArgumentParser(prog="python -m pos_pipeline run")
     ap.add_argument("spec")
@@ -265,6 +266,7 @@ def _run(argv: list[str]) -> int:
     ap.add_argument("--preflight", action="store_true", help="print the cost estimate and exit")
     ap.add_argument("--realloc-rounds", type=int, default=DEFAULT_REALLOC_ROUNDS, help="0 = cheap gear mode (about 2.3x faster, weaker)")
     ap.add_argument("--out", default=None, help="directory for run.json and cache.sqlite")
+    ap.add_argument("--assumed", action="store_true", help="allow a spec with companion.assumed (ASSUMED Squire what-if, docs/squire-assumed.md)")
     a = ap.parse_args(argv)
     bases = dict(x.split("=", 1) for x in a.bases if "=" in x)
     if "ring" in bases:
@@ -280,7 +282,7 @@ def _run(argv: list[str]) -> int:
         print(f"{len(rep.errors)} validation error(s); not running"); return 1
     if not bases and not a.preflight:
         print("no bases given (slot=Base ...): gear search needs one per slot"); return 2
-    kw = dict(metric=rep.metric, slots=len(bases) or len(SLOTS), workers=a.workers, realloc_rounds=a.realloc_rounds,
+    kw = dict(metric=rep.metric, slots=gear_slot_count(spec, bases), workers=a.workers, realloc_rounds=a.realloc_rounds,
               max_minutes=a.max_minutes, log=print)
     try:
         if a.preflight:
@@ -294,8 +296,10 @@ def _run(argv: list[str]) -> int:
             Path(a.out).mkdir(parents=True, exist_ok=True)
         meta = {"metric_note": rep.metric_note, "limitations": [f"[{i.confidence or i.severity}] {i.message}" for i in rep.issues if i.code == "limitation"]}
         with engine_stages(spec, cat, rep, bases, workers=a.workers, cache=cache, realloc_rounds=a.realloc_rounds) as (st, skill_of):
-            r = run(spec, st, skill_id=skill_of, force=a.force, out_dir=a.out, meta=meta, **kw)
+            r = run(spec, st, skill_id=skill_of, force=a.force, allow_assumed=a.assumed, out_dir=a.out, meta=meta, **kw)
     except RunRefused as e:
+        print(f"refused: {e}"); return 3
+    except AssumedNotAllowed as e:
         print(f"refused: {e}"); return 3
     for t, (v, val) in r.best_per_tier().items():
         print(f"tier {t}: best {r.metric} {val:.1f} with {v or '(no axes)'}")

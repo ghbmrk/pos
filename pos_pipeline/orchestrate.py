@@ -164,6 +164,17 @@ class RunRefused(Exception):
         self.estimate = est
 
 
+class AssumedNotAllowed(RuntimeError):
+    """The spec asks for the ASSUMED Squire what-if but the run was not started with the explicit opt-in (K5)."""
+
+
+def gear_slot_count(spec, bases: Mapping[str, str]) -> int:
+    """Slots the gear stage searches: the player's bases plus the assumed companion's bases (preflight and run use the same count)."""
+    from .gear import SLOTS
+    comp = getattr(spec, "companion", None)
+    return (len(bases) or len(SLOTS)) + (len(comp.gear) if comp is not None and comp.assumed is not None else 0)
+
+
 def _jsonable(o: Any) -> Any:
     """Stats/benchmark dicts may carry numpy-ish or non-finite values; keep them JSON-safe (inf/nan -> None)."""
     if isinstance(o, dict):
@@ -178,13 +189,13 @@ def _jsonable(o: Any) -> Any:
 def actor_dict(c) -> dict:
     """actors.Combined -> JSON-safe dict for run.json / the report."""
     return _jsonable({"main": c.main, "companion": c.companion, "total": c.total, "without_companion": c.without_companion,
-                      "blended": c.blended, "effects": [{"id": e.id, "uptime": e.uptime, "options": e.options, "source": e.source} for e in c.effects]})
+                      "blended": c.blended, "assumed": getattr(c, "assumed", None), "effects": [{"id": e.id, "uptime": e.uptime, "options": e.options, "source": e.source} for e in c.effects]})
 
 
 # ---- the loop ---------------------------------------------------------------------------------------------
 def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id: str | Callable[[dict], str],
         realloc_rounds: int = DEFAULT_REALLOC_ROUNDS, max_minutes: float = DEFAULT_MAX_MINUTES, force: bool = False,
-        dry_run: bool = False, benchmarks: Sequence[str] = (), meta: Mapping[str, Any] | None = None, out_dir: str | Path | None = None, log: Callable[[str], None] = lambda s: None) -> RunResult:
+        dry_run: bool = False, allow_assumed: bool = False, benchmarks: Sequence[str] = (), meta: Mapping[str, Any] | None = None, out_dir: str | Path | None = None, log: Callable[[str], None] = lambda s: None) -> RunResult:
     """Per seed (axis combination): assemble -> supports -> tree, once; then per tier: gear.
 
     Supports are searched on the ungeared seed (G5 measured it that way): picks made before gear exists can differ
@@ -193,7 +204,10 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
     tiers = list(spec.tiers) or ["mid"]
     if getattr(spec, "companion", None) is not None:
         from . import actors
-        actors.require_available(spec.companion.kind)   # pending actor: ActorUnavailable, before any work or number
+        if spec.companion.assumed is not None and not dry_run and not allow_assumed:
+            raise AssumedNotAllowed("spec uses the ASSUMED Squire what-if (companion.assumed); pass allow_assumed=True "
+                                    "(CLI --assumed, MCP allow_assumed) to run it. Its numbers rest on assumptions, see docs/squire-assumed.md")
+        actors.require_available(spec.companion.kind, spec.companion.assumed)   # pending actor: ActorUnavailable, before any work or number
         if not dry_run and stages.actor is None:
             raise actors.ActorUnavailable(spec.companion.kind, ["no actor stage supplied to run()"])
     vs = variants(spec)
@@ -203,7 +217,9 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
         raise RunRefused(est)
     from .report import run_meta
     bench_ids = list(benchmarks) or list(getattr(spec, "benchmarks", []) or [])
-    res = RunResult(metric, est, [], meta={**run_meta(spec, bench_ids), **(meta or {})})
+    rm = run_meta(spec, bench_ids)
+    res = RunResult(metric, est, [], meta={**rm, **(meta or {})})
+    res.meta["limitations"] = [*rm.get("limitations", []), *((meta or {}).get("limitations") or [])]
     if dry_run:
         return res
 
@@ -302,7 +318,8 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
         from pos_pool.pool import EnginePool
 
         from .assemble import assemble, _gem_line
-        from .gear import STANDARD_FLOORS, search_gear
+        from . import actors
+        from .gear import STANDARD_FLOORS, GearSearcher, search_gear
         from .supports import search_supports
         from .tree import DEFAULT_CAPS, search_trees
 
@@ -320,11 +337,65 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                 eng.paste_skill(text)
                 return eng.get_xml()
 
+            comp = spec.companion
+            assumed = comp.assumed if comp is not None else None
+            prof_opts = data.profiles()[spec.config_profile].get("options") or {}
+            cache_comp: dict[str, Any] = {}
+
+            def companion_xml():
+                from .assemble import assemble_companion
+                if "xml" not in cache_comp:
+                    ca = assemble_companion(spec, cat, eng)
+                    if not ca.ok:
+                        raise RuntimeError("companion assembly failed: " + "; ".join(i.message for i in ca.errors))
+                    cache_comp["xml"] = ca.xml
+                return cache_comp["xml"]
+
+            def companion_effects():
+                ids = [cat.resolve("skill", k.gem).entry["id"] for k in comp.skills]
+                return actors.effects_for(comp, ids)
+
+            def comp_metric():
+                """The companion's own objective: the metric of its skill type (rep.metric when the skill has none)."""
+                csk = cat.get("skill", cat.resolve("skill", comp.skills[0].gem).entry["id"])
+                return data.metric_for(csk.get("skill_types") or [])["metric"] or rep.metric
+
+            def two_actor_gear(xml, tier, b):
+                """K3 search over the player's and the assumed Squire's gear sets in one tier budget (docs/squire-assumed.md).
+                The player's build carries every assumed effect ON while searching (an upper bound for choosing gear only);
+                reported numbers come from the actor stage, which blends uptimes."""
+                from dataclasses import replace
+                from .gear_actors import search_two_actors
+                eff = companion_effects()
+                eng.load_build_xml(xml)
+                eng.set_config(options=actors.merge_options(prof_opts, eff) or None)
+                baked = eng.get_xml()
+                cxml = companion_xml()
+                cmetric = comp_metric()
+                player = GearSearcher(cat, pool, eng, metric=rep.metric, floors=fl)
+                squire = GearSearcher(cat, pool, eng, metric=cmetric, floors={})
+                r = search_two_actors(player, squire, baked, cxml, tier, b, dict(comp.gear), kind=comp.kind, slots=tuple(b),
+                                      comp_slots=tuple(comp.gear), realloc_rounds=realloc_rounds, assumed=assumed)
+                pl = r.lanes["player"]
+                items = {**pl.items, **{k: v for k, v in r.items.items() if "." in k}}
+                notes = [*r.notes, f"ASSUMED squire: gear {r.points_companion:g} points, own {cmetric} {r.companion_value:,.1f}; "
+                         f"search scored the player with every assumed effect on"]
+                # back to effects-off: the tier value stays the player alone (K2); with-effects numbers come from the actor stage
+                eng.load_build_xml(pl.xml)
+                eng.set_config(options=actors.reset_options(prof_opts, eff) or None)
+                plain = eng.get_xml()
+                value = float(eng.get_stats([rep.metric])["stats"].get(rep.metric) or 0.0)
+                cache_comp.setdefault("geared", {})[plain] = r.lanes[comp.kind].xml   # actor stage reads the searched Squire gear
+                return replace(pl, items=items, notes=notes, evals=r.evals, cached=r.cached, failures=r.failures, price=r.price,
+                               xml=plain, value=value, baseline=None)
+
             def gear(xml, tier, variant):
                 b = dict(bases)
                 wb = variant.get("weapon_base")
                 if wb and cat.resolve("base", wb).entry is not None:
                     b["weapon"] = cat.resolve("base", wb).entry["name"]
+                if assumed is not None and comp.gear:
+                    return two_actor_gear(xml, tier, b)
                 return search_gear(cat, pool, eng, xml, tier, b, rep.metric, slots=tuple(b), floors=fl,
                                    realloc_rounds=realloc_rounds)
 
@@ -339,14 +410,10 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
 
             actor = None
             if spec.companion is not None:
-                from . import actors
-                from .assemble import assemble_companion
-                prof_opts = data.profiles()[spec.config_profile].get("options") or {}
-                mod = actors.actor(spec.companion.kind).get("model")
+                mod = actors.actor(spec.companion.kind, assumed).get("model")
                 if mod != "separate_build":   # native_pob waits for 1.0 data (K4); pending raised earlier in run()
-                    actors.require_available(spec.companion.kind)
+                    actors.require_available(spec.companion.kind, assumed)
                     raise NotImplementedError(f"actor model {mod!r} is not built")
-                cache_comp: dict[str, Any] = {}
 
                 def player_metric(xml, options):
                     eng.load_build_xml(xml)
@@ -355,18 +422,13 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
 
                 def companion_metric(cxml):
                     eng.load_build_xml(cxml)
-                    return float(eng.get_stats([rep.metric])["stats"].get(rep.metric) or 0.0)
+                    cm_ = comp_metric()
+                    return float(eng.get_stats([cm_])["stats"].get(cm_) or 0.0)
 
                 def actor(xml, variant):
-                    if "xml" not in cache_comp:
-                        ca = assemble_companion(spec, cat, eng)
-                        if not ca.ok:
-                            raise RuntimeError("companion assembly failed: " + "; ".join(i.message for i in ca.errors))
-                        cache_comp["xml"] = ca.xml
-                    ids = [cat.resolve("skill", k.gem).entry["id"] for k in spec.companion.skills]
-                    eff = actors.effects_for(spec.companion, ids)
-                    m = actors.model_for(spec.companion.kind, player_metric=player_metric, companion_metric=companion_metric, base=prof_opts)
-                    return m.evaluate(xml, cache_comp["xml"], eff)
+                    m = actors.model_for(spec.companion.kind, player_metric=player_metric, companion_metric=companion_metric,
+                                         base=prof_opts, assumed=assumed)
+                    return m.evaluate(xml, cache_comp.get("geared", {}).get(xml) or companion_xml(), companion_effects())
 
             yield Stages(
                 assemble=lambda v: assemble(spec, cat, eng, v),

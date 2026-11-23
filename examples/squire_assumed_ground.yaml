@@ -1,0 +1,15 @@
+# ASSUMED Squire what-if (K5, docs/squire-assumed.md): owner build 1, "Squire makes ground, player uses Cyclone", with stand-ins:
+# Whirling Slash for Cyclone (whirlwind ground pickup), a Huntress for the Duelist/Knight, Whirling Slash as the Squire's damage.
+# Everything about the Squire is ASSUMED (data/squire_assumed.yaml). Run (one weapon slot each, cheap):
+#   python -m pos_pipeline run examples/squire_assumed_ground.yaml weapon='Akoyan Spear' --assumed --realloc-rounds 0 --out OUT
+pob_sha: "601768b"
+class: Huntress
+level: 90
+main_skill: { gem: Whirling Slash }
+tiers: [mid]
+benchmarks: [arbiter_ash]
+companion:
+  kind: squire
+  assumed: { scenario: ground_painter }     # the explicit opt-in; `uptime: 0.3` would override every effect's uptime
+  skills: [ { gem: Whirling Slash } ]
+  gear: { weapon: "Akoyan Spear" }

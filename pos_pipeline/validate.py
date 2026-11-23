@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pos_catalogue import Catalogue, can_support
 from pos_tiers.tiers import TierTable
 
-from . import data
+from . import actors, data
 from .spec import BuildSpec
 
 FLOOR_FLAGS = {"resist_capped", "attributes_met"}
@@ -218,6 +218,18 @@ def _check_companion(spec, cat, cls, resolve, add) -> None:
         add("error", "actor_kind", "companion.kind", f"unknown actor kind {comp.kind!r}", sorted(reg))
         return
     a = reg[comp.kind]
+    if comp.assumed is not None:   # K5 opt-in what-if: ASSUMED profile replaces the pending stub; every limit is stated
+        try:
+            sc = actors.assumed_scenario(comp.kind, comp.assumed)
+        except KeyError as e:
+            add("error", "assumed_scenario", "companion.assumed", str(e.args[0]), sorted(data.squire_assumed()["scenarios"]))
+            return
+        a = actors.actor(comp.kind, comp.assumed)
+        add("warning", "actor_assumed", "companion.assumed", actors.assumed_banner(comp.assumed["scenario"]))
+        if any(e["effect"].startswith("whirlwind_") for e in sc["effects"]) and spec.main_skill not in ("Whirling Slash", "Whirlwind Lance"):
+            add("warning", "assumed_standin", "companion.assumed",
+                f"scenario {comp.assumed['scenario']} uses whirlwind-pickup options, which only apply to Whirling Slash or Whirlwind Lance "
+                f"(pre-1.0 stand-ins for Cyclone); main skill is {spec.main_skill!r}, so they will not change its numbers")
     if a.get("status") != "available":
         add("error", "actor_unavailable", "companion.kind",
             f"{comp.kind} is pending: its mechanics are not sourced, so it cannot be simulated. Unknowns: "

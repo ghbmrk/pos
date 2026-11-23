@@ -15,7 +15,7 @@ class SpecError(ValueError):
 _TOP = {"pob_sha", "class", "ascendancy", "level", "main_skill", "fixed", "axes", "tiers", "config_profile", "objective", "benchmarks", "companion", "conditions"}
 _FIXED = {"keystones", "notables", "uniques", "supports"}
 _OBJ = {"maximise", "floors"}
-_COMP = {"kind", "skills", "gear"}
+_COMP = {"kind", "skills", "gear", "assumed"}
 
 
 @dataclass
@@ -30,6 +30,7 @@ class Companion:
     kind: str
     skills: list[CompanionSkill] = field(default_factory=list)
     gear: dict[str, str] = field(default_factory=dict)
+    assumed: dict[str, Any] | None = None   # K5 opt-in what-if: {scenario: id, uptime?: 0-1}; see data/squire_assumed.yaml
 
 
 @dataclass
@@ -88,7 +89,16 @@ def _companion(v: Any) -> Companion | None:
     gear = c.get("gear") or {}
     if not isinstance(gear, dict) or not all(isinstance(k, str) and isinstance(b, str) and b for k, b in gear.items()):
         raise SpecError("companion.gear must be a mapping of slot -> base name")
-    return Companion(c["kind"], skills, dict(gear))
+    assumed = c.get("assumed")
+    if assumed is not None:
+        assumed = _only(assumed, {"scenario", "uptime"}, "companion.assumed")
+        if not isinstance(assumed.get("scenario"), str) or not assumed["scenario"]:
+            raise SpecError("companion.assumed.scenario must be a non-empty string")
+        up = assumed.get("uptime")
+        if up is not None and (isinstance(up, bool) or not isinstance(up, (int, float)) or not 0 < up <= 1):
+            raise SpecError("companion.assumed.uptime must be a number in (0, 1]")
+        assumed = dict(assumed)
+    return Companion(c["kind"], skills, dict(gear), assumed)
 
 
 def parse_spec(data: Any) -> BuildSpec:

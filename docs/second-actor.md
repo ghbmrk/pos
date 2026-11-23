@@ -116,8 +116,7 @@ Per variant: `metric (with effects)`, `companion metric`, `combined`, `effects` 
 | K4 | at 1.0 (2026-12-11, after re-pin): source Squire facts (PoB code + game data), choose `native_pob` vs `separate_build`, fill `actors.yaml`, flip to `available`; re-check build 1 and 2 skill names | yes | Opus |
 | K5 | ideation: slate fields and sweeps over companion skills | after K4 | Sonnet |
 
-## Open question (not blocking)
+## Pre-1.0 what-if runs (decided and built, K5)
 
-Pre-1.0 "what-if" runs (spec-declared, clearly labelled assumed effects, for example "Squire keeps 3 power charges
-up") would let the owner explore before 11 Dec, at the cost of numbers that rest on assumptions. Not built;
-it needs an owner decision.
+Owner approved assumed-Squire what-if runs (card cmsg_01RxGYnd78N9kMbbAJ5pWDhUBKLQGf5LDJC5En4e4zFCdx). Built as an explicit
+opt-in profile outside `data/actors.yaml`, labelled everywhere, kept out of ranked slates: see docs/squire-assumed.md.

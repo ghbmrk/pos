@@ -75,5 +75,10 @@ def actors() -> dict[str, dict]:
     return _load("actors.yaml")["actors"]
 
 
+def squire_assumed() -> dict:
+    """K5: the ASSUMED Squire profile (data/squire_assumed.yaml). Not game data; used only when a spec opts in."""
+    return _load("squire_assumed.yaml")
+
+
 def actor_effects() -> dict[str, dict]:
     return _load("actor_effects.yaml")["effects"]
