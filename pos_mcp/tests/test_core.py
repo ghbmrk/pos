@@ -118,7 +118,7 @@ def test_server_over_stdio():
     assert "ideate" in prompts and any(a.name == "idea" and a.required for a in prompts["ideate"].arguments)
     assert "a tanky lightning build" in got.messages[0].content.text
     assert {"resolve", "validate_spec", "import_pob", "preflight", "run", "run_status", "get_report", "compare", "cancel_run",
-            "ideation_guide", "search", "bridges", "enablers", "explain", "sweep", "validate_slate", "preflight_slate", "run_slate"} <= names
+            "ideation_guide", "search", "bridges", "enablers", "explain", "sweep", "validate_slate", "preflight_slate", "run_slate", "play"} <= names
     assert "Spark" in json.dumps(res.structured_content or [c.text for c in res.content])
 
 
@@ -160,6 +160,16 @@ def test_slate_validate_preflight_and_refusals():
     assert "no gear bases" in core.start_slate(SLATE)["error"]
     assert "refused" in core.start_slate(SLATE, {"weapon": "Acrid Wand"}, max_minutes=0.01)
     assert "unknown slot" in core.start_slate(SLATE, {"hat": "x"})["error"]
+    assert not list(Path(os.environ["POS_RUNS_DIR"]).iterdir())
+
+
+def test_play_validates_estimates_and_refuses():
+    b = {"weapon": "Acrid Wand"}
+    assert "no gear bases" in core.start_play("p", SLATE)["error"]
+    r = core.start_play("p", SLATE, b, max_minutes=0.01)
+    assert "refused" in r and "children" in r["refused"]              # the estimate names the creative-round cost
+    assert "unknown slot" in core.start_play("p", SLATE, {"hat": "x"})["error"]
+    assert not core.start_play("p", {"slate": 1, "bogus": 1}, b)["ok"]
     assert not list(Path(os.environ["POS_RUNS_DIR"]).iterdir())
 
 

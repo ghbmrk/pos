@@ -309,11 +309,13 @@ class EngineRunner:
         self.objective = objective     # L1: search stages score on the brief's benchmarks (False = bare metric, the old behaviour)
         self.cat, self.slate, self.defaults, self.workers, self.cache = cat, slate, dict(default_bases), workers, cache
         self.cfg, self.log = cfg or data.ideation(), log
+        self.allow_assumed = False     # L6: explicit opt-in for specs with companion.assumed (the K5 what-if)
+        self.ctx: dict[str, dict] = {}   # candidate name -> {metric, skill_of, floors}: what a later stage needs to re-measure its build
 
     def bases_of(self, c: Candidate) -> dict[str, str]:
         return {**self.defaults, **c.bases}
 
-    def _go(self, c: Candidate, tiers: list[str], realloc: int, caps: Sequence[int] | None):
+    def _go(self, c: Candidate, tiers: list[str], realloc: int, caps: Sequence[int] | None, rounds: int = 1):
         from .gear import STANDARD_FLOORS
         from .orchestrate import engine_stages, run
         from .validate import validate
@@ -329,7 +331,9 @@ class EngineRunner:
         with engine_stages(spec, self.cat, rep, bases, workers=self.workers, cache=self.cache, realloc_rounds=realloc,
                            floors=floors, tree_caps=caps, objective=self.objective) as (st, skill_of):
             res = run(spec, st, metric=rep.metric, slots=len(bases), workers=self.workers, skill_id=skill_of, realloc_rounds=realloc,
-                      force=True, benchmarks=spec.benchmarks, meta=meta, log=self.log)
+                      force=True, benchmarks=spec.benchmarks, meta=meta, log=self.log, rounds=rounds,
+                      allow_assumed=self.allow_assumed)
+            self.ctx[c.name] = {"metric": rep.metric, "skill_id": {json.dumps(s.variant, sort_keys=True): skill_of(s.variant) for s in res.seeds}, "floors": floors}
             return res, rep, skill_of, floors
 
     def screen(self, c: Candidate, tier: str) -> tuple[RunResult, list[Ablation]]:
