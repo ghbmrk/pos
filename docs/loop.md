@@ -181,3 +181,32 @@ Squire rows are ASSUMED until 1.0 data (K4). Gap map: ideas + validation exist (
 survival; L2 supplies failure causes (diagnose); L3 is the iteration (rounds, keep best, stop on no gain, trace);
 L4 directs moves by diagnosis; L6 is the single entry point with the creative-improvement step and the final report;
 the acceptance eval is the L6 eval re-run with this prompt.
+
+
+## 6. L3 result (2026-11-23): inner loop v1
+
+Built: `pos_pipeline/loop.py` (`improve`, `Move`), `Stages.improve`, `run(rounds=, loop_minutes=)`, CLI `run --rounds N
+[--min-gain 0.01] [--loop-minutes M] [--tree-warm]`, MCP `run(rounds=)` and `preflight` (estimate shows `loop (max)`, an
+upper bound), report section "improvement loop", `trace.jsonl` in the run dir. `rounds=1` (default) is the old single pass.
+Round = supports re-search, tree re-plan, gear re-search, each from the current build; a result is kept only if the L1
+objective key strictly improves (lexicographic), so the objective never regresses and a failed move is a recorded no-op.
+Stops when a round gains < 1% (`(-deficit)` + ln-rate are both relative), at `rounds`, or at the time budget. The engine is
+recycled in place between moves past the soft RSS cap (PR #56).
+
+Measured, golden Spark (weapon + amulet + body, mid, realloc 0, 4 vCPU), `--rounds 3`, one run:
+| round | supports | tree | gear | round gain | wall |
+|---|---|---|---|---|---|
+| 1 | kept (goal -1.019 -> -0.883) | kept (-> -0.824) | no gain | +19.5% | 325 s |
+| 2 | kept (-> -0.809) | no gain | no gain | +1.5% | 311 s |
+| 3 | unchanged | no gain | no gain | 0 | 211 s |
+Objective +21.0% in total, converged after 3 rounds (847 s, on top of the ~150 s single pass). Almost all of it comes from
+re-searching supports on the geared build and re-planning the tree once; gear found nothing at realloc 0 on a 3-slot build.
+The constraint deficit stays 1.647: the floors (resists with 3 slots, G7b) are unmet and no move relieves them, so the loop
+gains goal only. The tree, which is scored on the plain metric, was accepted once and rejected twice by the objective key.
+
+Not done (stated, not hidden): tree weights from L2 shadow prices (the tree move still optimises the metric; the objective
+key judges it afterwards); warm tree (`--tree-warm`, reset=False) is wired but unmeasured, and with a full tree it can only
+spend unspent points; `deepen` in the slate still restarts instead of continuing the screen build; no variance estimate (one run);
+two-actor (assumed Squire gear) runs refuse the loop and keep the single-pass result. Wasted time is visible in the trace:
+rounds 2-3 spent 520 s for +1.5%. L4 (diagnosis-directed move choice, skipping moves with no expected gain) fits cleanly on
+this trace format and has a concrete target: round 1 would cost ~200 s instead of 325 s without the dead gear move.

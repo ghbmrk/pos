@@ -64,15 +64,17 @@ def preflight(spec: str | dict[str, Any], bases: dict[str, str] | None = None, w
 
 @mcp.tool()
 def run(spec: str | dict[str, Any], bases: dict[str, str], workers: int | None = None, realloc_rounds: int | None = None,
-        max_minutes: float | None = None, force: bool = False, allow_assumed: bool = False) -> dict[str, Any]:
+        max_minutes: float | None = None, force: bool = False, allow_assumed: bool = False, rounds: int = 1) -> dict[str, Any]:
     """Start a single-build run in the background (supports, passive tree, then gear per tier; minutes to tens of minutes) and return a
     run_id at once. Validates first; refuses an invalid spec, missing bases, or an estimate above the cap (default 45 min) unless
     force=true, which you set only after the user has seen the estimate. realloc_rounds=0 is a cheaper, weaker gear search.
+    rounds>1 adds the improvement loop (L3): supports, tree and gear are re-searched from the geared build, each result kept only if the
+    benchmark objective improves, until a round gains <1% or `rounds` ran; the estimate then shows an upper bound. trace.jsonl in the run dir.
     One background job at a time. Then poll run_status and call get_report.
     A spec with `companion.assumed` is an ASSUMED Squire what-if (invented effects, not game data; docs/squire-assumed.md): it runs only
     with allow_assumed=true, which you set only when the owner asked for such a what-if; always quote its ASSUMED banner with any number."""
     return core.start_run(spec, bases, workers=workers, realloc_rounds=realloc_rounds, max_minutes=max_minutes, force=force,
-                          allow_assumed=allow_assumed)
+                          allow_assumed=allow_assumed, rounds=rounds)
 
 
 @mcp.tool()
