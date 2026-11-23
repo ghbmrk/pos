@@ -36,9 +36,12 @@ screen 8-15 min per slate on 2 workers.
 3. **No diagnosis.** Nothing asks "what limits this build". Probes answer it in seconds: before pass 2 the probe vector
    ranked crit chance far above every other lever (+43.6% per +10%), which is what pass 2 then found in 148 s by
    blind re-search. Diagnosis costs ~3% of a pass and can direct which stage to re-run and toward what.
-4. **Unmodelled mechanics are the largest verification gap** (27 zero-change verdicts: charge consumption, aftershock,
-   combo, infusions; Cast on Critical Energy runs on PoE1 trigger code with no Energy model, CalcTriggers.lua ~1095).
-   The pipeline can say "unknown" but cannot evaluate the idea at all, so the most creative ideas are unrankable.
+4. **Unmodelled mechanics are a smaller gap than the eval suggests** (advisor review,
+   /mnt/project-files/reviews/unmodelled-mechanics-review.md). Of the 27 `possibly_unmodelled` key pieces in I13 arm B,
+   ~9 are defensive pieces in a weapon+body screen (finding 1), ~10 are gated by an unset state or a blind metric, and
+   ~8 have no PoB model (Thrilling Chase, Avidity, One with the Storm, Earthbreaker x2, Martial Master, two infusion
+   notables). The eval's "all exactly zero damage and EHP change" is wrong: 7 have a non-zero EHP delta (Harmony
+   Within: +17% EHP on removal, still labelled possibly_unmodelled), a verdict bug fixed in L2.
 5. **Probes and custom mods can lie silently** (zero or wrong sign, above). Any feature built on custom modifiers needs
    the same discipline as the unparsed-mod check: each probe is calibrated against a reference build with an expected
    sign, or it is not used.
@@ -95,14 +98,18 @@ server returns a diagnosis in words (binding constraint, top levers, refuted hyp
 base) and re-runs. Verification gains a second test beside ablation: a hypothesis is confirmed when the named lever is
 top-3 by shadow price, refuted otherwise.
 
-### 2.5 Mechanics PoB does not compute (owner fork, see 3)
+### 2.5 Mechanics PoB does not compute
 
-Option A (recommended): a registry `data/mechanic_models.yaml` of labelled approximations, each a custom-modifier or
-config translation with a source quote, an uptime assumption and a calibration probe (example: charge consumption as an
-expected more-multiplier from charges per second x uptime). Results that rest on one carry a MODELLED label in the
-report, as ASSUMED does for the Squire, and rank in a separate band. Option B: leave them `possibly_unmodelled` with
-cause labels (I16) and steer clients to measurable key pieces. A is the only way the most creative ideas get a number;
-B keeps every number a pure PoB calculation.
+Revised after the advisor review (above). Three steps, cheapest and assumption-free first:
+
+1. **Cause per zero-delta piece, engine-derived (L2)**: unparsed line / unset config state / metric blind to the effect /
+   empty slots / no compute. Plus a whole-catalogue census by sweep, so the true no-model set is counted, not guessed.
+2. **L5a, no assumptions**: a registry keyed by mechanic primitive, filled only from the top two rungs of a fidelity
+   ladder: PoB config input > parameter-free algebra from the stat text. Invariant test per entry; the repin retires
+   entries PoB now moves natively. Ablation on a modelled piece is circular, so it is counted as `modelled_confirmed`.
+3. **L5b, uptime assumptions (owner card after the census)**: ranking stays on the pure PoB number; the report shows the
+   ceiling and the break-even uptime, never a ranked band (uptime dominates, so a band would be false precision).
+   Assumption 0 must reproduce the pure number. Cast on Critical Energy waits for the 1.0 repin.
 
 ## 3. Ranked plan
 
@@ -111,13 +118,14 @@ Order = quality gained per cost, with measurement before each change kept. Sizes
 | id | task | why first | model | depends |
 |---|---|---|---|---|
 | L1 | `Objective` from benchmarks; supports + gear score with it; lexicographic constraints; golden + 5 eval candidates before/after (survival pass rate, TTK) | finding 1: largest quality loss; subsumes I15 | Sonnet | - |
-| L2 | `data/probes.yaml` + calibration test + `diagnose` (CLI + MCP): shadow prices, binding constraint; fix or drop the lying probes | findings 3, 5; needed by L3-L5 | Sonnet | - |
+| L2 | `data/probes.yaml` + calibration test + `diagnose` (CLI + MCP): shadow prices, binding constraint; fix or drop the lying probes; ablation EHP verdict fix; cause per zero-delta piece + catalogue census | findings 3, 4, 5; needed by L3-L5 | Sonnet | - |
 | L3 | inner loop v1: round-robin to convergence, trace, tree weights from L2, warm-start tree measured vs reset, deepen continues screen | finding 2, 6, 7 | Sonnet | L1, L2 |
 | L4 | inner loop v2: diagnosis-directed moves; keep only if it beats v1 at equal budget on golden + 4 builds | finding 3 | Sonnet | L3 |
-| L5 | mechanic models registry (if owner picks A) or cause labels only (B; = I16) | finding 4 | Opus design, Sonnet build | owner card |
+| L5a | mechanic registry, assumption-free rungs only (2.5 step 2) | finding 4 | Opus design, Sonnet build | L2 census |
+| L5b | uptime-assumption ceilings with break-even uptime (2.5 step 3) | finding 4 | Sonnet | owner card after census |
 | L6 | outer loop: mechanism hypothesis in slate schema, `diagnose` text in report/MCP, ideate prompt rule; eval re-run (I13 protocol) measuring confirmation, survival, rank stability | finding 8 | Opus | L1-L4 |
 
-Kept from STATE: I14 (cheap ablation re-run) can run any time. I15 folds into L1, I16 into L5.
+Kept from STATE: I14 (cheap ablation re-run) can run any time. I15 folds into L1, I16 into L2 (cause labels).
 
 Success measures (L6 eval, same 5 prompts): survival gate passes for a majority of boss-brief candidates and still
 separates them; a loop's final objective beats today's single pass on every golden build; hypotheses confirmed or
