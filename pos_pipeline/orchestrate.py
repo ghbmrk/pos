@@ -189,7 +189,7 @@ def _jsonable(o: Any) -> Any:
 def actor_dict(c) -> dict:
     """actors.Combined -> JSON-safe dict for run.json / the report."""
     return _jsonable({"main": c.main, "companion": c.companion, "total": c.total, "without_companion": c.without_companion,
-                      "blended": c.blended, "assumed": getattr(c, "assumed", None), "effects": [{"id": e.id, "uptime": e.uptime, "options": e.options, "source": e.source} for e in c.effects]})
+                      "blended": c.blended, "assumed": getattr(c, "assumed", None), "survival": getattr(c, "survival", None), "effects": [{"id": e.id, "uptime": e.uptime, "options": e.options, "source": e.source} for e in c.effects]})
 
 
 # ---- the loop ---------------------------------------------------------------------------------------------
@@ -429,7 +429,18 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                 def actor(xml, variant):
                     m = actors.model_for(spec.companion.kind, player_metric=player_metric, companion_metric=companion_metric,
                                          base=prof_opts, assumed=assumed)
-                    return m.evaluate(xml, cache_comp.get("geared", {}).get(xml) or companion_xml(), companion_effects())
+                    eff = companion_effects()
+                    c = m.evaluate(xml, cache_comp.get("geared", {}).get(xml) or companion_xml(), eff)
+                    if eff:   # survival with every effect on (upper bound) vs off: damage sharing moves EHP, not DPS
+                        out = {}
+                        for tag, opts in (("on", actors.merge_options(prof_opts, eff)), ("off", {**prof_opts, **actors.reset_options(prof_opts, eff)})):
+                            eng.load_build_xml(xml)
+                            eng.set_config(options=opts or None)
+                            out[tag] = float(eng.get_stats(["TotalEHP"])["stats"].get("TotalEHP") or 0.0)
+                        eng.load_build_xml(xml)
+                        eng.set_config(options={**prof_opts, **actors.reset_options(prof_opts, eff)} or None)
+                        c.survival = {"TotalEHP": out["on"], "TotalEHP_without": out["off"]}
+                    return c
 
             yield Stages(
                 assemble=lambda v: assemble(spec, cat, eng, v),

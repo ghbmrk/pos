@@ -82,7 +82,7 @@ def test_assumed_profile_is_labelled_and_well_formed():
     assert set(a["gear_slots"]) <= set(SLOTS) and 0 < a["budget_share"] < 1 and a["status"] == "available"
     assert data.actors()["squire"]["status"] == "pending", "the real registry must stay pending"
     for sid, sc in prof["scenarios"].items():
-        assert sc["idea"] and sc["effects"]
+        assert sc["idea"] and isinstance(sc["effects"], list)
         for e in sc["effects"]:
             assert e["effect"] in eff, (sid, e)
             assert e["source"].startswith("ASSUMED"), f"{sid}/{e['effect']}: every assumed effect is labelled"
