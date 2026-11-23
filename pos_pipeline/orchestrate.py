@@ -343,7 +343,7 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
 def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cache: str | Path | None = None,
                   realloc_rounds: int = DEFAULT_REALLOC_ROUNDS, floors: Mapping[str, Any] | None = None, tree_caps: Sequence[int] | None = None,
                   benchmarks: Sequence[str] | None = None, objective: bool = True, hard_ttk: bool = False,
-                  tree_reset: bool = True, min_gain: float | None = None):
+                  tree_reset: bool = True, min_gain: float | None = None, direct: bool = False):
     """Context manager yielding (Stages, skill_id_fn). Owns one PobEngine and one EnginePool."""
     from contextlib import contextmanager
 
@@ -493,7 +493,7 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                 if assumed is not None and comp.gear:
                     raise NotImplementedError("the loop does not yet search the assumed companion's gear; run with rounds=1")
                 sk = skill_of(variant)
-                state: dict[str, Any] = {"pending": None, "kept": None}
+                state: dict[str, Any] = {"pending": None, "kept": None, "goals": None}
                 keyer = GearSearcher(cat, pool, eng, metric=rep.metric, floors=fl, objective=obj)
 
                 def m_supports(x):
@@ -501,8 +501,17 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                     return apply_supports(x, sk, r.best.supports)
 
                 def m_tree(x):
-                    r = search_trees([x], rep.metric, workers=1, require=require, caps=tuple(tree_caps or DEFAULT_CAPS),
-                                     reset=tree_reset)[0]
+                    caps = tuple(tree_caps or DEFAULT_CAPS)
+                    if state["goals"]:   # L4: weights from the diagnosis; weighted goals have no scalar to pick a cap by, so the objective key does
+                        outs = []
+                        for c in caps:
+                            r = search_trees([x], rep.metric, workers=1, require=require, caps=(c,), reset=tree_reset, goals=state["goals"])[0]
+                            if r.ok:
+                                outs.append(r.xml)
+                        if not outs:
+                            raise RuntimeError("weighted tree search failed at every cap")
+                        return max(outs, key=keyer.key_of)
+                    r = search_trees([x], rep.metric, workers=1, require=require, caps=caps, reset=tree_reset)[0]
                     if not r.ok:
                         raise RuntimeError(r.error)
                     return r.xml
@@ -517,8 +526,15 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                     state["pending"] = g
                     return g.xml
 
-                moves = [Move("supports", m_supports), Move("tree", m_tree),
-                         Move("gear", m_gear, on_accept=lambda _x: state.update(kept=state["pending"]))]
+                moves = [Move("supports", m_supports, stage="supports"), Move("tree", m_tree, stage="tree"),
+                         Move("gear", m_gear, on_accept=lambda _x: state.update(kept=state["pending"]), stage="gear")]
+
+                def advisor(x):   # L4: a calibrated diagnosis of the current build directs the round (docs/loop.md 6.1)
+                    from .diagnose import diagnose
+                    from .direct import advice
+                    a = advice(diagnose(x, rep.metric, bench_ids), rep.metric)
+                    state["goals"] = a["tree_goals"]
+                    return a
                 def recycle_eng():   # in place: closures share `eng`; load_build_xml leaks ~30-50 MB per call (docs/engine-pool.md)
                     rss = eng.rss_mb()
                     if rss is not None and rss > SOFT_RSS_MB:
@@ -527,6 +543,7 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                         keyer._fight_xmls.clear()   # cached xmls stay valid, but drop them with the old process's state
 
                 lr = run_loop(xml, moves, keyer.key_of, after_move=recycle_eng, max_rounds=rounds, budget_s=budget_s, trace=trace,
+                              advisor=advisor if direct else None,
                               min_gain=min_gain if min_gain is not None else DEFAULT_MIN_GAIN,
                               label=f"{variant or 'seed'}/{tier}")
                 return SimpleNamespace(loop=lr, gear=state["kept"])

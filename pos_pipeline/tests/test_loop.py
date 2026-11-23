@@ -110,3 +110,76 @@ def test_rounds_1_does_not_call_loop():
     st, _ = fake()
     st.improve = lambda *a, **k: (_ for _ in ()).throw(AssertionError("must not run"))
     assert run(spec(tiers=("mid",)), st, metric="FullDPS", slots=3, workers=1, skill_id="sk").seeds[0].ok
+
+
+# ---- L4: direction ----------------------------------------------------------------------------------------------
+def test_dead_moves_skipped_and_fixed_point():
+    calls = []
+
+    def a(x):   # improves once, then finds nothing
+        calls.append("a")
+        return mk(0, 1) if x == mk(0, 0) else x
+    def b(x):
+        calls.append("b")
+        return x
+    r = improve(mk(0, 0), [Move("a", a), Move("b", b)], keyof, min_gain=0.0, max_rounds=6)
+    # r1: a kept, b dead on g1. r2: a unchanged on g1 -> dead, b dead on g1 (skipped) -> r2 ran 1 move; r3: all dead
+    assert calls == ["a", "b", "a"] and r.stop == "fixed_point"
+    assert [m.skipped for m in r.moves if m.round == 2] == [True, False] or [m.skipped for m in r.moves if m.round == 2] == [False, True]
+    assert all(m.skipped for m in r.moves if m.round == 3)
+
+
+def test_no_direction_when_dead_skip_off():
+    calls = []
+    r = improve(mk(0, 0), [Move("b", lambda x: calls.append(1) or x)], keyof, max_rounds=2, min_gain=-1.0, dead_skip=False)
+    assert len(calls) == 2 and r.stop == "max_rounds"
+
+
+def test_advisor_skips_stage_below_bound_and_unknown_runs():
+    ran = []
+    def mv(n, out):
+        return Move(n, lambda x: ran.append(n) or out, stage=n)
+    r = improve(mk(0, 0), [mv("gear", mk(0, 5)), mv("tree", mk(0, 1)), mv("supports", mk(0, 2))], keyof,
+                advisor=lambda x: {"bounds": {"gear": 0.0001, "tree": None}}, max_rounds=1)
+    assert ran == ["tree", "supports"] and r.best == (0.0, 2.0)
+    assert [m.move for m in r.moves if m.skipped] == ["gear"] and r.advice[0]["round"] == 1
+
+
+def test_advisor_failure_runs_undirected():
+    def boom(x):
+        raise RuntimeError("no engine")
+    r = improve(mk(0, 0), [Move("a", lambda x: mk(0, 1), stage="gear")], keyof, advisor=boom, max_rounds=1)
+    assert r.best == (0.0, 1.0) and "no engine" in r.advice[0]["error"]
+
+
+def test_rounds_order_by_gain_per_second():
+    order = []
+    t = {"now": 0.0}
+    def clock():
+        return t["now"]
+    def mv(n, secs, out):
+        def f(x):
+            order.append(n); t["now"] += secs
+            return out(x)
+        return Move(n, f)
+    # round 1 order a, b; b gains more per second, so round 2 runs b first
+    seq = {"a": iter([mk(0, 1.0), mk(0, 1.5)]), "b": iter([mk(0, 3.0), mk(0, 3.5)])}
+    r = improve(mk(0, 0), [mv("a", 10, lambda x: next(seq["a"])), mv("b", 10, lambda x: next(seq["b"]))], keyof,
+                clock=clock, max_rounds=2, min_gain=0.0)
+    assert order == ["a", "b", "b", "a"]
+
+
+def test_direct_stage_bounds_and_tree_goals():
+    from pos_pipeline.diagnose import Diagnosis, ProbeResult
+    from pos_pipeline.direct import stage_bounds, tree_goals
+    def pr(i, cost, dps, ehp, relief):
+        return ProbeResult(i, "x", "ok", cost_points=cost, gains={"dps": dps, "ehp": ehp, "survive@b": relief})
+    d = Diagnosis("FullDPS", {}, [], "survive@b", [pr("crit", 2.0, 0.05, 0.0, 0.01), pr("life", 2.0, 0.0, 0.10, 0.08),
+                                                    pr("more", None, 0.10, 0.0, 0.02)], [])
+    assert stage_bounds(d) == {"gear": 0.08, "tree": None, "supports": None}
+    g = tree_goals(d, "FullDPS")   # relief per dps = 0.2, per ehp = 0.8 -> EHP weighs 4x
+    assert g == {"FullDPS": 1.0, "TotalEHP": 4.0}
+    d.binding = "objective"
+    assert tree_goals(d, "FullDPS") is None
+    dead = Diagnosis("FullDPS", {}, [], "survive@b", [pr("x", 2.0, 0.0, 0.0, 0.0)], [])
+    assert stage_bounds(dead)["gear"] == 0.0
