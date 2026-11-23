@@ -349,7 +349,7 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
 
     @contextmanager
     def cm():
-        from pos_engine.engine import PobEngine
+        from pos_engine.engine import SOFT_RSS_MB, PobEngine
         from pos_pool.pool import EnginePool
 
         from .assemble import assemble, _gem_line
@@ -519,7 +519,14 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
 
                 moves = [Move("supports", m_supports), Move("tree", m_tree),
                          Move("gear", m_gear, on_accept=lambda _x: state.update(kept=state["pending"]))]
-                lr = run_loop(xml, moves, keyer.key_of, max_rounds=rounds, budget_s=budget_s, trace=trace,
+                def recycle_eng():   # in place: closures share `eng`; load_build_xml leaks ~30-50 MB per call (docs/engine-pool.md)
+                    rss = eng.rss_mb()
+                    if rss is not None and rss > SOFT_RSS_MB:
+                        eng.close()
+                        eng.__init__(hard_rss_mb=eng.hard_rss_mb)
+                        keyer._fight_xmls.clear()   # cached xmls stay valid, but drop them with the old process's state
+
+                lr = run_loop(xml, moves, keyer.key_of, after_move=recycle_eng, max_rounds=rounds, budget_s=budget_s, trace=trace,
                               min_gain=min_gain if min_gain is not None else DEFAULT_MIN_GAIN,
                               label=f"{variant or 'seed'}/{tier}")
                 return SimpleNamespace(loop=lr, gear=state["kept"])

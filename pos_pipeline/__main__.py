@@ -269,6 +269,8 @@ def _run(argv: list[str]) -> int:
     ap.add_argument("--preflight", action="store_true", help="print the cost estimate and exit")
     ap.add_argument("--realloc-rounds", type=int, default=DEFAULT_REALLOC_ROUNDS, help="0 = cheap gear mode (about 2.3x faster, weaker)")
     ap.add_argument("--out", default=None, help="directory for run.json and cache.sqlite")
+    ap.add_argument("--no-objective", action="store_true", help="search on the bare metric instead of the benchmark objective (L1 baseline)")
+    ap.add_argument("--hard-ttk", action="store_true", help="treat the boss TTK gate as a hard constraint in the objective")
     ap.add_argument("--rounds", type=int, default=1, help="improvement rounds (L3): re-search supports, tree and gear from the geared build "
                     "until a round gains < --min-gain or this many rounds ran; 1 = single pass")
     ap.add_argument("--min-gain", type=float, default=0.01, help="stop the loop when a round gains less than this fraction of the objective")

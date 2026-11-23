@@ -91,7 +91,7 @@ def better(b: Key, a: Key, eps: float = KEY_EPS) -> bool:
 def improve(xml: str, moves: Sequence[Move], key_of: Callable[[str], Key], *, max_rounds: int = 4,
             min_gain: float = DEFAULT_MIN_GAIN, budget_s: float | None = None, trace: str | Path | None = None,
             clock: Callable[[], float] = time.perf_counter, log: Callable[[str], None] = lambda s: None,
-            label: str = "") -> LoopResult:
+            label: str = "", after_move: Callable[[], None] | None = None) -> LoopResult:
     t_start = clock()
     cur, cur_key = xml, key_of(xml)
     res = LoopResult(xml, cur_key, cur_key)
@@ -133,6 +133,8 @@ def improve(xml: str, moves: Sequence[Move], key_of: Callable[[str], Key], *, ma
                 except Exception as ex:   # a failed search or scoring leaves the build as it was
                     rec.note = f"{type(ex).__name__}: {ex}"
                 rec.seconds = clock() - t0
+                if after_move:
+                    after_move()   # e.g. recycle a leaking engine between moves (every build load leaks memory)
                 res.moves.append(rec)
                 emit({"event": "move", **asdict(rec)})
                 log(f"{label} round {n} {mv.name}: {before[1]:.4f} -> "
