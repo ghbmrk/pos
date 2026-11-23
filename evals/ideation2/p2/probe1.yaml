@@ -1,0 +1,8 @@
+pob_sha: "601768b"
+class: Ranger
+ascendancy: Pathfinder
+level: 90
+main_skill: { gem: Gas Arrow }
+tiers: [mid]
+conditions: [enemy_poisoned, enemy_ignited]
+fixed: { keystones: [], notables: [], uniques: [], supports: [] }

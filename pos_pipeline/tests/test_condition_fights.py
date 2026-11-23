@@ -27,3 +27,12 @@ def test_glory_support_is_gated_like_triggered_ones():
     skill = cat.get("skill", cat.resolve("skill", "Boneshatter").entry["id"])
     assert z["id"] in {s["id"] for s in eligible(cat, skill, [])}
     assert z["id"] not in {s["id"] for s in eligible(cat, skill, [], allow_triggered=())}
+
+
+def test_use_condition_supports_are_unmodelled_costs():
+    from pos_catalogue import Catalogue
+    from pos_pipeline.supports import has_unmodelled_cost
+    cat = Catalogue.load(pob_sha="601768b")
+    get = lambda n: cat.get("support", cat.resolve("support", n).entry["id"])
+    assert all(has_unmodelled_cost(get(n)) for n in ["Hit and Run", "Ancestral Aid", "Catharsis", "Zerphi's Infamy"])
+    assert not any(has_unmodelled_cost(get(n)) for n in ["Garukhan's Resolve", "Daresso's Passion", "Brutality III"])

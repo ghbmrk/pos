@@ -1,0 +1,7 @@
+pob_sha: "601768b"
+class: Sorceress
+ascendancy: Stormweaver
+level: 90
+main_skill: { gem: Arc }
+tiers: [mid]
+fixed: { keystones: [], notables: [], uniques: [], supports: [] }

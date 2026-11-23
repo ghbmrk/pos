@@ -7,6 +7,8 @@ still counting it as socketed (measured, docs/supports.md): such a candidate wou
 """
 from __future__ import annotations
 
+import re
+
 from dataclasses import dataclass, field
 from typing import Any, Collection, Sequence
 
@@ -88,11 +90,15 @@ def is_triggered(entry: dict) -> bool:
     return "Trigger" in [t.strip() for t in (entry.get("tags") or "").split(",")]
 
 
+_UNMODELLED_COST = re.compile(r"Glory requirement|can only be used (?:after|while)|cannot be used until")
+
+
 def has_unmodelled_cost(entry: dict) -> bool:
     """True for supports whose cost PoB does not model: a Glory requirement (Zerphi's Infamy; PoB-PoE2 at 601768b has
-    no Glory). The engine counts their damage and not the cost, so like triggered supports they look free (I13 eval:
-    the ablation's best stand-in for 5 key supports)."""
-    return "Glory requirement" in (entry.get("description") or "")
+    no Glory) or a use condition (Hit and Run: moved a distance; Ancestral Aid: blocked hits; Catharsis: Volatility).
+    The engine counts their benefit and not the cost, so like triggered supports they look free (I13 eval: the
+    ablation's best stand-in for 5 key supports, then Hit and Run for 8 once Zerphi's Infamy was gated)."""
+    return bool(_UNMODELLED_COST.search(entry.get("description") or ""))
 
 
 def eligible(cat: Catalogue, skill: dict, fixed: Sequence[dict], allow_triggered: Collection[str] | None = None) -> list[dict]:

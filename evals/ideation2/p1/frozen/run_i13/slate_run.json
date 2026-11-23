@@ -1,0 +1,1130 @@
+{
+ "prompt": "a tanky lightning build that deletes Arbiter on a budget",
+ "brief": {
+  "benchmarks": [
+   "arbiter_ash",
+   "breach_t15"
+  ],
+  "tiers": [
+   "budget"
+  ],
+  "constraints": {},
+  "floors": {}
+ },
+ "screen_tier": "budget",
+ "deepen_k": 0,
+ "candidates": [
+  {
+   "name": "Titan Conduit Armour-Lightning",
+   "source": "llm",
+   "vector": {
+    "class_asc": "titan",
+    "delivery": "area_spell",
+    "damage": "Lightning",
+    "defence": "armour",
+    "main_skill": "lightning conduit",
+    "key_pieces": "notable:Shockproof,unique:Doryani's Prototype"
+   },
+   "claims": [
+    {
+     "text": "Armour also mitigates lightning hits, so the lightning-heavy boss is blunted by the same layer the build stacks.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Shockproof",
+       "quote": "+30% of Armour also applies to Lightning Damage"
+      }
+     ]
+    },
+    {
+     "text": "The body armour extends armour to lightning even further.",
+     "cites": [
+      {
+       "kind": "unique",
+       "id": "Doryani's Prototype",
+       "quote": "+100% of Armour also applies to Lightning Damage"
+      }
+     ]
+    },
+    {
+     "text": "The main skill hits harder against shocked targets, rewarding the shock-focused setup.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "LightningConduitPlayer",
+       "quote": "dealing significantly more damage to Shocked enemies"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Shockproof"
+    },
+    {
+     "kind": "unique",
+     "id": "Doryani's Prototype"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportAtzirisImpatiencePlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportAddedLightningDamagePlayer",
+     "SupportElementalFocusPlayer",
+     "SupportDiallasDesirePlayer"
+    ],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 1698.5655737705,
+     "baseline": 394.46721311475,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget",
+     "evals": 308,
+     "items": {
+      "weapon": "LightningDamageWeaponPrefix r2, WeaponSpellDamage r1, WeaponSpellDamageAndMana r7, GlobalIncreaseLightningSpellSkillGemLevelWeapon r4, Intelligence r1 [Attuned Wand]"
+     },
+     "seconds": 15.774642182999742,
+     "notes": [
+      "floors not met (deficit 520); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 510,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 316,
+      "FireResist": -50,
+      "FullDPS": 1698.5655737705,
+      "HitAilmentDPS": 1698.5655737705,
+      "Life": 1413,
+      "LightningResist": -50,
+      "Speed": 0.24838549428713,
+      "TotalDPS": 1698.5655737705,
+      "TotalEHP": 1198.7787438655
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 3355.033263361065,
+       "dps": 1698.5655737705,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.6595720528974403,
+        "chasm_slam": 0.8297860264487201
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.28836039491539,
+       "ehp": 1224.3782368108,
+       "ehp_survival_s": 0.20185227644077,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 5,
+        "magic": 13,
+        "rare": 40
+       },
+       "coverage": 1.0,
+       "clear_s": 161.04000000000235,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Shockproof"
+     },
+     "baseline": 1698.5655737705,
+     "without": 1698.5655737705,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1224.3782368108,
+     "ehp_without": 1219.7492075601,
+     "ehp_delta_rel": 0.003780718336481832
+    },
+    {
+     "piece": {
+      "kind": "unique",
+      "id": "Doryani's Prototype"
+     },
+     "baseline": 1698.5655737705,
+     "without": 1132.3770491803,
+     "delta_rel": 0.3333333333333529,
+     "verdict": "confirmed",
+     "replacement": "best rare at budget [Scale Mail]: ColdResistance r1, FireResistance r1, LightningResistance r1",
+     "note": "",
+     "ehp_baseline": 1224.3782368108,
+     "ehp_without": 1300.6554127308,
+     "ehp_delta_rel": -0.062298702824613264
+    }
+   ],
+   "screen_rank": 5,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Invoker Power-Charge Thunder",
+   "source": "llm",
+   "vector": {
+    "class_asc": "invoker",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "evasion",
+    "main_skill": "falling thunder",
+    "key_pieces": "keystone:Resonance"
+   },
+   "claims": [
+    {
+     "text": "The keystone swaps the charge types so power charges accrue where frenzy charges normally would.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Resonance",
+       "quote": "Gain Power Charges instead of Frenzy Charges"
+      }
+     ]
+    },
+    {
+     "text": "The slam spends power charges to throw lightning projectiles.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "FallingThunderPlayer",
+       "quote": "Consumes your Power Charges to fire Lightning Projectiles forwards from the impact."
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Resonance"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 1181.9722692352,
+     "baseline": 98.109663288,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget",
+     "evals": 436,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r2, LocalFireDamage r1, LocalLightningDamage r4, Dexterity r1, Intelligence r1, LocalAttributeRequirements r4 [Wyrm Quarterstaff]"
+     },
+     "seconds": 20.11516068600031,
+     "notes": [
+      "floors not met (deficit 461); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -50,
+      "FullDPS": 1181.9722692352,
+      "HitAilmentDPS": 1181.9722692352,
+      "Life": 1292,
+      "LightningResist": -50,
+      "Speed": 0.8736,
+      "TotalDPS": 1178.922876768,
+      "TotalEHP": 949.28613175253
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 2654.9097770278004,
+       "dps": 2146.4925284127,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.466598558374482,
+        "chasm_slam": 0.733299279187241
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.22357186334256,
+       "ehp": 949.28613175253,
+       "ehp_survival_s": 0.15650030433979,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 12,
+        "magic": 30,
+        "rare": 96
+       },
+       "coverage": 0.4444444444444444,
+       "clear_s": 247.25274725274724,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Resonance"
+     },
+     "baseline": 2146.4925284127,
+     "without": 2146.4925284127,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 949.28613175253,
+     "ehp_without": 949.28613175253,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 2,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Stormweaver Arc Inoculated",
+   "source": "llm",
+   "vector": {
+    "class_asc": "stormweaver",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "energy_shield",
+    "main_skill": "arc",
+    "key_pieces": "keystone:Chaos Inoculation,notable:Brain Storm"
+   },
+   "claims": [
+    {
+     "text": "Chaos immunity is the tankiness plan: the keystone makes the character immune to the damage type that bypasses shield.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Chaos Inoculation",
+       "quote": "Immune to Chaos Damage and Bleeding"
+      }
+     ]
+    },
+    {
+     "text": "A cheap notable adds lightning damage.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Brain Storm",
+       "quote": "20% increased Lightning Damage"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Chaos Inoculation"
+    },
+    {
+     "kind": "notable",
+     "id": "Brain Storm"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportRakiatasFlowPlayer",
+     "SupportAddedLightningDamagePlayer",
+     "SupportElementalFocusPlayer",
+     "SupportDeliberationPlayer",
+     "SupportRapidCastingPlayerTwo"
+    ],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 18477.420997159,
+     "baseline": 10332.527267045,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget",
+     "evals": 212,
+     "items": {
+      "weapon": "WeaponSpellDamage r7, GlobalIncreaseLightningSpellSkillGemLevelWeapon r2, Intelligence r1 [Attuned Wand]"
+     },
+     "seconds": 10.422673215000032,
+     "notes": [
+      "floors not met (deficit 439); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 13,
+      "ColdResist": -42,
+      "EnergyShield": 10,
+      "Evasion": 7,
+      "FireResist": -42,
+      "FullDPS": 18477.420997159,
+      "HitAilmentDPS": 18477.420997159,
+      "Life": 1,
+      "LightningResist": -42,
+      "Speed": 2.2272727272727,
+      "TotalDPS": 18477.420997159,
+      "TotalEHP": 9.0655378448744
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 464.26909159427413,
+       "dps": 12274.657312273,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 0.012486520233838469,
+        "chasm_slam": 0.006243260116919234
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.0021350772126412,
+       "ehp": 9.0655378448744,
+       "ehp_survival_s": 0.0014945540488488,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 7,
+        "magic": 16,
+        "rare": 50
+       },
+       "coverage": 0.01818181818181818,
+       "clear_s": 1234.6938775510355,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AoE radius: projectiles treated as single-target, coverage = projectiles / monsters"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Chaos Inoculation"
+     },
+     "baseline": 12274.657312273,
+     "without": 11773.650891364,
+     "delta_rel": 0.04081632653060405,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 9.0655378448744,
+     "ehp_without": 1253.8035037912,
+     "ehp_delta_rel": -137.30437037997618
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Brain Storm"
+     },
+     "baseline": 12274.657312273,
+     "without": 11876.644511136,
+     "delta_rel": 0.03242557335910638,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 9.0655378448744,
+     "ehp_without": 9.0655378448744,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 4,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Amazon Frenzy Spear",
+   "source": "llm",
+   "vector": {
+    "class_asc": "amazon",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "evasion",
+    "main_skill": "lightning spear",
+    "key_pieces": "unique:Darkray Vectors"
+   },
+   "claims": [
+    {
+     "text": "The boots raise the frenzy charge ceiling.",
+     "cites": [
+      {
+       "kind": "unique",
+       "id": "Darkray Vectors",
+       "quote": "+1 to Maximum Frenzy Charges"
+      }
+     ]
+    },
+    {
+     "text": "The spear throw spends a frenzy charge to multiply into several bursting copies.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "LightningSpearPlayer",
+       "quote": "Consumes a Frenzy Charge if possible to cause the main spear to split"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "unique",
+     "id": "Darkray Vectors"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 439.89540211169,
+     "baseline": 69.543936,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget",
+     "evals": 444,
+     "items": {
+      "weapon": "LocalFireDamage r1, LocalLightningDamage r2, LocalPhysicalDamagePercent r7, Dexterity r1, LocalAttributeRequirements r1, Strength r2 [Akoyan Spear]"
+     },
+     "seconds": 22.66203483299978,
+     "notes": [
+      "floors not met (deficit 511); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 86,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 81,
+      "FireResist": -50,
+      "FullDPS": 439.89540211169,
+      "HitAilmentDPS": 439.89540211169,
+      "Life": 1247,
+      "LightningResist": -25,
+      "Speed": 0.96,
+      "TotalDPS": 439.7091012,
+      "TotalEHP": 968.28448990334
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 6699.250546467552,
+       "dps": 850.65395904694,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.4245984448606617,
+        "chasm_slam": 0.7122992224303308
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.22804627647276,
+       "ehp": 968.28448990334,
+       "ehp_survival_s": 0.15963239353093,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 36,
+        "magic": 88,
+        "rare": 284
+       },
+       "coverage": 0.6944444444444445,
+       "clear_s": 425.99999999999994,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "unique",
+      "id": "Darkray Vectors"
+     },
+     "baseline": 850.65395904694,
+     "without": 850.65395904694,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": "best rare at budget [Braced Sabatons]: ColdResistance r7, FireResistance r2, LightningResistance r1",
+     "note": "",
+     "ehp_baseline": 968.28448990334,
+     "ehp_without": 1101.0331699707,
+     "ehp_delta_rel": -0.13709677419351396
+    }
+   ],
+   "screen_rank": 6,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Mercenary Electrocute Armour-Break",
+   "source": "llm",
+   "vector": {
+    "class_asc": "witchhunter",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "armour",
+    "main_skill": "voltaic grenade",
+    "key_pieces": "support:Breachlord's Rift"
+   },
+   "claims": [
+    {
+     "text": "Electrocuted enemies lose armour, so the boss becomes easier to hurt after the grenade setup.",
+     "cites": [
+      {
+       "kind": "support",
+       "id": "SupportBreachlordsRift",
+       "quote": "Break Armour of enemies it Freezes or Electrocutes"
+      }
+     ]
+    },
+    {
+     "text": "The grenade makes all lightning hits build electrocution.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "ShockGrenadePlayer",
+       "quote": "contribute to Electrocution buildup for a duration"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "support",
+     "id": "Breachlord's Rift"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportBreachlordsRift"
+    ],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 208.50699141478,
+     "baseline": 9.36686953125,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget",
+     "evals": 396,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r1, LocalFireDamage r1, LocalLightningDamage r7, Dexterity r1, Strength r1 [Alloy Crossbow]"
+     },
+     "seconds": 19.63276329099972,
+     "notes": [
+      "floors not met (deficit 461); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -50,
+      "FullDPS": 208.50699141478,
+      "HitAilmentDPS": 208.50699141478,
+      "Life": 1262,
+      "LightningResist": -50,
+      "Speed": 0.25,
+      "TotalDPS": 207.98161546875,
+      "TotalEHP": 927.24388411121
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 15914.117919790304,
+       "dps": 358.09361403017,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.4325444122821953,
+        "chasm_slam": 0.7162722061410977
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.21838056620613,
+       "ehp": 927.24388411121,
+       "ehp_survival_s": 0.15286639634429,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 20,
+        "magic": 48,
+        "rare": 155
+       },
+       "coverage": 0.15999999999999998,
+       "clear_s": 3875.0000000000005,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Breachlord's Rift"
+     },
+     "baseline": 358.09361403017,
+     "without": 716.18722806034,
+     "delta_rel": -1.0,
+     "verdict": "not_load_bearing",
+     "replacement": "Atziri's Impatience",
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 927.24388411121,
+     "ehp_without": 927.24388411121,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 7,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Warbringer Storm Wave Imploding",
+   "source": "llm",
+   "vector": {
+    "class_asc": "warbringer",
+    "delivery": "melee",
+    "damage": "Lightning",
+    "defence": "armour",
+    "main_skill": "storm wave",
+    "key_pieces": "notable:Anvil's Weight,notable:Imploding Impacts"
+   },
+   "claims": [
+    {
+     "text": "Fully broken armour on the enemy raises all damage it takes from hits, including lightning.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Imploding Impacts",
+       "quote": "Fully Broken Armour you inflict increases all Damage Taken from Hits instead"
+      }
+     ]
+    },
+    {
+     "text": "Hits themselves wear the enemy armour down.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Anvil's Weight",
+       "quote": "Break Armour equal to 10% of Hit Damage dealt"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Imploding Impacts"
+    },
+    {
+     "kind": "notable",
+     "id": "Anvil's Weight"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 1153.2748058212,
+     "baseline": 102.74539275,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget",
+     "evals": 436,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r2, LocalFireDamage r1, LocalPhysicalDamagePercent r4, Dexterity r1, Intelligence r1, LocalAttributeRequirements r4 [Wyrm Quarterstaff]"
+     },
+     "seconds": 19.910637934000988,
+     "notes": [
+      "floors not met (deficit 469); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -50,
+      "FullDPS": 1153.2748058212,
+      "HitAilmentDPS": 1153.2748058212,
+      "Life": 1203,
+      "LightningResist": -50,
+      "Speed": 1.05,
+      "TotalDPS": 1151.0473275,
+      "TotalEHP": 883.89413041663
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 2697.3061033803538,
+       "dps": 2112.7539039259,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.365571258300698,
+        "chasm_slam": 0.682785629150349
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.20817101517113,
+       "ehp": 883.89413041663,
+       "ehp_survival_s": 0.14571971061979,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 15,
+        "magic": 37,
+        "rare": 118
+       },
+       "coverage": 1.0,
+       "clear_s": 112.38095238095238,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Imploding Impacts"
+     },
+     "baseline": 2112.7539039259,
+     "without": 2112.7539039259,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 883.89413041663,
+     "ehp_without": 883.89413041663,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Anvil's Weight"
+     },
+     "baseline": 2112.7539039259,
+     "without": 2112.7539039259,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 883.89413041663,
+     "ehp_without": 883.89413041663,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 1,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Shaman Nova Coil",
+   "source": "llm",
+   "vector": {
+    "class_asc": "shaman",
+    "delivery": "area_spell",
+    "damage": "Lightning",
+    "defence": "armour",
+    "main_skill": "enervating nova",
+    "key_pieces": "notable:Frazzled,unique:Lightning Coil"
+   },
+   "claims": [
+    {
+     "text": "The body armour converts part of incoming physical hits into lightning and raises armour and evasion.",
+     "cites": [
+      {
+       "kind": "unique",
+       "id": "Lightning Coil",
+       "quote": "of Physical damage from Hits taken as Lightning damage"
+      }
+     ]
+    },
+    {
+     "text": "The notable strengthens shock the nova inflicts.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Frazzled",
+       "quote": "30% increased Magnitude of Shock you inflict"
+      }
+     ]
+    },
+    {
+     "text": "The nova electrocutes enemies it hits.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "EnervatingNovaPlayer",
+       "quote": "Enemies Hit can be Electrocuted by all Lightning damage for a short duration."
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "unique",
+     "id": "Lightning Coil"
+    },
+    {
+     "kind": "notable",
+     "id": "Frazzled"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportRakiatasFlowPlayer",
+     "SupportConcentratedAreaPlayer",
+     "SupportAddedLightningDamagePlayer",
+     "SupportElementalFocusPlayer",
+     "SupportDeliberationPlayer"
+    ],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 12467.4324768,
+     "baseline": 6795.9537408,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget",
+     "evals": 212,
+     "items": {
+      "weapon": "WeaponSpellDamage r7, GlobalIncreaseLightningSpellSkillGemLevelWeapon r2, Intelligence r1 [Attuned Wand]"
+     },
+     "seconds": 13.426369053000599,
+     "notes": [
+      "floors not met (deficit 502); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 393,
+      "ChaosResist": 13,
+      "ColdResist": -42,
+      "EnergyShield": 4,
+      "Evasion": 426,
+      "FireResist": -42,
+      "FullDPS": 12467.4324768,
+      "HitAilmentDPS": 12467.4324768,
+      "Life": 1772,
+      "LightningResist": -77,
+      "Speed": 1.92,
+      "TotalDPS": 12467.4324768,
+      "TotalEHP": 1300.3181473998
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 689.0087671098754,
+       "dps": 8270.931041856,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.573301549463647,
+        "chasm_slam": 0.7866507747318235
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.30954915240074,
+       "ehp": 1314.3457010936,
+       "ehp_survival_s": 0.21668440668052,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 8,
+        "magic": 20,
+        "rare": 63
+       },
+       "coverage": 0.09,
+       "clear_s": 364.58333333333337,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "unique",
+      "id": "Lightning Coil"
+     },
+     "baseline": 8270.931041856,
+     "without": 8270.931041856,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": "best rare at budget [Ancestral Mail]: ColdResistance r1, FireResistance r1, LightningResistance r1",
+     "note": "",
+     "ehp_baseline": 1314.3457010936,
+     "ehp_without": 1735.5195757325,
+     "ehp_delta_rel": -0.32044375713974094
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Frazzled"
+     },
+     "baseline": 8270.931041856,
+     "without": 8270.931041856,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1314.3457010936,
+     "ehp_without": 1314.3457010936,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 3,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  }
+ ],
+ "estimate": "7 candidate(s) screened, top 0 deepened: ~16.7 min wall (screen 13.8 min, ablation 2.8 min, deepen 0.0 min); cap 45 min",
+ "rejected": [],
+ "notes": [
+  "successive halving: top 0 of 7 by screen rank deepened; the rest keep their screen numbers",
+  "ranking basis: benchmark metrics only (boss time-to-kill with its survival check, pack clear proxy); a candidate missing a benchmark value ranks after those that have it. Per-skill DPS is shown but never ranks across archetypes.",
+  "ablation measures the objective metric under the first benchmark's PoB options, not time-to-kill, and also TotalEHP: a piece is confirmed when removal costs either at least the threshold; a unique key piece is replaced by the best rare for its slot at the screen tier."
+ ],
+ "meta": {}
+}

@@ -1,0 +1,1415 @@
+{
+ "prompt": "fast Breach clearing without a bow",
+ "brief": {
+  "benchmarks": [
+   "arbiter_ash",
+   "breach_t15"
+  ],
+  "tiers": [
+   "mid"
+  ],
+  "constraints": {
+   "no_bow": true
+  },
+  "floors": {}
+ },
+ "screen_tier": "mid",
+ "deepen_k": 0,
+ "candidates": [
+  {
+   "name": "Titan Aftershock Earthquake",
+   "source": "llm",
+   "vector": {
+    "class_asc": "titan",
+    "delivery": "melee",
+    "damage": "unknown",
+    "defence": "armour",
+    "main_skill": "earthquake",
+    "key_pieces": "notable:Earthbreaker,notable:Stone Skin"
+   },
+   "claims": [
+    {
+     "text": "Earthquake leaves patches that erupt later, so a Breach pack walking into the slam zone eats repeated eruptions.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Earthquake",
+       "quote": "The Jagged Ground erupts in a powerful Aftershock after a duration."
+      }
+     ]
+    },
+    {
+     "text": "Titan adds extra aftershocks to slams, stacking more eruptions onto the same patch of ground.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Earthbreaker",
+       "quote": "25% chance for Slam Skills you use yourself to cause an additional Aftershock"
+      }
+     ]
+    },
+    {
+     "text": "Stone Skin lifts body armour, which carries the defence layer while standing in melee.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Stone Skin",
+       "quote": "50% more Armour from Equipped Body Armour"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Earthbreaker"
+    },
+    {
+     "kind": "notable",
+     "id": "Stone Skin"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 293.2830458415,
+     "baseline": 14.6985696,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 558,
+     "items": {
+      "weapon": "LocalColdDamage r1, LocalFireDamage r1, LocalLightningDamage r1, LocalIncreasedAttackSpeed r1, Strength r1 [Crumbling Maul]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Conqueror Plate]"
+     },
+     "seconds": 27.482557786999678,
+     "notes": [
+      "floors not met (deficit 356); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 893,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 293.2830458415,
+      "HitAilmentDPS": 293.2830458415,
+      "Life": 1271,
+      "LightningResist": -7,
+      "Speed": 1.05,
+      "TotalDPS": 293.2255872,
+      "TotalEHP": 1216.2811687817
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 8999.28660030551,
+       "dps": 633.2439728952,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.536977126965208,
+        "chasm_slam": 0.768488563482604
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.28645340762641,
+       "ehp": 1216.2811687817,
+       "ehp_survival_s": 0.20051738533849,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 59,
+        "magic": 146,
+        "rare": 471
+       },
+       "coverage": 0.09,
+       "clear_s": 4984.126984126984,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Earthbreaker"
+     },
+     "baseline": 633.2439728952,
+     "without": 633.2439728952,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1216.2811687817,
+     "ehp_without": 1216.2811687817,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Stone Skin"
+     },
+     "baseline": 633.2439728952,
+     "without": 633.2439728952,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1216.2811687817,
+     "ehp_without": 1210.93487793,
+     "ehp_delta_rel": 0.004395604395532219
+    }
+   ],
+   "screen_rank": 4,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Invoker Thunder Flurry",
+   "source": "llm",
+   "vector": {
+    "class_asc": "invoker",
+    "delivery": "melee",
+    "damage": "Lightning",
+    "defence": "evasion",
+    "main_skill": "tempest flurry",
+    "key_pieces": "notable:I am the Thunder...,notable:Sunder my Enemies..."
+   },
+   "claims": [
+    {
+     "text": "The combo finisher of Tempest Flurry calls a Shocking bolt, which is where the shocked-enemy assumption comes from.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Tempest Flurry",
+       "quote": "calls down a powerful Shocking bolt"
+      }
+     ]
+    },
+    {
+     "text": "Invoker converts part of hit damage into extra lightning on top of the strikes.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "I am the Thunder...",
+       "quote": "Gain 10% of Damage as Extra Lightning Damage"
+      }
+     ]
+    },
+    {
+     "text": "Critical hits skip elemental resistance, which matters against a boss with high resistances.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Sunder my Enemies...",
+       "quote": "Critical Hits ignore non-negative Enemy Monster Elemental Resistances"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "I am the Thunder..."
+    },
+    {
+     "kind": "notable",
+     "id": "Sunder my Enemies..."
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 1839.7134910845,
+     "baseline": 52.69089658392,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 622,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r1, LocalFireDamage r1, LocalLightningDamage r1, Dexterity r1, Intelligence r1 [Crackling Quarterstaff]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Corsair Coat]"
+     },
+     "seconds": 28.686835501999667,
+     "notes": [
+      "floors not met (deficit 367); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 458,
+      "FireResist": -7,
+      "FullDPS": 1839.7134910845,
+      "HitAilmentDPS": 1839.7134910845,
+      "Life": 1187,
+      "LightningResist": -7,
+      "Speed": 1.96,
+      "TotalDPS": 1838.651287783,
+      "TotalEHP": 1175.8010627359
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 1830.5794789744616,
+       "dps": 3113.0819860346,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.3474090470514783,
+        "chasm_slam": 0.6737045235257392
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.27990705435405,
+       "ehp": 1188.4853527873,
+       "ehp_survival_s": 0.19593493804783,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 21,
+        "magic": 50,
+        "rare": 161
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "I am the Thunder..."
+     },
+     "baseline": 3113.0819860346,
+     "without": 2793.9624845383,
+     "delta_rel": 0.1025091863715385,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1188.4853527873,
+     "ehp_without": 1188.4853527873,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Sunder my Enemies..."
+     },
+     "baseline": 3113.0819860346,
+     "without": 3024.8430215608,
+     "delta_rel": 0.02834456813846961,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1188.4853527873,
+     "ehp_without": 1188.4853527873,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 7,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_shocked"
+   ]
+  },
+  {
+   "name": "Stormweaver Shock Ball",
+   "source": "llm",
+   "vector": {
+    "class_asc": "stormweaver",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "energy_shield",
+    "main_skill": "ball lightning",
+    "key_pieces": "notable:Shaper of Storms"
+   },
+   "claims": [
+    {
+     "text": "Ball Lightning repeatedly discharges bolts at nearby enemies, so many small hits land on every pack member.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Ball Lightning",
+       "quote": "repeatedly discharges bolts of Lightning at nearby enemies"
+      }
+     ]
+    },
+    {
+     "text": "Shaper of Storms lets every hit build shock, which is the declared source of the shocked condition.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Shaper of Storms",
+       "quote": "All Damage from Hits Contributes to Shock Chance"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Shaper of Storms"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportRakiatasFlowPlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportConcentratedAreaPlayer",
+     "SupportHourglassPlayer",
+     "SupportEshsRadiancePlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 60154.542918351,
+     "baseline": 18431.280040938,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 508,
+     "items": {
+      "weapon": "DamageGainedAsLightning r1, WeaponSpellDamage r7, GlobalIncreaseLightningSpellSkillGemLevelWeapon r1, GlobalIncreaseSpellSkillGemLevelWeapon r2, Intelligence r1 [Attuned Wand]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Arcane Raiment]"
+     },
+     "seconds": 30.442186803000368,
+     "notes": [
+      "floors not met (deficit 312); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": 1,
+      "EnergyShield": 138,
+      "Evasion": 7,
+      "FireResist": 21,
+      "FullDPS": 60154.542918351,
+      "HitAilmentDPS": 60154.542918351,
+      "Life": 1554,
+      "LightningResist": 1,
+      "Speed": 0.099681020733652,
+      "TotalDPS": 60154.52273775,
+      "TotalEHP": 1673.401718815
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 135.09570046570386,
+       "dps": 42183.015302154,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.9206538396049717,
+        "chasm_slam": 0.9603269198024859
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.39411251031912,
+       "ehp": 1673.401718815,
+       "ehp_survival_s": 0.27587875722339,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 5,
+        "magic": 11,
+        "rare": 33
+       },
+       "coverage": 0.039999999999999994,
+       "clear_s": 8276.400000000027,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Shaper of Storms"
+     },
+     "baseline": 42183.015302154,
+     "without": 42183.015302154,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1673.401718815,
+     "ehp_without": 1673.401718815,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 2,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_shocked"
+   ]
+  },
+  {
+   "name": "Infernalist Ignite Blast",
+   "source": "llm",
+   "vector": {
+    "class_asc": "infernalist",
+    "delivery": "channel",
+    "damage": "Fire",
+    "defence": "life",
+    "main_skill": "flameblast",
+    "key_pieces": "notable:Bringer of Flame"
+   },
+   "claims": [
+    {
+     "text": "Flameblast is channelled and releases a large area explosion, suited to a clumped Breach pack.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Flameblast",
+       "quote": "Releasing the energy causes a devastating explosion that is larger and more intense the longer you Channel for."
+      }
+     ]
+    },
+    {
+     "text": "Bringer of Flame routes all damage into ignite, which is the declared source of the ignited condition.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Bringer of Flame",
+       "quote": "contributes to Flammability and Ignite Magnitudes"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Bringer of Flame"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportRakiatasFlowPlayer",
+     "SupportAtzirisImpatiencePlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportConcentratedAreaPlayer",
+     "SupportXophsPyrePlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 25858.613932856,
+     "baseline": 5826.86803595,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 512,
+     "items": {
+      "weapon": "DamageGainedAsFire r1, WeaponSpellDamage r7, GlobalIncreaseFireSpellSkillGemLevelWeapon r1, GlobalIncreaseSpellSkillGemLevelWeapon r2, Intelligence r1 [Attuned Wand]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Death Mantle]"
+     },
+     "seconds": 43.8760033210001,
+     "notes": [
+      "floors not met (deficit 324); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 284,
+      "ChaosResist": 0,
+      "ColdResist": -2,
+      "EnergyShield": 79,
+      "Evasion": 7,
+      "FireResist": 18,
+      "FullDPS": 25858.613932856,
+      "HitAilmentDPS": 25858.613932856,
+      "Life": 1607,
+      "LightningResist": -2,
+      "Speed": 0.21958717610892,
+      "TotalDPS": 21647.135704875,
+      "TotalEHP": 1686.38148486
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 211.2729414915106,
+       "dps": 26973.373683203,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.9444917418695724,
+        "chasm_slam": 0.9722458709347862
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.39716945003768,
+       "ehp": 1686.38148486,
+       "ehp_survival_s": 0.27801861502638,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 1,
+        "magic": 2,
+        "rare": 4
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Bringer of Flame"
+     },
+     "baseline": 26973.373683203,
+     "without": 26973.373683203,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1686.38148486,
+     "ehp_without": 1686.38148486,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 6,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_ignited"
+   ]
+  },
+  {
+   "name": "Amazon Whirlwind Lance",
+   "source": "llm",
+   "vector": {
+    "class_asc": "amazon",
+    "delivery": "projectile",
+    "damage": "unknown",
+    "defence": "evasion",
+    "main_skill": "whirlwind lance",
+    "key_pieces": "notable:Predatory Instinct"
+   },
+   "claims": [
+    {
+     "text": "The lance leaves a whirlwind that slows enemies and then collapses for damage, so it pairs a control layer with clear.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Whirlwind Lance",
+       "quote": "Entering the Whirlwind collapses it, dealing damage and causing Knockback."
+      }
+     ]
+    },
+    {
+     "text": "Predatory Instinct reveals weaknesses on rare and unique enemies and boosts damage against them, which covers the boss and the rares in a Breach.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Predatory Instinct",
+       "quote": "50% more damage against enemies with an Open Weakness"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Predatory Instinct"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 28.659326659305,
+     "baseline": 28.659326659305,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:starter, body_armour:budget",
+     "evals": 106,
+     "items": {
+      "weapon": "(no affixes) [Coursing Spear]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Corsair Coat]"
+     },
+     "seconds": 10.652800187000139,
+     "notes": [
+      "weapon: final item has unparsed lines [{'line': '20% chance to Maim on Hit', 'unparsed': ' to Maim  '}]",
+      "floors not met (deficit 408); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 458,
+      "FireResist": -7,
+      "FullDPS": 28.659326659305,
+      "HitAilmentDPS": 28.659326659305,
+      "Life": 1187,
+      "LightningResist": -7,
+      "Speed": 0.9672,
+      "TotalDPS": 28.659326659305,
+      "TotalEHP": 1175.8010627359
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 163168.59283679086,
+       "dps": 34.92549577663,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.3474090470514783,
+        "chasm_slam": 0.6737045235257392
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.27990705435405,
+       "ehp": 1188.4853527873,
+       "ehp_survival_s": 0.19593493804783,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 1038,
+        "magic": 2574,
+        "rare": 8301
+       },
+       "coverage": 0.01818181818181818,
+       "clear_s": 472037.841191067,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: projectiles treated as single-target, coverage = projectiles / monsters"
+       ]
+      }
+     },
+     "unparsed": [
+      "Dexterity1",
+      "Dexterity2",
+      "Dexterity3",
+      "Dexterity4",
+      "Dexterity5",
+      "Dexterity6",
+      "Dexterity7",
+      "Dexterity8",
+      "GlobalMeleeSkillGemLevelWeapon2",
+      "GlobalMeleeSkillGemLevelWeapon3",
+      "GlobalMeleeSkillGemLevelWeapon4",
+      "GlobalMeleeSkillGemLevelWeapon5",
+      "GlobalProjectileSkillGemLevelWeapon2",
+      "GlobalProjectileSkillGemLevelWeapon3",
+      "GlobalProjectileSkillGemLevelWeapon4",
+      "GlobalProjectileSkillGemLevelWeapon5",
+      "LifeGainPerTargetLocal1",
+      "LifeGainPerTargetLocal2",
+      "LifeGainPerTargetLocal3",
+      "LifeGainPerTargetLocal4",
+      "LifeGainedFromEnemyDeath1",
+      "LifeGainedFromEnemyDeath2",
+      "LifeGainedFromEnemyDeath3",
+      "LifeGainedFromEnemyDeath4",
+      "LifeGainedFromEnemyDeath5",
+      "LifeGainedFromEnemyDeath6",
+      "LifeGainedFromEnemyDeath7",
+      "LifeGainedFromEnemyDeath8",
+      "LifeLeechLocal2",
+      "LifeLeechLocal3",
+      "LifeLeechLocal4",
+      "LifeLeechLocal5",
+      "LocalAddedColdDamage1",
+      "LocalAddedColdDamage10__",
+      "LocalAddedColdDamage2",
+      "LocalAddedColdDamage3",
+      "LocalAddedColdDamage4",
+      "LocalAddedColdDamage5",
+      "LocalAddedColdDamage6",
+      "LocalAddedColdDamage7",
+      "LocalAddedColdDamage8",
+      "LocalAddedColdDamage9",
+      "LocalAddedFireDamage1",
+      "LocalAddedFireDamage10_",
+      "LocalAddedFireDamage2",
+      "LocalAddedFireDamage3",
+      "LocalAddedFireDamage4",
+      "LocalAddedFireDamage5",
+      "LocalAddedFireDamage6",
+      "LocalAddedFireDamage7",
+      "LocalAddedFireDamage8",
+      "LocalAddedFireDamage9",
+      "LocalAddedLightningDamage1",
+      "LocalAddedLightningDamage10",
+      "LocalAddedLightningDamage2",
+      "LocalAddedLightningDamage3",
+      "LocalAddedLightningDamage4",
+      "LocalAddedLightningDamage5",
+      "LocalAddedLightningDamage6",
+      "LocalAddedLightningDamage7",
+      "LocalAddedLightningDamage8",
+      "LocalAddedLightningDamage9",
+      "LocalAddedPhysicalDamage1",
+      "LocalAddedPhysicalDamage2",
+      "LocalAddedPhysicalDamage3",
+      "LocalAddedPhysicalDamage4",
+      "LocalAddedPhysicalDamage5",
+      "LocalAddedPhysicalDamage6",
+      "LocalAddedPhysicalDamage7",
+      "LocalAddedPhysicalDamage8",
+      "LocalAddedPhysicalDamage9",
+      "LocalCriticalMultiplier1",
+      "LocalCriticalMultiplier2",
+      "LocalCriticalMultiplier3",
+      "LocalCriticalMultiplier4",
+      "LocalCriticalMultiplier5",
+      "LocalCriticalMultiplier6",
+      "LocalCriticalStrikeChance1",
+      "LocalCriticalStrikeChance2",
+      "LocalCriticalStrikeChance3",
+      "LocalCriticalStrikeChance4",
+      "LocalCriticalStrikeChance5",
+      "LocalCriticalStrikeChance6",
+      "LocalIncreasedAccuracy1",
+      "LocalIncreasedAccuracy2",
+      "LocalIncreasedAccuracy3",
+      "LocalIncreasedAccuracy4",
+      "LocalIncreasedAccuracy5",
+      "LocalIncreasedAccuracy6",
+      "LocalIncreasedAccuracy7",
+      "LocalIncreasedAccuracy8",
+      "LocalIncreasedAccuracy9_",
+      "LocalIncreasedAttackSpeed1",
+      "LocalIncreasedAttackSpeed2",
+      "LocalIncreasedAttackSpeed3",
+      "LocalIncreasedAttackSpeed4",
+      "LocalIncreasedAttackSpeed5",
+      "LocalIncreasedAttackSpeed6",
+      "LocalIncreasedAttackSpeed7",
+      "LocalIncreasedAttackSpeed8",
+      "LocalIncreasedPhysicalDamagePercent1",
+      "LocalIncreasedPhysicalDamagePercent2",
+      "LocalIncreasedPhysicalDamagePercent3",
+      "LocalIncreasedPhysicalDamagePercent4",
+      "LocalIncreasedPhysicalDamagePercent5",
+      "LocalIncreasedPhysicalDamagePercent6",
+      "LocalIncreasedPhysicalDamagePercent7",
+      "LocalIncreasedPhysicalDamagePercent8",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating1",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating2",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating3",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating4",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating5",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating6",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating7",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating8",
+      "LocalLightRadiusAndAccuracy1",
+      "LocalLightRadiusAndAccuracy2",
+      "LocalLightRadiusAndAccuracy3",
+      "ManaGainedFromEnemyDeath1",
+      "ManaGainedFromEnemyDeath2",
+      "ManaGainedFromEnemyDeath3",
+      "ManaGainedFromEnemyDeath4",
+      "ManaGainedFromEnemyDeath5",
+      "ManaGainedFromEnemyDeath6",
+      "ManaGainedFromEnemyDeath7",
+      "ManaGainedFromEnemyDeath8",
+      "ManaLeechLocal2",
+      "ManaLeechLocal3",
+      "ManaLeechLocal4",
+      "ManaLeechLocal5",
+      "ReducedLocalAttributeRequirements1",
+      "ReducedLocalAttributeRequirements2",
+      "ReducedLocalAttributeRequirements3",
+      "ReducedLocalAttributeRequirements4",
+      "ReducedLocalAttributeRequirements5",
+      "Strength1",
+      "Strength2",
+      "Strength3",
+      "Strength4",
+      "Strength5",
+      "Strength6",
+      "Strength7",
+      "Strength8",
+      "StunDamageIncrease1",
+      "StunDamageIncrease2",
+      "StunDamageIncrease3",
+      "StunDamageIncrease4",
+      "StunDamageIncrease5",
+      "StunDamageIncrease6",
+      "StunDuration1",
+      "StunDuration2",
+      "StunDuration3",
+      "StunDuration4",
+      "StunDuration5",
+      "StunDuration6",
+      "WeaponElementalDamage1",
+      "WeaponElementalDamage2",
+      "WeaponElementalDamage3",
+      "WeaponElementalDamage4",
+      "WeaponElementalDamage5",
+      "WeaponElementalDamage6_"
+     ],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Predatory Instinct"
+     },
+     "baseline": 34.92549577663,
+     "without": 34.92549577663,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1188.4853527873,
+     "ehp_without": 1188.4853527873,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 5,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Tactician Ballista Battery",
+   "source": "llm",
+   "vector": {
+    "class_asc": "tactician",
+    "delivery": "projectile",
+    "damage": "unknown",
+    "defence": "armour",
+    "main_skill": "siege ballista",
+    "key_pieces": "notable:Cannons, Ready!"
+   },
+   "claims": [
+    {
+     "text": "Siege Ballista is a crossbow totem whose bolts explode after landing, so damage is delivered by the totems rather than the player.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Siege Ballista",
+       "quote": "Deploy a Ballista Totem that fires bolts skyward, to explode a short time after landing."
+      }
+     ]
+    },
+    {
+     "text": "Cannons, Ready! adds totem capacity and totem speed.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Cannons, Ready!",
+       "quote": "Skills used by Totems have 30% more Skill Speed"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Cannons, Ready!"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 97.793499857089,
+     "baseline": 3.1493835533637,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 648,
+     "items": {
+      "weapon": "LocalColdDamage r1, LocalFireDamage r1, LocalLightningDamage r1, Dexterity r1, Strength r1 [Dyad Crossbow]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Death Mail]"
+     },
+     "seconds": 33.685394539999834,
+     "notes": [
+      "floors not met (deficit 332); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 313,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 292,
+      "FireResist": -7,
+      "FullDPS": 97.793499857089,
+      "HitAilmentDPS": 0,
+      "Life": 1262,
+      "LightningResist": -7,
+      "Speed": 1.3,
+      "TotalDPS": 0,
+      "TotalEHP": 1231.9734936315
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 27177.553916274,
+       "dps": 209.6856846483,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.466598558374482,
+        "chasm_slam": 0.733299279187241
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.29321493669951,
+       "ehp": 1244.9906212261,
+       "ehp_survival_s": 0.20525045568965,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": null,
+        "magic": null,
+        "rare": null
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": false,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AverageHit from PoB: hits-to-kill unavailable",
+        "incomplete: ",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Cannons, Ready!"
+     },
+     "baseline": 209.6856846483,
+     "without": 161.2444416,
+     "delta_rel": 0.23101836031176456,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1244.9906212261,
+     "ehp_without": 1244.9906212261,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 8,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Shaman Bear Fissures",
+   "source": "llm",
+   "vector": {
+    "class_asc": "shaman",
+    "delivery": "channel",
+    "damage": "unknown",
+    "defence": "life",
+    "main_skill": "fury of the mountain",
+    "key_pieces": "notable:Turning of the Seasons"
+   },
+   "claims": [
+    {
+     "text": "Fury of the Mountain pounds the ground repeatedly and the fissures spread in a wide arc, covering a pack in front of the player.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Fury of the Mountain",
+       "quote": "creating Molten Fissures that travel randomly in a wide arc in front of you"
+      }
+     ]
+    },
+    {
+     "text": "Turning of the Seasons gives enemies near the player exposure and adds extra elemental damage.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Turning of the Seasons",
+       "quote": "Enemies in your Presence have Exposure"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Turning of the Seasons"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 715.72920326838,
+     "baseline": 56.787952898674,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 592,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r1, LocalFireDamage r1, LocalLightningDamage r1, Intelligence r1, Strength r1 [Cruel Talisman]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Elegant Plate]"
+     },
+     "seconds": 22.376862666000306,
+     "notes": [
+      "floors not met (deficit 332); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 1328,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 715.72920326838,
+      "HitAilmentDPS": 715.72920326838,
+      "Life": 1262,
+      "LightningResist": -7,
+      "Speed": 0.875,
+      "TotalDPS": 714.7917504,
+      "TotalEHP": 1254.296339934
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 4475.517119696456,
+       "dps": 1273.3152052799,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.5698961348544185,
+        "chasm_slam": 0.7849480674272092
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.29540658029534,
+       "ehp": 1254.296339934,
+       "ehp_survival_s": 0.20678460620674,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 20,
+        "magic": 49,
+        "rare": 157
+       },
+       "coverage": 0.027777777777777776,
+       "clear_s": 6459.428571428572,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Turning of the Seasons"
+     },
+     "baseline": 1273.3152052799,
+     "without": 1010.9414278561,
+     "delta_rel": 0.2060556383335775,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1254.296339934,
+     "ehp_without": 1254.296339934,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 3,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Blood Mage Crit Bone Storm",
+   "source": "llm",
+   "vector": {
+    "class_asc": "blood mage",
+    "delivery": "channel",
+    "damage": "Physical",
+    "defence": "life",
+    "main_skill": "bonestorm",
+    "key_pieces": "notable:Sunder the Flesh"
+   },
+   "claims": [
+    {
+     "text": "Bonestorm is channelled, then releases a swarm that explodes and impales.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Bonestorm",
+       "quote": "Channel to conjure a swarm of bone spikes in the air, then release to fire them at enemies and explode."
+      }
+     ]
+    },
+    {
+     "text": "Sunder the Flesh gives spells a high base critical chance, which a no-gear screen would otherwise lack.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Sunder the Flesh",
+       "quote": "Base Critical Hit Chance for Spells is 15%"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Sunder the Flesh"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportExtractionPlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportAddedFireDamagePlayer",
+     "SupportPoisonPlayerThree",
+     "SupportBleedPlayerThree"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 58111.832704015,
+     "baseline": 16596.0561117,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:mid",
+     "evals": 682,
+     "items": {
+      "weapon": "PhysicalSpellDamageWeaponPrefix r7, WeaponSpellDamage r1, GlobalIncreasePhysicalSpellSkillGemLevelWeapon r1, GlobalIncreaseSpellSkillGemLevelWeapon r2, Intelligence r1 [Attuned Wand]",
+      "body_armour": "IncreasedLife r2, LocalIncreasedEvasionAndEnergyShieldAndLife r2, ColdResistance r1, FireResistance r1, LightningResistance r1 [Devout Garb]"
+     },
+     "seconds": 38.01441249199979,
+     "notes": [
+      "floors not met (deficit 401); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 10,
+      "ColdResist": -7,
+      "EnergyShield": 107,
+      "Evasion": 358,
+      "FireResist": -7,
+      "FullDPS": 58111.832704015,
+      "HitAilmentDPS": 58111.832704015,
+      "Life": 1850,
+      "LightningResist": -7,
+      "Speed": 7.04,
+      "TotalDPS": 49833.023803391,
+      "TotalEHP": 1888.6561243602
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 94.01706233247585,
+       "dps": 60613.933881994,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 2.2214654634201714,
+        "chasm_slam": 1.1107327317100857
+       },
+       "survive": true,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.4495405452359,
+       "ehp": 1908.7491550716,
+       "ehp_survival_s": 0.31467838166513,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 3,
+        "magic": 6,
+        "rare": 17
+       },
+       "coverage": 0.01818181818181818,
+       "clear_s": 132.8125,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AoE radius: projectiles treated as single-target, coverage = projectiles / monsters"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Sunder the Flesh"
+     },
+     "baseline": 60613.933881994,
+     "without": 55145.602255914,
+     "delta_rel": 0.09021575198742265,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1908.7491550716,
+     "ehp_without": 1908.7491550716,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 1,
+   "rank_note": "",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  }
+ ],
+ "estimate": "8 candidate(s) screened, top 0 deepened: ~20.6 min wall (screen 20.5 min, ablation 0.2 min, deepen 0.0 min); cap 45 min",
+ "rejected": [],
+ "notes": [
+  "successive halving: top 0 of 8 by screen rank deepened; the rest keep their screen numbers",
+  "ranking basis: benchmark metrics only (boss time-to-kill with its survival check, pack clear proxy); a candidate missing a benchmark value ranks after those that have it. Per-skill DPS is shown but never ranks across archetypes.",
+  "ablation measures the objective metric under the first benchmark's PoB options, not time-to-kill, and also TotalEHP: a piece is confirmed when removal costs either at least the threshold; a unique key piece is replaced by the best rare for its slot at the screen tier."
+ ],
+ "meta": {}
+}

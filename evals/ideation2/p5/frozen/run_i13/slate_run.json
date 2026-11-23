@@ -1,0 +1,974 @@
+{
+ "prompt": "use a keystone most players ignore to make a strong boss killer",
+ "brief": {
+  "benchmarks": [
+   "arbiter_ash",
+   "breach_t15"
+  ],
+  "tiers": [
+   "mid"
+  ],
+  "constraints": {},
+  "floors": {}
+ },
+ "screen_tier": "mid",
+ "deepen_k": 0,
+ "candidates": [
+  {
+   "name": "Aggravated spear bleeder",
+   "source": "llm",
+   "vector": {
+    "class_asc": "amazon",
+    "delivery": "melee",
+    "damage": "Physical",
+    "defence": "evasion",
+    "main_skill": "rake",
+    "key_pieces": "keystone:Crimson Assault"
+   },
+   "claims": [
+    {
+     "text": "Rake inflicts bleeding on everything it strikes, and the keystone makes that bleed aggravated",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "RakePlayer",
+       "quote": "inflicting Bleeding on all enemies struck."
+      },
+      {
+       "kind": "keystone",
+       "id": "Crimson Assault",
+       "quote": "Bleeding you inflict is Aggravated"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Crimson Assault"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 474.43825209564,
+     "baseline": 11.668292682927,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid",
+     "evals": 396,
+     "items": {
+      "weapon": "LocalFireDamage r1, LocalPhysicalDamage r1, LocalPhysicalDamagePercent r1, Dexterity r1, GlobalIncreaseMeleeSkillGemLevel r1 [Hardwood Spear]"
+     },
+     "seconds": 20.605176162000134,
+     "notes": [
+      "floors not met (deficit 485); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 23,
+      "FireResist": -50,
+      "FullDPS": 474.43825209564,
+      "HitAilmentDPS": 474.43825209564,
+      "Life": 1292,
+      "LightningResist": -50,
+      "Speed": 0.97560975609756,
+      "TotalDPS": 212.09765684726,
+      "TotalEHP": 949.28613175253
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 8920.195478392006,
+       "dps": 638.85864539678,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.466598558374482,
+        "chasm_slam": 0.733299279187241
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.22357186334256,
+       "ehp": 949.28613175253,
+       "ehp_survival_s": 0.15650030433979,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 88,
+        "magic": 216,
+        "rare": 697
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Crimson Assault"
+     },
+     "baseline": 638.85864539678,
+     "without": 484.05574210773,
+     "delta_rel": 0.24231166691483938,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 949.28613175253,
+     "ehp_without": 949.28613175253,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 6,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Wildsurge firestorm caster",
+   "source": "llm",
+   "vector": {
+    "class_asc": "chronomancer",
+    "delivery": "area_spell",
+    "damage": "Fire",
+    "defence": "energy_shield",
+    "main_skill": "firestorm",
+    "key_pieces": "keystone:Wildsurge Incantation"
+   },
+   "claims": [
+    {
+     "text": "Firestorm is a Storm spell, so the keystone raises its damage and lowers its cost",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "FirestormPlayer",
+       "quote": "Rain a storm of flaming bolts over the targeted area."
+      },
+      {
+       "kind": "keystone",
+       "id": "Wildsurge Incantation",
+       "quote": "deal 50% more damage"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Wildsurge Incantation"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportRakiatasFlowPlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportConcentratedAreaPlayer",
+     "SupportHourglassPlayer",
+     "SupportXophsPyrePlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 40716.08816042,
+     "baseline": 5315.2975107159,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid",
+     "evals": 382,
+     "items": {
+      "weapon": "DamageGainedAsFire r2, FireDamageWeaponPrefix r1, WeaponSpellDamage r1, GlobalIncreaseFireSpellSkillGemLevelWeapon r1, GlobalIncreaseSpellSkillGemLevelWeapon r4, Intelligence r1 [Attuned Wand]"
+     },
+     "seconds": 18.973624807000306,
+     "notes": [
+      "floors not met (deficit 485); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -50,
+      "FullDPS": 40716.08816042,
+      "HitAilmentDPS": 40716.08816042,
+      "Life": 1281,
+      "LightningResist": -50,
+      "Speed": 0.099681020733652,
+      "TotalDPS": 40712.1625,
+      "TotalEHP": 941.20397428404
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 158.4290368036702,
+       "dps": 35970.32535811,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.4541120381406436,
+        "chasm_slam": 0.7270560190703218
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.22166838772587,
+       "ehp": 941.20397428404,
+       "ehp_survival_s": 0.15516787140811,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 6,
+        "magic": 15,
+        "rare": 48
+       },
+       "coverage": 0.013611111111111109,
+       "clear_s": 35378.15510204094,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Wildsurge Incantation"
+     },
+     "baseline": 35970.32535811,
+     "without": 23975.54945827,
+     "delta_rel": 0.333463091601856,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 941.20397428404,
+     "ehp_without": 941.20397428404,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 2,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Chaos ignite flameblast",
+   "source": "llm",
+   "vector": {
+    "class_asc": "infernalist",
+    "delivery": "channel",
+    "damage": "Fire",
+    "defence": "energy_shield",
+    "main_skill": "flameblast",
+    "key_pieces": "keystone:Blackflame Covenant"
+   },
+   "claims": [
+    {
+     "text": "Flameblast is a fire spell, so its fire damage turns into chaos and still feeds ignite",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Blackflame Covenant",
+       "quote": "Chaos Damage from Fire Spells Contributes to Flammability and Ignite Magnitudes"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Blackflame Covenant"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportAtzirisImpatiencePlayer",
+     "SupportExtractionPlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportConcentratedAreaPlayer",
+     "SupportPoisonPlayerThree"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 83118.953637783,
+     "baseline": 6896.4037370875,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid",
+     "evals": 362,
+     "items": {
+      "weapon": "ChaosDamageWeaponPrefix r7, WeaponSpellDamage r1, GlobalIncreaseFireSpellSkillGemLevelWeapon r2, GlobalIncreaseSpellSkillGemLevelWeapon r1, Intelligence r1 [Dark Staff]"
+     },
+     "seconds": 18.584323469000083,
+     "notes": [
+      "floors not met (deficit 488); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 9,
+      "FireResist": -50,
+      "FullDPS": 83118.953637783,
+      "HitAilmentDPS": 83118.953637783,
+      "Life": 1607,
+      "LightningResist": -50,
+      "Speed": 0.21958717610892,
+      "TotalDPS": 31501.12,
+      "TotalEHP": 1185.1082105969
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 64.4218161274905,
+       "dps": 88459.847029494,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.8241670923434927,
+        "chasm_slam": 0.9120835461717464
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.2791116840784,
+       "ehp": 1185.1082105969,
+       "ehp_survival_s": 0.19537817885488,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 1,
+        "magic": 1,
+        "rare": 2
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Blackflame Covenant"
+     },
+     "baseline": 88459.847029494,
+     "without": 41251.389516074,
+     "delta_rel": 0.5336710281409361,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1185.1082105969,
+     "ehp_without": 1185.1082105969,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 3,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Unarmed palm monk",
+   "source": "llm",
+   "vector": {
+    "class_asc": "invoker",
+    "delivery": "melee",
+    "damage": "Physical",
+    "defence": "evasion",
+    "main_skill": "killing palm",
+    "key_pieces": "keystone:Hollow Palm Technique"
+   },
+   "claims": [
+    {
+     "text": "With both hands empty the monk still attacks as though holding a staff, and gets speed from evasion on armour",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Hollow Palm Technique",
+       "quote": "Can Attack as though using a Quarterstaff while both of your hand slots are empty"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Hollow Palm Technique"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportBrutalityPlayerThree",
+     "SupportConcentratedAreaPlayer",
+     "SupportHitAndRunPlayer",
+     "SupportMeleePhysicalDamagePlayer",
+     "SupportBleedPlayerThree"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 2160.3163888753,
+     "baseline": 2160.3163888753,
+     "floors_met": false,
+     "price": "estimate, anchored on 0 samples, dated hand-set bands only",
+     "evals": 0,
+     "items": {},
+     "seconds": 0.9131621350006753,
+     "notes": [
+      "floors not met (deficit 525); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -50,
+      "FullDPS": 2274.0172514477,
+      "HitAilmentDPS": 2160.3163888753,
+      "Life": 1292,
+      "LightningResist": -50,
+      "Speed": 1.621125,
+      "TotalDPS": 1818.1068814212,
+      "TotalEHP": 949.28613175253
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 2350.439922751148,
+       "dps": 2424.5435694139,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.466598558374482,
+        "chasm_slam": 0.733299279187241
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.22357186334256,
+       "ehp": 949.28613175253,
+       "ehp_survival_s": 0.15650030433979,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 29,
+        "magic": 70,
+        "rare": 225
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Hollow Palm Technique"
+     },
+     "baseline": 2424.5435694139,
+     "without": 0.0,
+     "delta_rel": 1.0,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 949.28613175253,
+     "ehp_without": 949.28613175253,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 4,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Empty offhand perfect strike",
+   "source": "llm",
+   "vector": {
+    "class_asc": "warbringer",
+    "delivery": "channel",
+    "damage": "Fire",
+    "defence": "armour",
+    "main_skill": "perfect strike",
+    "key_pieces": "keystone:Dance with Death"
+   },
+   "claims": [
+    {
+     "text": "A single-hand weapon with nothing in the off hand grants extra skill speed to the strike",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Dance with Death",
+       "quote": "a One-Handed Martial Weapon equipped in your Main Hand"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Dance with Death"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 1096.8587571173,
+     "baseline": 80.429615138407,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget",
+     "evals": 388,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r1, LocalFireDamage r1, LocalLightningDamage r1, Strength r2 [Bandit Mace]"
+     },
+     "seconds": 21.492762626001422,
+     "notes": [
+      "floors not met (deficit 375); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 20,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -50,
+      "FullDPS": 1096.8587571173,
+      "HitAilmentDPS": 1096.8587571173,
+      "Life": 1506,
+      "LightningResist": -50,
+      "Speed": 0.54375,
+      "TotalDPS": 1095.5268413839,
+      "TotalEHP": 1106.5208315939
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 2777.6171740571726,
+       "dps": 2051.6664618962,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.7106532720358703,
+        "chasm_slam": 0.8553266360179351
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.26060311624915,
+       "ehp": 1106.5208315939,
+       "ehp_survival_s": 0.1824221813744,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 23,
+        "magic": 57,
+        "rare": 184
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Dance with Death"
+     },
+     "baseline": 2051.6664618962,
+     "without": 1641.333169517,
+     "delta_rel": 0.1999999999999805,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1106.5208315939,
+     "ehp_without": 1106.5208315939,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 5,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Accurate hammer titan",
+   "source": "llm",
+   "vector": {
+    "class_asc": "titan",
+    "delivery": "melee",
+    "damage": "unknown",
+    "defence": "armour",
+    "main_skill": "hammer of the gods",
+    "key_pieces": "keystone:Resolute Technique"
+   },
+   "claims": [
+    {
+     "text": "The hammer hit is a slam that scales off the weapon, and the keystone boosts accuracy at the cost of critical hits",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Resolute Technique",
+       "quote": "Accuracy Rating is Doubled"
+      },
+      {
+       "kind": "skill",
+       "id": "HammerOfTheGodsPlayer",
+       "quote": "dealing immense damage based on your weapon"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Resolute Technique"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 6953.4689852839,
+     "baseline": 800.76718098212,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid",
+     "evals": 414,
+     "items": {
+      "weapon": "LocalIncreasedPhysicalDamagePercentAndAccuracyRating r1, LocalPhysicalDamage r1, LocalPhysicalDamagePercent r1, LocalIncreasedAttackSpeed r1, Strength r1 [Anvil Maul]"
+     },
+     "seconds": 18.881458442998337,
+     "notes": [
+      "floors not met (deficit 435); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 20,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -50,
+      "FullDPS": 6953.4689852839,
+      "HitAilmentDPS": 6953.4689852839,
+      "Life": 1376,
+      "LightningResist": -50,
+      "Speed": 0.665,
+      "TotalDPS": 6953.4689852839,
+      "TotalEHP": 1011.0044251482
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 792.913995760436,
+       "dps": 7187.0896849723,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.563085305635961,
+        "chasm_slam": 0.7815426528179805
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.23810749532459,
+       "ehp": 1011.0044251482,
+       "ehp_survival_s": 0.16667524672721,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 4,
+        "magic": 8,
+        "rare": 26
+       },
+       "coverage": 0.15999999999999998,
+       "clear_s": 244.36090225563913,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Resolute Technique"
+     },
+     "baseline": 7187.0896849723,
+     "without": 7559.2534018886,
+     "delta_rel": -0.0517822558544758,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1011.0044251482,
+     "ehp_without": 1011.0044251482,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 1,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Pure fire crossbow",
+   "source": "llm",
+   "vector": {
+    "class_asc": "tactician",
+    "delivery": "projectile",
+    "damage": "Fire",
+    "defence": "evasion",
+    "main_skill": "molten blast",
+    "key_pieces": "keystone:Avatar of Fire"
+   },
+   "claims": [
+    {
+     "text": "Molten Blast is already a fire attack, so converting damage to fire loses little",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Avatar of Fire",
+       "quote": "Deal no Non-Fire Damage"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Avatar of Fire"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 0.0,
+     "baseline": 0.0,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:starter",
+     "evals": 108,
+     "items": {
+      "weapon": "Dexterity r4, Strength r1 [Alloy Crossbow]"
+     },
+     "seconds": 10.268777455999953,
+     "notes": [
+      "floors not met (deficit 404); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 10,
+      "ChaosResist": 0,
+      "ColdResist": -50,
+      "EnergyShield": 0,
+      "Evasion": 15,
+      "FireResist": -50,
+      "FullDPS": 0,
+      "HitAilmentDPS": 0,
+      "Life": 1441,
+      "LightningResist": -50,
+      "TotalEHP": 1058.762628371
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": null,
+       "dps": 0,
+       "dps_metric": "FullDPS",
+       "gate_ttk": null,
+       "hit_margins": {
+        "basic_attack": 1.6357341506328396,
+        "chasm_slam": 0.8178670753164198
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.24935530578687,
+       "ehp": 1058.762628371,
+       "ehp_survival_s": 0.17454871405081,
+       "flags": [
+        "ttk unavailable: no DPS",
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": null,
+        "magic": null,
+        "rare": null
+       },
+       "coverage": 0.01818181818181818,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": false,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AverageHit from PoB: hits-to-kill unavailable",
+        "incomplete: ",
+        "no AoE radius: projectiles treated as single-target, coverage = projectiles / monsters"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Avatar of Fire"
+     },
+     "baseline": 0.0,
+     "without": 0.0,
+     "delta_rel": null,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1058.762628371,
+     "ehp_without": 1058.762628371,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 7,
+   "rank_note": "no value for arbiter_ash, breach_t15",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  }
+ ],
+ "estimate": "7 candidate(s) screened, top 0 deepened: ~13.9 min wall (screen 13.8 min, ablation 0.1 min, deepen 0.0 min); cap 45 min",
+ "rejected": [],
+ "notes": [
+  "successive halving: top 0 of 7 by screen rank deepened; the rest keep their screen numbers",
+  "ranking basis: benchmark metrics only (boss time-to-kill with its survival check, pack clear proxy); a candidate missing a benchmark value ranks after those that have it. Per-skill DPS is shown but never ranks across archetypes.",
+  "ablation measures the objective metric under the first benchmark's PoB options, not time-to-kill, and also TotalEHP: a piece is confirmed when removal costs either at least the threshold; a unique key piece is replaced by the best rare for its slot at the screen tier."
+ ],
+ "meta": {}
+}

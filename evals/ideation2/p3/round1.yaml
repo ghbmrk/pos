@@ -1,0 +1,108 @@
+slate: 1
+pob_sha: "601768b"
+prompt: "fast Breach clearing without a bow"
+brief: { benchmarks: [arbiter_ash, breach_t15], tiers: [mid], constraints: { no_bow: true }, floors: {} }
+candidates:
+  - name: "Titan Aftershock Earthquake"
+    archetype: { defence: armour, engine: "slam leaves ground patches that erupt again; extra aftershocks multiply area clear; body armour scaled by Stone Skin" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: Titan, level: 90, main_skill: { gem: Earthquake }, tiers: [mid],
+            fixed: { keystones: [], notables: [Earthbreaker, Stone Skin], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Earthbreaker }, { kind: notable, id: Stone Skin } ]
+    claims:
+      - text: "Earthquake leaves patches that erupt later, so a Breach pack walking into the slam zone eats repeated eruptions."
+        cites: [ { kind: skill, id: Earthquake, quote: "The Jagged Ground erupts in a powerful Aftershock after a duration." } ]
+      - text: "Titan adds extra aftershocks to slams, stacking more eruptions onto the same patch of ground."
+        cites: [ { kind: notable, id: Earthbreaker, quote: "25% chance for Slam Skills you use yourself to cause an additional Aftershock" } ]
+      - text: "Stone Skin lifts body armour, which carries the defence layer while standing in melee."
+        cites: [ { kind: notable, id: Stone Skin, quote: "50% more Armour from Equipped Body Armour" } ]
+    bases: { weapon: Crumbling Maul, body_armour: Conqueror Plate }
+    source: llm
+  - name: "Invoker Thunder Flurry"
+    archetype: { defence: evasion, engine: "quarterstaff combo ends in a shocking bolt; critical hits ignore elemental resistance" }
+    spec: { pob_sha: "601768b", class: Monk, ascendancy: Invoker, level: 90, main_skill: { gem: Tempest Flurry }, tiers: [mid],
+            conditions: [enemy_shocked],
+            fixed: { keystones: [], notables: [I am the Thunder..., Sunder my Enemies...], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: "I am the Thunder..." }, { kind: notable, id: "Sunder my Enemies..." } ]
+    claims:
+      - text: "The combo finisher of Tempest Flurry calls a Shocking bolt, which is where the shocked-enemy assumption comes from."
+        cites: [ { kind: skill, id: Tempest Flurry, quote: "calls down a powerful Shocking bolt" } ]
+      - text: "Invoker converts part of hit damage into extra lightning on top of the strikes."
+        cites: [ { kind: notable, id: "I am the Thunder...", quote: "Gain 10% of Damage as Extra Lightning Damage" } ]
+      - text: "Critical hits skip elemental resistance, which matters against a boss with high resistances."
+        cites: [ { kind: notable, id: "Sunder my Enemies...", quote: "Critical Hits ignore non-negative Enemy Monster Elemental Resistances" } ]
+    bases: { weapon: Crackling Quarterstaff, body_armour: Corsair Coat }
+    source: llm
+  - name: "Stormweaver Shock Ball"
+    archetype: { defence: energy_shield, engine: "slow projectile keeps discharging bolts; all hit damage feeds shock chance, so shock sustains itself" }
+    spec: { pob_sha: "601768b", class: Sorceress, ascendancy: Stormweaver, level: 90, main_skill: { gem: Ball Lightning }, tiers: [mid],
+            conditions: [enemy_shocked],
+            fixed: { keystones: [], notables: [Shaper of Storms], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Shaper of Storms } ]
+    claims:
+      - text: "Ball Lightning repeatedly discharges bolts at nearby enemies, so many small hits land on every pack member."
+        cites: [ { kind: skill, id: Ball Lightning, quote: "repeatedly discharges bolts of Lightning at nearby enemies" } ]
+      - text: "Shaper of Storms lets every hit build shock, which is the declared source of the shocked condition."
+        cites: [ { kind: notable, id: Shaper of Storms, quote: "All Damage from Hits Contributes to Shock Chance" } ]
+    bases: { weapon: Attuned Wand, body_armour: Arcane Raiment }
+    source: llm
+  - name: "Infernalist Ignite Blast"
+    archetype: { defence: life, engine: "charged nova explosion; all damage feeds ignite so the pack burns" }
+    spec: { pob_sha: "601768b", class: Witch, ascendancy: Infernalist, level: 90, main_skill: { gem: Flameblast }, tiers: [mid],
+            conditions: [enemy_ignited],
+            fixed: { keystones: [], notables: [Bringer of Flame], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Bringer of Flame } ]
+    claims:
+      - text: "Flameblast is channelled and releases one large area explosion, suited to a clumped Breach pack."
+        cites: [ { kind: skill, id: Flameblast, quote: "Releasing the energy causes a devastating explosion that is larger and more intense the longer you Channel for." } ]
+      - text: "Bringer of Flame routes all damage into ignite, which is the declared source of the ignited condition."
+        cites: [ { kind: notable, id: Bringer of Flame, quote: "contributes to Flammability and Ignite Magnitudes" } ]
+    bases: { weapon: Attuned Wand, body_armour: Death Mantle }
+    source: llm
+  - name: "Amazon Whirlwind Lance"
+    archetype: { defence: evasion, engine: "thrown spear makes a whirlwind that is collapsed for area damage; open weakness on rares and bosses" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Amazon, level: 90, main_skill: { gem: Whirlwind Lance }, tiers: [mid],
+            fixed: { keystones: [], notables: [Predatory Instinct], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Predatory Instinct } ]
+    claims:
+      - text: "The lance leaves a whirlwind that slows enemies and then collapses for damage, so it pairs a control layer with clear."
+        cites: [ { kind: skill, id: Whirlwind Lance, quote: "Entering the Whirlwind collapses it, dealing damage and causing Knockback." } ]
+      - text: "Predatory Instinct reveals weaknesses on rare and unique enemies and boosts damage against them, which covers the boss and the rares in a Breach."
+        cites: [ { kind: notable, id: Predatory Instinct, quote: "50% more damage against enemies with an Open Weakness" } ]
+    bases: { weapon: Coursing Spear, body_armour: Corsair Coat }
+    source: llm
+  - name: "Tactician Ballista Battery"
+    archetype: { defence: armour, engine: "extra totems fire siege bolts faster; the player stands back" }
+    spec: { pob_sha: "601768b", class: Mercenary, ascendancy: Tactician, level: 90, main_skill: { gem: Siege Ballista }, tiers: [mid],
+            fixed: { keystones: [], notables: ["Cannons, Ready!"], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: "Cannons, Ready!" } ]
+    claims:
+      - text: "Siege Ballista is a crossbow totem whose bolts explode after landing, so damage is delivered by the totems rather than the player."
+        cites: [ { kind: skill, id: Siege Ballista, quote: "Deploy a Ballista Totem that fires bolts skyward, to explode a short time after landing." } ]
+      - text: "Cannons, Ready! adds totem capacity and totem speed."
+        cites: [ { kind: notable, id: "Cannons, Ready!", quote: "Skills used by Totems have 30% more Skill Speed" } ]
+    bases: { weapon: Dyad Crossbow, body_armour: Death Mail }
+    source: llm
+  - name: "Shaman Bear Fissures"
+    archetype: { defence: life, engine: "bear form pounds the ground and sends molten fissures in a wide arc; exposure on enemies in presence" }
+    spec: { pob_sha: "601768b", class: Druid, ascendancy: Shaman, level: 90, main_skill: { gem: Fury of the Mountain }, tiers: [mid],
+            fixed: { keystones: [], notables: [Turning of the Seasons], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Turning of the Seasons } ]
+    claims:
+      - text: "Fury of the Mountain pounds the ground repeatedly and the fissures spread in a wide arc, covering a pack in front of the player."
+        cites: [ { kind: skill, id: Fury of the Mountain, quote: "creating Molten Fissures that travel randomly in a wide arc in front of you" } ]
+      - text: "Turning of the Seasons gives enemies near the player exposure and adds extra elemental damage."
+        cites: [ { kind: notable, id: Turning of the Seasons, quote: "Enemies in your Presence have Exposure" } ]
+    bases: { weapon: Cruel Talisman, body_armour: Elegant Plate }
+    source: llm
+  - name: "Blood Mage Crit Bone Storm"
+    archetype: { defence: life, engine: "channelled bone spikes that explode; spells get a high base crit chance" }
+    spec: { pob_sha: "601768b", class: Witch, ascendancy: Blood Mage, level: 90, main_skill: { gem: Bonestorm }, tiers: [mid],
+            fixed: { keystones: [], notables: [Sunder the Flesh], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Sunder the Flesh } ]
+    claims:
+      - text: "Bonestorm is channelled, then releases a swarm that explodes and impales."
+        cites: [ { kind: skill, id: Bonestorm, quote: "Channel to conjure a swarm of bone spikes in the air, then release to fire them at enemies and explode." } ]
+      - text: "Sunder the Flesh gives spells a high base critical chance, which a no-gear screen would otherwise lack."
+        cites: [ { kind: notable, id: Sunder the Flesh, quote: "Base Critical Hit Chance for Spells is 15%" } ]
+    bases: { weapon: Attuned Wand, body_armour: Devout Garb }
+    source: llm

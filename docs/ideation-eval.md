@@ -56,3 +56,100 @@ Totals: 35/35 candidates passed the gate on the first submission; 0 PoE1 names r
 - I11 (done): per-candidate config conditions declared as `conditions: [...]` in the spec (table `conditions` in `data/config_profiles.yaml`), applied at assembly on top of the config profile and therefore in screen, ablation and the full run; conditional mods are measured instead of `possibly_unmodelled`. Declared conditions are assumptions and are printed per candidate in the slate report. Which conditions are fair per fight is for I13 to review.
 - I12: sweep probe seed with a plain weapon base (spec or sweep argument), so attack skills can be probed; runner accepts candidates with no searched slot.
 - Re-run this eval (same five prompts, `tools/eval_ideation.py`) after I8-I11; then tune `data/ideation.yaml`.
+
+## I13 re-run (2026-11-23, after I8-I12)
+
+Inputs and outputs: `evals/ideation2/` (`CLIENT_BRIEF.md` = the client protocol, `<p>/prompt.md` = rendered `ideate` text,
+`<p>/round*.yaml`, `final.yaml`, `notes.md`, `run/` = fresh slates; `<p>/frozen/` = the I7 final slates re-screened;
+`results.md` = gate table from `tools/eval_ideation.py`; `compare.py` = the table below; `runs.txt` = walls).
+
+Four arms, so engine changes and client changes can be told apart:
+- **I7**: the baseline above.
+- **A**: the I7 final slates, unchanged, screened on the I8-I12 engine (engine-only effect).
+- **A2**: the same slates on the I8-I13 engine (adds the fixes below).
+- **B**: five fresh Sonnet clients (same protocol as I7, `ideate` text after I11/I12: rule 6 conditions, sweep `weapon=`),
+  screened on the I8-I13 engine.
+Screens as in I7: `slate run --workers 2 --deepen-k 0`, sequential, 4 vCPU / 16 GB, 8.3-15.3 min per slate.
+
+| arm | candidates | key pieces confirmed (p1-p4) | confirmed (p5) | possibly_unmodelled / not_load_bearing / not_testable (all) | pack value present | rank 1 rests on a confirmed piece | rank 1 on an unlabelled >3x artefact | sweep-sourced | with declared conditions |
+|---|---|---|---|---|---|---|---|---|---|
+| I7 (baseline) | 35 | 2/43 (5%) | 3/7 | 19 / 20 / 6 | 8/35 | 3/5 | 1/5 | 0 | 0 |
+| A: I7 slates, I8-I12 engine | 35 | 3/43 (7%) | 5/7 | 17 / 25 / 0 | 8/35 | 1/5 | 0/5 | 0 | 0 |
+| A2: I7 slates, I8-I13 engine | 35 | 3/43 (7%) | 5/7 | 17 / 25 / 0 | 24/35 | 0/5 | 0/5 | 0 | 0 |
+| B: fresh slates, I8-I13 engine | 38 | 10/51 (20%) | 3/8 | 27 / 19 / 0 | 22/38 | 2/5 | 0/5 | 2 | 16 |
+
+Columns: share of all ablated key pieces that are `confirmed` (I7's "2 of 38" excluded 5 not_testable; here they count);
+"pack value present" = Breach clear proxy computed; "rank 1 rests on a confirmed piece" = the screen's top candidate has
+at least one `confirmed` key piece; "unlabelled artefact" = rank 1 with FullDPS > 3x TotalDPS and no audit label.
+
+Client side (B): 81-101k tokens, 2.1-3.4 min, 25-30 tool calls per slate (I7: 73-83k, 1.7-2.6 min, 16-22). Gate first
+pass 35/38: rejections were a number word in a claim (p3) and two ascendancy names typed squashed by the client
+("BloodMage", p5; resolve returns "Blood Mage", the error was the client's). Divergence held (7-8 distinct classes and
+main skills per slate, mean 4.8-5.4 differing fields of 6). 16 of 38 candidates declared conditions (ailments and
+charges only; none declared a trash condition).
+
+### Findings
+
+1. **Confirmation rate rose from 5% to 20% (p1-p4), but mostly through the client, not the engine.** On the frozen I7
+   slates the I8-I13 engine moved p1-p4 only from 2 to 3 confirmed (A, A2); p5 from 3/7 to 5/7 (ailment-aware metric:
+   Rake bleed). Fresh slates (B) reached 10/51: clients now pick key pieces with measurable stat text, give body armour,
+   and declare conditions. Declared conditions did not lift confirmation by themselves (6/25 with conditions, 7/34
+   without).
+2. **The largest remaining bucket is mechanics PoB does not compute** (27 `possibly_unmodelled` in B, all with
+   exactly zero damage and EHP change): charge consumption doubling (Thrilling Chase, One with the Storm), aftershock
+   chance (Earthbreaker), combo rules (Martial Master), infusion handling (Refracted Infusion, Everlasting Infusions),
+   minion/ally keystones (Ancestral Bond). The verdict is honest; the gap is engine coverage, not thresholds.
+3. **Ablation compared key supports with stand-ins that look free in PoB.** A: 20 key pieces read "removing it RAISES
+   the metric"; the stand-in was Fiery Death (10, triggered FullDPS artefact) or Zerphi's Infamy (5, a Glory requirement
+   PoB-PoE2 does not model). Fixed (I13): ablation gates triggered supports as the support search does, and supports
+   with an unmodelled use cost (Glory requirement; "can only be used after/while"; "cannot be used until": Hit and Run,
+   Ancestral Aid, Catharsis, Zerphi's Infamy) are left out of both. A2 and B ran before the use-condition half of this
+   fix: Hit and Run was still the stand-in for 8 (A2) and 4 (B) of the "RAISES" verdicts, so those 12 are undetermined,
+   not `not_load_bearing`.
+4. **Attacks had no Breach value.** PoB keeps `AverageHit` per hand for attacks and combines only `AverageDamage`
+   (CalcOffence `combineStat`), so every attack main skill had no pack value (8/35 present in A). Fixed (I13): attacks
+   use `AverageDamage` (expected damage per attack, misses included), labelled in the flags: 24/35 (A2), 22/38 (B).
+   Still missing: skills without an AoE radius (no coverage) and one candidate that failed to evaluate.
+5. **Ranking: artefacts are now labelled and ranked last** (I9): no rank 1 rests on an unlabelled artefact in A, A2 or
+   B (I7: p2's rank 1). Rank 1 still rests on an unconfirmed claim in 3 of 5 slates in B, and the Arbiter survival check
+   fails for most screened builds (32 of 38 in B; most of the rest are Breach-only briefs) because screens search weapon + body only, so the survival
+   gate does not discriminate and the boss rank is a DPS rank.
+6. **Engine sweeps now contribute**: 3 of 5 clients ran a sweep, 2 candidates came from sweep leads (p1 Constant Gale,
+   ranked 3/8 with both key pieces `confirmed`; p2 Avatar of Fire, ranked 2/7). Two keystone sweeps crashed (engine code
+   -9 in `_tree_alloc`): the retry on a fresh engine only ran when the sweep owned its engine, and the MCP job passes
+   its own. Fixed (I13): the dead engine is replaced either way. A direct re-run of the reproducer (Boneshatter, plain
+   mace, every keystone) peaked at 0.83 GB per allocation, so the runaway stays intermittent and run-dependent.
+
+### Declared conditions: which are fair per fight (judgement)
+
+Before I13 a declared condition held in every benchmark of the build, so a corpse or kill condition also lifted the lone
+Arbiter fight. Rule applied (I13): a condition is credited in a fight only where it can be near-permanent there.
+`data/config_profiles.yaml` gives each condition `fights` (absent = both); `benchmarks.evaluate` and the slate
+ablation switch the rest off (booleans false, numbers 0) and the result's flags name them.
+
+| condition | Arbiter of Ash (lone boss) | Breach T15+ (packs) | reason |
+|---|---|---|---|
+| power / frenzy / endurance charges, onslaught | yes, if the build has a generator | yes | depends on the source; the client must name it (rule 6) |
+| enemy shocked / chilled / ignited / bleeding / poisoned | yes, if the build applies it | yes | reapplied by the build's own hits |
+| ground shocked / chilled / scorched / brittle / sapped | yes, if the build creates it | yes | the boss stands in it as often as packs do |
+| hit_recently, crit_recently | yes | yes | continuous hitting |
+| corpses_nearby, killed_recently | **no** | yes | needs trash; Arbiter has none |
+| enemy_frozen, enemy_electrocuted, enemy_heavy_stunned (added I13) | **no** | yes | buildup states with short windows on a pinnacle boss; always-on overstates them |
+
+No client in B declared a pack-only condition, so this rule changed no B number; it closes the path for later slates.
+The fight's own condition stays the client's argument: nothing checks that a declared ailment is actually applied.
+
+### Thresholds (`data/ideation.yaml`): unchanged
+
+- `ablation_threshold` 0.10: confirmed deltas cluster from 0.103 upward, not-confirmed ones at 0.028-0.09; four pieces
+  sit within 0.03 of the line on each side and nothing marks which of them are truly load-bearing. No evidence for a move.
+- Gate thresholds: rejections were all genuine (number word, unresolved name); `max_kept` 8 was reached by three slates
+  but clients submitted 7-8, so it did not cut anything.
+
+### Remaining gaps (STATE.md)
+
+- I14: re-screen A2/B ablations after the use-condition gate (12 undetermined verdicts), cheap: ablation only.
+- I15: screens need defensive gear (or the standard floors) before the Arbiter survival check means anything.
+- I16: label `possibly_unmodelled` by cause where PoB has no model (charge consumption, aftershock, combo, infusions),
+  so the client is told to choose a measurable key piece instead.
+- Pack value for skills without an AoE radius; minion/ally keystones still unrankable.

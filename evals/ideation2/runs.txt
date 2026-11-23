@@ -1,0 +1,18 @@
+p1 frozen exit=0 wall_s=625
+p2 frozen exit=0 wall_s=920
+p3 frozen exit=0 wall_s=762
+p4 frozen exit=0 wall_s=715
+p5 frozen exit=0 wall_s=511
+ARMA_DONE
+p1 fresh exit=0 wall_s=680
+p2 fresh exit=0 wall_s=845
+p3 fresh exit=0 wall_s=667
+p4 fresh exit=0 wall_s=674
+p5 fresh exit=0 wall_s=495
+ARMB_DONE
+p1 frozen_i13 exit=0 wall_s=567
+p2 frozen_i13 exit=0 wall_s=831
+p3 frozen_i13 exit=0 wall_s=735
+p4 frozen_i13 exit=0 wall_s=690
+p5 frozen_i13 exit=0 wall_s=520
+ARMA2_DONE
