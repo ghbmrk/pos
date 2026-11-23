@@ -20,6 +20,7 @@
 <!-- id · state · owner thread -->
 - D1 · standing · Decisions 1 (cmsg_01RxGYnd78N9kMbbAJ5pWDhULpAd6m9DDdnmdwnR4WgH67)
 - A1 · retired · Alerts 1 (blockers go to Decisions)
+- T1 · exploration done, decision pending (Fable review, then card) · currency trading automation: line at tier 1 (public data + manual execution), reuse POE2MarketMCP, no POESESSID/whispers; docs/trading.md · thread "Explore automated trading for currency"
 - Q1 · standing · Questions 1 (Opus)
 - S2 · done (PR open) · re-pin spike: result STAY ON FORK; engine layer in pos_engine/, PoB-PoE2 submodule at 601768b, zero patches; docs/engine-fork.md · thread "Test updating the PoB engine fork"
 - R1 · done · ghbmrk/pos scaffolded (README, .gitignore), STATE.md moved into repo · thread "Set up the pos repo"
