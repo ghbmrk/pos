@@ -1,0 +1,779 @@
+{
+ "source": "poe.ninja build-index-state",
+ "fetched": "2026-11-23",
+ "url": "https://poe.ninja/{game}/api/data/build-index-state",
+ "games": {
+  "poe1": [
+   {
+    "leagueName": "Covens",
+    "leagueUrl": "covens",
+    "total": 124348,
+    "status": 0,
+    "hardcore": false,
+    "statistics": [
+     {
+      "class": "Chieftain",
+      "skill": "Righteous Fire",
+      "percentage": 5.122080679405521,
+      "trend": 1
+     },
+     {
+      "class": "Slayer",
+      "skill": "Cyclone of Tumult",
+      "percentage": 3.5031847133757963,
+      "trend": 1
+     },
+     {
+      "class": "Chieftain",
+      "skill": "Scorching Ray of Immolation",
+      "percentage": 3.2763945184327348,
+      "trend": 1
+     },
+     {
+      "class": "Hierophant",
+      "skill": "Storm Burst of Repulsion",
+      "percentage": 3.161390979862318,
+      "trend": -1
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Animate Weapon of Ranged Arms",
+      "percentage": 2.9683780479958823,
+      "trend": -1
+     },
+     {
+      "class": "Slayer",
+      "skill": "Void Shockwave",
+      "percentage": 2.7978832915138647,
+      "trend": 1
+     },
+     {
+      "class": "Elementalist",
+      "skill": "Lightning Tendrils of Eccentricity",
+      "percentage": 2.504342790966995,
+      "trend": 1
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Raise Spectre",
+      "percentage": 2.4617191018464903,
+      "trend": 1
+     },
+     {
+      "class": "Elementalist",
+      "skill": "Ethereal Knives of the Massacre",
+      "percentage": 2.3499324454738466,
+      "trend": 1
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Animate Guardian",
+      "percentage": 2.167374380750177,
+      "trend": -1
+     }
+    ]
+   },
+   {
+    "leagueName": "Hardcore Covens",
+    "leagueUrl": "covenshc",
+    "total": 9837,
+    "status": 0,
+    "hardcore": true,
+    "statistics": [
+     {
+      "class": "Chieftain",
+      "skill": "Righteous Fire",
+      "percentage": 7.604483083691211,
+      "trend": 1
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Animate Weapon of Ranged Arms",
+      "percentage": 3.5089556928878185,
+      "trend": 1
+     },
+     {
+      "class": "Juggernaut",
+      "skill": "Boneshatter of Complex Trauma",
+      "percentage": 3.414685241437101,
+      "trend": 1
+     },
+     {
+      "class": "Chieftain",
+      "skill": "Fire Trap",
+      "percentage": 2.9642819733947836,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Static Strike",
+      "percentage": 2.9223839949722428,
+      "trend": 1
+     },
+     {
+      "class": "Berserker",
+      "skill": "Earthshatter",
+      "percentage": 2.901435005760972,
+      "trend": 1
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Absolution",
+      "percentage": 2.314863307845396,
+      "trend": 1
+     },
+     {
+      "class": "Juggernaut",
+      "skill": "Sunder",
+      "percentage": 2.115847910338326,
+      "trend": -1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Shockwave",
+      "percentage": 1.7597150937467265,
+      "trend": 1
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Summon Raging Spirit",
+      "percentage": 1.7282916099298207,
+      "trend": 1
+     }
+    ]
+   },
+   {
+    "leagueName": "SSF Covens",
+    "leagueUrl": "covensssf",
+    "total": 16679,
+    "status": 0,
+    "hardcore": false,
+    "statistics": [
+     {
+      "class": "Hierophant",
+      "skill": "Storm Burst of Repulsion",
+      "percentage": 7.054706207404679,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Static Strike",
+      "percentage": 6.066187757106896,
+      "trend": 1
+     },
+     {
+      "class": "Chieftain",
+      "skill": "Righteous Fire",
+      "percentage": 5.323263952845828,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Shockwave",
+      "percentage": 4.426843494811813,
+      "trend": 1
+     },
+     {
+      "class": "Elementalist",
+      "skill": "Incinerate of Venting",
+      "percentage": 3.683919690550746,
+      "trend": 1
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Animate Weapon of Ranged Arms",
+      "percentage": 3.536562902928716,
+      "trend": 1
+     },
+     {
+      "class": "Berserker",
+      "skill": "Earthshatter",
+      "percentage": 2.8550377601768284,
+      "trend": 1
+     },
+     {
+      "class": "Hierophant",
+      "skill": "Storm Burst",
+      "percentage": 2.130533554368515,
+      "trend": -1
+     },
+     {
+      "class": "Juggernaut",
+      "skill": "Boneshatter of Complex Trauma",
+      "percentage": 1.9463375698409775,
+      "trend": 1
+     },
+     {
+      "class": "Slayer",
+      "skill": "Cyclone",
+      "percentage": 1.7867010499171116,
+      "trend": 1
+     }
+    ]
+   },
+   {
+    "leagueName": "HC SSF Covens",
+    "leagueUrl": "covenshcssf",
+    "total": 5336,
+    "status": 0,
+    "hardcore": true,
+    "statistics": [
+     {
+      "class": "Chieftain",
+      "skill": "Righteous Fire",
+      "percentage": 5.739164852562834,
+      "trend": 1
+     },
+     {
+      "class": "Juggernaut",
+      "skill": "Boneshatter of Complex Trauma",
+      "percentage": 3.107065109835741,
+      "trend": 1
+     },
+     {
+      "class": "Berserker",
+      "skill": "Earthshatter",
+      "percentage": 3.067484662576687,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Static Strike",
+      "percentage": 2.7310508608747277,
+      "trend": 1
+     },
+     {
+      "class": "Hierophant",
+      "skill": "Storm Burst",
+      "percentage": 2.3154561646546603,
+      "trend": 1
+     },
+     {
+      "class": "Berserker",
+      "skill": "Sunder",
+      "percentage": 2.3154561646546603,
+      "trend": 1
+     },
+     {
+      "class": "Hierophant",
+      "skill": "Storm Burst of Repulsion",
+      "percentage": 2.2758757173956066,
+      "trend": 1
+     },
+     {
+      "class": "Chieftain",
+      "skill": "Fire Trap",
+      "percentage": 2.1571343756184445,
+      "trend": 1
+     },
+     {
+      "class": "Juggernaut",
+      "skill": "Sunder",
+      "percentage": 2.0977637047298634,
+      "trend": 1
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Absolution",
+      "percentage": 2.0581832574708097,
+      "trend": 1
+     }
+    ]
+   },
+   {
+    "leagueName": "Ruthless Covens",
+    "leagueUrl": "covensr",
+    "total": 886,
+    "status": 0,
+    "hardcore": false,
+    "statistics": [
+     {
+      "class": "Necromancer",
+      "skill": "Animate Weapon of Ranged Arms",
+      "percentage": 2.5791324736225087,
+      "trend": 1
+     },
+     {
+      "class": "Chieftain",
+      "skill": "Righteous Fire",
+      "percentage": 1.875732708089097,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Absolution",
+      "percentage": 1.5240328253223916,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Dominating Blow of Inspiring",
+      "percentage": 1.2895662368112544,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Static Strike",
+      "percentage": 0.9378663540445485,
+      "trend": 0
+     },
+     {
+      "class": "Pathfinder",
+      "skill": "Poisonous Concoction of Bouncing",
+      "percentage": 0.8206330597889802,
+      "trend": 1
+     },
+     {
+      "class": "Berserker",
+      "skill": "Sunder",
+      "percentage": 0.7033997655334115,
+      "trend": 0
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Summon Raging Spirit",
+      "percentage": 0.7033997655334115,
+      "trend": -1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Shockwave",
+      "percentage": 0.5861664712778429,
+      "trend": 0
+     },
+     {
+      "class": "Deadeye",
+      "skill": "Elemental Hit of the Spectrum",
+      "percentage": 0.5861664712778429,
+      "trend": 1
+     }
+    ]
+   },
+   {
+    "leagueName": "SSF R Covens",
+    "leagueUrl": "covensssfr",
+    "total": 788,
+    "status": 0,
+    "hardcore": false,
+    "statistics": [
+     {
+      "class": "Necromancer",
+      "skill": "Summon Raging Spirit",
+      "percentage": 1.1523687580025608,
+      "trend": 1
+     },
+     {
+      "class": "Necromancer",
+      "skill": "Animate Weapon of Ranged Arms",
+      "percentage": 1.0243277848911652,
+      "trend": 1
+     },
+     {
+      "class": "Pathfinder",
+      "skill": "Poisonous Concoction of Bouncing",
+      "percentage": 1.0243277848911652,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Dominating Blow of Inspiring",
+      "percentage": 1.0243277848911652,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Static Strike",
+      "percentage": 0.8962868117797695,
+      "trend": 0
+     },
+     {
+      "class": "Guardian",
+      "skill": "Summon Raging Spirit",
+      "percentage": 0.8962868117797695,
+      "trend": 1
+     },
+     {
+      "class": "Guardian",
+      "skill": "Absolution",
+      "percentage": 0.7682458386683738,
+      "trend": 0
+     },
+     {
+      "class": "Chieftain",
+      "skill": "Fire Trap",
+      "percentage": 0.6402048655569782,
+      "trend": -1
+     },
+     {
+      "class": "Chieftain",
+      "skill": "Righteous Fire",
+      "percentage": 0.6402048655569782,
+      "trend": 0
+     },
+     {
+      "class": "Berserker",
+      "skill": "Sunder",
+      "percentage": 0.6402048655569782,
+      "trend": 1
+     }
+    ]
+   }
+  ],
+  "poe2": [
+   {
+    "leagueName": "Forbidden Rites",
+    "leagueUrl": "forbiddenrites",
+    "total": 124102,
+    "status": 0,
+    "hardcore": false,
+    "statistics": [
+     {
+      "class": "Gemling Legionnaire",
+      "percentage": 31.916556547523122,
+      "trend": -1
+     },
+     {
+      "class": "Martial Artist",
+      "percentage": 10.698746253263288,
+      "trend": 1
+     },
+     {
+      "class": "Oracle",
+      "percentage": 7.291230218841655,
+      "trend": 1
+     },
+     {
+      "class": "Disciple of Varashta",
+      "percentage": 7.222741483224289,
+      "trend": 1
+     },
+     {
+      "class": "Spirit Walker",
+      "percentage": 6.878686305475876,
+      "trend": 1
+     },
+     {
+      "class": "Deadeye",
+      "percentage": 6.057627227898283,
+      "trend": -1
+     },
+     {
+      "class": "Infernalist",
+      "percentage": 5.744190543719986,
+      "trend": 1
+     },
+     {
+      "class": "Stormweaver",
+      "percentage": 3.4252425306990686,
+      "trend": 1
+     },
+     {
+      "class": "Titan",
+      "percentage": 2.8169014084507045,
+      "trend": 1
+     },
+     {
+      "class": "Blood Mage",
+      "percentage": 2.694427434170239,
+      "trend": -1
+     }
+    ]
+   },
+   {
+    "leagueName": "Runes of Aldur",
+    "leagueUrl": "runesofaldur",
+    "total": 124154,
+    "status": 0,
+    "hardcore": false,
+    "statistics": [
+     {
+      "class": "Spirit Walker",
+      "percentage": 28.40878897915476,
+      "trend": -1
+     },
+     {
+      "class": "Martial Artist",
+      "percentage": 19.50628416840444,
+      "trend": -1
+     },
+     {
+      "class": "Gemling Legionnaire",
+      "percentage": 9.916184249724237,
+      "trend": 1
+     },
+     {
+      "class": "Deadeye",
+      "percentage": 5.455672659640422,
+      "trend": 1
+     },
+     {
+      "class": "Infernalist",
+      "percentage": 5.161794188452589,
+      "trend": 1
+     },
+     {
+      "class": "Disciple of Varashta",
+      "percentage": 4.685147462580817,
+      "trend": -1
+     },
+     {
+      "class": "Oracle",
+      "percentage": 4.22862939911917,
+      "trend": 0
+     },
+     {
+      "class": "Stormweaver",
+      "percentage": 2.8373362533312934,
+      "trend": 1
+     },
+     {
+      "class": "Titan",
+      "percentage": 2.6110900878414824,
+      "trend": 1
+     },
+     {
+      "class": "Blood Mage",
+      "percentage": 2.218178597595833,
+      "trend": 0
+     }
+    ]
+   },
+   {
+    "leagueName": "HC Forbidden Rites",
+    "leagueUrl": "forbiddenriteshc",
+    "total": 6388,
+    "status": 0,
+    "hardcore": true,
+    "statistics": [
+     {
+      "class": "Gemling Legionnaire",
+      "percentage": 20.6734534064213,
+      "trend": 1
+     },
+     {
+      "class": "Disciple of Varashta",
+      "percentage": 15.974941268598277,
+      "trend": 1
+     },
+     {
+      "class": "Martial Artist",
+      "percentage": 12.216131558339859,
+      "trend": 1
+     },
+     {
+      "class": "Spirit Walker",
+      "percentage": 10.837901331245106,
+      "trend": 1
+     },
+     {
+      "class": "Oracle",
+      "percentage": 4.463586530931871,
+      "trend": 0
+     },
+     {
+      "class": "Deadeye",
+      "percentage": 4.166014095536413,
+      "trend": 1
+     },
+     {
+      "class": "Titan",
+      "percentage": 4.009397024275646,
+      "trend": -1
+     },
+     {
+      "class": "Lich",
+      "percentage": 3.821456538762725,
+      "trend": 1
+     },
+     {
+      "class": "Chronomancer",
+      "percentage": 2.6938136256851997,
+      "trend": 1
+     },
+     {
+      "class": "Infernalist",
+      "percentage": 2.615505090054816,
+      "trend": 1
+     }
+    ]
+   },
+   {
+    "leagueName": "SSF Forbidden Rites",
+    "leagueUrl": "forbiddenritesssf",
+    "total": 8219,
+    "status": 0,
+    "hardcore": false,
+    "statistics": [
+     {
+      "class": "Gemling Legionnaire",
+      "percentage": 19.491939423546654,
+      "trend": 1
+     },
+     {
+      "class": "Disciple of Varashta",
+      "percentage": 14.215925744992672,
+      "trend": 1
+     },
+     {
+      "class": "Martial Artist",
+      "percentage": 12.066438690766976,
+      "trend": 1
+     },
+     {
+      "class": "Spirit Walker",
+      "percentage": 9.50170981924768,
+      "trend": 1
+     },
+     {
+      "class": "Deadeye",
+      "percentage": 7.217879824132877,
+      "trend": 1
+     },
+     {
+      "class": "Oracle",
+      "percentage": 5.679042501221299,
+      "trend": 1
+     },
+     {
+      "class": "Titan",
+      "percentage": 4.592085979482169,
+      "trend": 1
+     },
+     {
+      "class": "Lich",
+      "percentage": 3.1753786028334146,
+      "trend": 1
+     },
+     {
+      "class": "Smith of Kitava",
+      "percentage": 2.6257938446507083,
+      "trend": 0
+     },
+     {
+      "class": "Infernalist",
+      "percentage": 2.4303859306301905,
+      "trend": 1
+     }
+    ]
+   },
+   {
+    "leagueName": "SSF Runes of Aldur",
+    "leagueUrl": "runesofaldurssf",
+    "total": 27309,
+    "status": 0,
+    "hardcore": false,
+    "statistics": [
+     {
+      "class": "Martial Artist",
+      "percentage": 16.525625526614647,
+      "trend": 1
+     },
+     {
+      "class": "Spirit Walker",
+      "percentage": 14.301937941898377,
+      "trend": 1
+     },
+     {
+      "class": "Gemling Legionnaire",
+      "percentage": 9.198813056379821,
+      "trend": 1
+     },
+     {
+      "class": "Disciple of Varashta",
+      "percentage": 8.55039015276404,
+      "trend": 1
+     },
+     {
+      "class": "Deadeye",
+      "percentage": 7.524636406931165,
+      "trend": 1
+     },
+     {
+      "class": "Oracle",
+      "percentage": 6.75165769132139,
+      "trend": 1
+     },
+     {
+      "class": "Titan",
+      "percentage": 4.494999450489065,
+      "trend": 1
+     },
+     {
+      "class": "Lich",
+      "percentage": 4.114005202036854,
+      "trend": 1
+     },
+     {
+      "class": "Witchhunter",
+      "percentage": 3.8612301718137525,
+      "trend": 0
+     },
+     {
+      "class": "Tactician",
+      "percentage": 3.4765725171264243,
+      "trend": 1
+     }
+    ]
+   },
+   {
+    "leagueName": "HC SSF Forbidden Rites",
+    "leagueUrl": "forbiddenriteshcssf",
+    "total": 3720,
+    "status": 0,
+    "hardcore": true,
+    "statistics": [
+     {
+      "class": "Gemling Legionnaire",
+      "percentage": 16.38858988159311,
+      "trend": -1
+     },
+     {
+      "class": "Disciple of Varashta",
+      "percentage": 15.177610333692144,
+      "trend": 1
+     },
+     {
+      "class": "Martial Artist",
+      "percentage": 12.029063509149623,
+      "trend": 1
+     },
+     {
+      "class": "Spirit Walker",
+      "percentage": 9.930032292787944,
+      "trend": 1
+     },
+     {
+      "class": "Titan",
+      "percentage": 5.489773950484392,
+      "trend": 1
+     },
+     {
+      "class": "Smith of Kitava",
+      "percentage": 5.301399354144241,
+      "trend": 1
+     },
+     {
+      "class": "Lich",
+      "percentage": 4.628632938643703,
+      "trend": 1
+     },
+     {
+      "class": "Deadeye",
+      "percentage": 4.171151776103337,
+      "trend": 1
+     },
+     {
+      "class": "Oracle",
+      "percentage": 3.9020452099031218,
+      "trend": 1
+     },
+     {
+      "class": "Chronomancer",
+      "percentage": 2.63724434876211,
+      "trend": 0
+     }
+    ]
+   }
+  ]
+ }
+}
