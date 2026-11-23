@@ -269,6 +269,11 @@ def _run(argv: list[str]) -> int:
     ap.add_argument("--preflight", action="store_true", help="print the cost estimate and exit")
     ap.add_argument("--realloc-rounds", type=int, default=DEFAULT_REALLOC_ROUNDS, help="0 = cheap gear mode (about 2.3x faster, weaker)")
     ap.add_argument("--out", default=None, help="directory for run.json and cache.sqlite")
+    ap.add_argument("--rounds", type=int, default=1, help="improvement rounds (L3): re-search supports, tree and gear from the geared build "
+                    "until a round gains < --min-gain or this many rounds ran; 1 = single pass")
+    ap.add_argument("--min-gain", type=float, default=0.01, help="stop the loop when a round gains less than this fraction of the objective")
+    ap.add_argument("--loop-minutes", type=float, default=None, help="wall-clock budget per seed x tier for the loop")
+    ap.add_argument("--tree-warm", action="store_true", help="loop tree move keeps the current tree (reset=False) instead of re-planning it")
     ap.add_argument("--assumed", action="store_true", help="allow a spec with companion.assumed (ASSUMED Squire what-if, docs/squire-assumed.md)")
     a = ap.parse_args(argv)
     bases = dict(x.split("=", 1) for x in a.bases if "=" in x)
@@ -286,7 +291,7 @@ def _run(argv: list[str]) -> int:
     if not bases and not a.preflight:
         print("no bases given (slot=Base ...): gear search needs one per slot"); return 2
     kw = dict(metric=rep.metric, slots=gear_slot_count(spec, bases), workers=a.workers, realloc_rounds=a.realloc_rounds,
-              max_minutes=a.max_minutes, log=print)
+              max_minutes=a.max_minutes, rounds=a.rounds, loop_minutes=a.loop_minutes, log=print)
     try:
         if a.preflight:
             r = run(spec, None, skill_id="", dry_run=True, force=True, **kw)  # type: ignore[arg-type]
@@ -299,7 +304,8 @@ def _run(argv: list[str]) -> int:
             Path(a.out).mkdir(parents=True, exist_ok=True)
         meta = {"metric_note": rep.metric_note, "limitations": [f"[{i.confidence or i.severity}] {i.message}" for i in rep.issues if i.code == "limitation"]}
         with engine_stages(spec, cat, rep, bases, workers=a.workers, cache=cache, realloc_rounds=a.realloc_rounds,
-                           objective=not a.no_objective, hard_ttk=a.hard_ttk) as (st, skill_of):
+                           objective=not a.no_objective, hard_ttk=a.hard_ttk, tree_reset=not a.tree_warm,
+                           min_gain=a.min_gain) as (st, skill_of):
             r = run(spec, st, skill_id=skill_of, force=a.force, allow_assumed=a.assumed, out_dir=a.out, meta=meta, **kw)
     except RunRefused as e:
         print(f"refused: {e}"); return 3

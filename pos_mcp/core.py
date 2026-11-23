@@ -101,7 +101,7 @@ def _bases(bases: dict[str, str]) -> tuple[dict[str, str], str | None]:
 
 
 def preflight(spec: str | dict, bases: dict[str, str] | None = None, workers: int | None = None,
-              realloc_rounds: int | None = None, max_minutes: float | None = None) -> dict:
+              realloc_rounds: int | None = None, max_minutes: float | None = None, rounds: int = 1) -> dict:
     """Cost estimate without running. Also validates the spec."""
     from pos_pipeline.orchestrate import DEFAULT_MAX_MINUTES, DEFAULT_REALLOC_ROUNDS, gear_slot_count, run
 
@@ -114,7 +114,7 @@ def preflight(spec: str | dict, bases: dict[str, str] | None = None, workers: in
         return {"ok": False, "error": err}
     r = run(s, None, skill_id="", dry_run=True, force=True, metric=v["metric"], slots=gear_slot_count(s, b),  # type: ignore[arg-type]
             workers=workers or os.cpu_count() or 1, realloc_rounds=DEFAULT_REALLOC_ROUNDS if realloc_rounds is None else realloc_rounds,
-            max_minutes=DEFAULT_MAX_MINUTES if max_minutes is None else max_minutes)
+            max_minutes=DEFAULT_MAX_MINUTES if max_minutes is None else max_minutes, rounds=rounds)
     e = r.estimate
     return {"ok": True, "summary": e.summary(), "over_cap": e.over_cap, "rate_sources": list(e.sources),
             "warnings": [i for i in v["issues"] if i["severity"] != "error"]}
@@ -136,10 +136,10 @@ def _active() -> list[str]:
 
 
 def start_run(spec: str | dict, bases: dict[str, str], *, workers: int | None = None, realloc_rounds: int | None = None,
-              max_minutes: float | None = None, force: bool = False, allow_assumed: bool = False) -> dict:
+              max_minutes: float | None = None, force: bool = False, allow_assumed: bool = False, rounds: int = 1) -> dict:
     """Validate, check the cost cap, then start the run as a background process. Returns a run id at once.
     A spec with `companion.assumed` (ASSUMED Squire what-if) runs only with allow_assumed=True."""
-    pf = preflight(spec, bases, workers, realloc_rounds, max_minutes)
+    pf = preflight(spec, bases, workers, realloc_rounds, max_minutes, rounds)
     if not pf["ok"]:
         return pf
     sc = ((_spec_from(spec).companion.assumed if _spec_from(spec).companion else None) or {}).get("scenario")
@@ -154,7 +154,7 @@ def start_run(spec: str | dict, bases: dict[str, str], *, workers: int | None = 
     b, _ = _bases(bases)
     extra = (["--workers", str(workers)] if workers else []) + (["--realloc-rounds", str(realloc_rounds)] if realloc_rounds is not None else []) \
         + (["--max-minutes", str(max_minutes)] if max_minutes is not None else []) + (["--force"] if force else []) \
-        + (["--assumed"] if sc else [])
+        + (["--assumed"] if sc else []) + (["--rounds", str(rounds)] if rounds > 1 else [])
     return _launch("run", "spec.yaml", _plain(spec), lambda d: ["-m", "pos_pipeline", "run", str(d / "spec.yaml"),
                    *[f"{k}={v}" for k, v in b.items()], "--out", str(d), *extra], pf["summary"], {"tiers": s.tiers, **({"assumed": sc} if sc else {})})
 

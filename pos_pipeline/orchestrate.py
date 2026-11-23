@@ -55,7 +55,7 @@ class Estimate:
 
 
 def estimate(seeds: int, tiers: int, slots: int, workers: int, *, realloc_rounds: int = DEFAULT_REALLOC_ROUNDS,
-             max_minutes: float = DEFAULT_MAX_MINUTES, rates: Mapping[str, Any] | None = None) -> Estimate:
+             max_minutes: float = DEFAULT_MAX_MINUTES, rates: Mapping[str, Any] | None = None, loop_rounds: int = 1) -> Estimate:
     """Cost of a run from measured rates (`data/rates.yaml`). Tree seeds run one per core, so the tree stage's wall
     time is ceil(seeds/workers) x per-seed time; the other stages share all workers."""
     r = rates or load_rates()
@@ -71,8 +71,11 @@ def estimate(seeds: int, tiers: int, slots: int, workers: int, *, realloc_rounds
     tree_wall = math.ceil(seeds / w) * r["tree"]["core_s_per_seed"] if seeds else 0.0
     gear = seeds * tiers * slots * g_core
     by = {"assemble": asm / w, "supports": sup / w, "tree": tree_wall, "gear": gear / w}
+    if loop_rounds > 1:   # L3 upper bound: each extra round re-runs supports, tree and gear per seed x tier; it usually stops earlier
+        extra = loop_rounds - 1
+        by["loop (max)"] = extra * (sup / w + tiers * tree_wall + gear / w)
     evals = seeds * (r["supports"]["evals_per_seed"] + r["tree"]["evals_per_seed"]) + seeds * tiers * slots * g_evals
-    return Estimate(seeds, tiers, slots, int(evals), asm + sup + seeds * r["tree"]["core_s_per_seed"] + gear,
+    return Estimate(seeds, tiers, slots, int(evals), (asm + sup + seeds * r["tree"]["core_s_per_seed"] + gear) * max(1, loop_rounds),
                     sum(by.values()), max_minutes * 60, w, by,
                     [f"{k}: {v['source']}" for k, v in {**{n: r[n] for n in ("assemble", "supports", "tree")}, "gear": g}.items()])
 
@@ -94,6 +97,9 @@ class Stages:
     stats: Callable[[str, dict], dict] | None = None
     # optional (K2): `actor(xml, variant) -> actors.Combined` for the spec's companion (effects, blend, combined metric)
     actor: Callable[[str, dict], Any] | None = None
+    # optional (L3): `improve(xml, tier, variant, rounds, budget_s, trace) -> obj(loop: loop.LoopResult, gear: last kept gear search | None)`
+    # re-searches supports / tree / gear round-robin from the geared build and keeps the best by the benchmark objective
+    improve: Callable[..., Any] | None = None
 
 
 @dataclass
@@ -113,6 +119,7 @@ class TierRun:
     stats: dict[str, Any] = field(default_factory=dict)      # PoB outputs of the final build (REPORT_KEYS)
     bench: dict[str, dict] = field(default_factory=dict)     # benchmark id -> BossResult/PackResult as dict, or {"error": ...}
     unparsed: list[str] = field(default_factory=list)        # mod ids / lines PoB could not parse (candidates rejected)
+    loop: dict[str, Any] = field(default_factory=dict)       # L3 inner-loop digest (rounds, kept moves, stop reason, trace)
     actor: dict[str, Any] = field(default_factory=dict)      # companion result (K2): main, companion, total, without_companion, effects, blended
 
 
@@ -192,10 +199,17 @@ def actor_dict(c) -> dict:
                       "blended": c.blended, "assumed": getattr(c, "assumed", None), "survival": getattr(c, "survival", None), "effects": [{"id": e.id, "uptime": e.uptime, "options": e.options, "source": e.source} for e in c.effects]})
 
 
+def _with_xml(g, xml: str):
+    """The gear result with the loop's final build (companion, benchmarks and stats read the build, not the gear object)."""
+    from dataclasses import is_dataclass, replace
+    return replace(g, xml=xml) if is_dataclass(g) else type("G", (), {**vars(g), "xml": xml})()
+
+
 # ---- the loop ---------------------------------------------------------------------------------------------
 def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id: str | Callable[[dict], str],
         realloc_rounds: int = DEFAULT_REALLOC_ROUNDS, max_minutes: float = DEFAULT_MAX_MINUTES, force: bool = False,
-        dry_run: bool = False, allow_assumed: bool = False, benchmarks: Sequence[str] = (), meta: Mapping[str, Any] | None = None, out_dir: str | Path | None = None, log: Callable[[str], None] = lambda s: None) -> RunResult:
+        dry_run: bool = False, allow_assumed: bool = False, benchmarks: Sequence[str] = (), meta: Mapping[str, Any] | None = None, out_dir: str | Path | None = None, rounds: int = 1, loop_minutes: float | None = None,
+        log: Callable[[str], None] = lambda s: None) -> RunResult:
     """Per seed (axis combination): assemble -> supports -> tree, once; then per tier: gear.
 
     Supports are searched on the ungeared seed (G5 measured it that way): picks made before gear exists can differ
@@ -211,7 +225,7 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
         if not dry_run and stages.actor is None:
             raise actors.ActorUnavailable(spec.companion.kind, ["no actor stage supplied to run()"])
     vs = variants(spec)
-    est = estimate(len(vs), len(tiers), slots, workers, realloc_rounds=realloc_rounds, max_minutes=max_minutes)
+    est = estimate(len(vs), len(tiers), slots, workers, realloc_rounds=realloc_rounds, max_minutes=max_minutes, loop_rounds=rounds)
     log(est.summary())
     if est.over_cap and not force:
         raise RunRefused(est)
@@ -276,6 +290,25 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
                      for sl, c in g.items.items()}
             tr = TierRun(t, True, g.value, g.baseline, g.floors_met, getattr(g.price, "label", None), g.evals,
                          items, 0.0, g.xml, list(g.notes), unparsed=list(getattr(g, "rejected_unparsed", []) or []))
+            if rounds > 1 and stages.improve is not None:
+                try:   # L3: round-robin re-search from the geared build; never worse than `g` on the benchmark objective
+                    trace = Path(out_dir) / "trace.jsonl" if out_dir else None
+                    if trace:
+                        trace.parent.mkdir(parents=True, exist_ok=True)
+                    imp = stages.improve(g.xml, t, s.variant, rounds, loop_minutes * 60 if loop_minutes else None, trace)
+                    tr.loop = _jsonable({**imp.loop.summary(), "trace": str(trace) if trace else None})
+                    if imp.loop.xml != g.xml:
+                        gl = imp.gear
+                        if gl is not None:
+                            tr.items = {sl: (c.unique or ", ".join(f"{a.group} r{a.rank}" for a in c.affixes) or "(no affixes)") + f" [{c.base}]"
+                                        for sl, c in gl.items.items()}
+                            tr.price, tr.evals = getattr(gl.price, "label", tr.price), tr.evals + gl.evals
+                        tr.xml = g_xml = imp.loop.xml
+                        tr.value = float(stages.stats(g_xml, s.variant).get(metric) or tr.value or 0.0) if stages.stats else tr.value
+                        tr.notes.append(f"loop: {len(imp.loop.rounds)} round(s), stop {imp.loop.stop}, objective gain {imp.loop.gain:+.1%}")
+                        g = _with_xml(g, g_xml)
+                except Exception as ex:   # a failed loop keeps the single-pass result
+                    tr.notes.append(f"loop failed, single-pass result kept: {type(ex).__name__}: {ex}")
             tr.stats = _jsonable(stages.stats(g.xml, s.variant) if stages.stats else getattr(g, "stats", {}) or {})
             if stages.actor is not None and getattr(spec, "companion", None) is not None:
                 try:
@@ -309,7 +342,8 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
 # ---- real stages ------------------------------------------------------------------------------------------
 def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cache: str | Path | None = None,
                   realloc_rounds: int = DEFAULT_REALLOC_ROUNDS, floors: Mapping[str, Any] | None = None, tree_caps: Sequence[int] | None = None,
-                  benchmarks: Sequence[str] | None = None, objective: bool = True, hard_ttk: bool = False):
+                  benchmarks: Sequence[str] | None = None, objective: bool = True, hard_ttk: bool = False,
+                  tree_reset: bool = True, min_gain: float | None = None):
     """Context manager yielding (Stages, skill_id_fn). Owns one PobEngine and one EnginePool."""
     from contextlib import contextmanager
 
@@ -451,11 +485,50 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                         c.survival = {"TotalEHP": out["on"], "TotalEHP_without": out["off"]}
                     return c
 
+            def improve(xml, tier, variant, rounds, budget_s, trace):
+                """L3 inner loop: supports -> tree -> gear round-robin from the geared build, each result kept only if the
+                benchmark objective improves (docs/loop.md 2.3)."""
+                from types import SimpleNamespace
+                from .loop import DEFAULT_MIN_GAIN, Move, improve as run_loop
+                if assumed is not None and comp.gear:
+                    raise NotImplementedError("the loop does not yet search the assumed companion's gear; run with rounds=1")
+                sk = skill_of(variant)
+                state: dict[str, Any] = {"pending": None, "kept": None}
+                keyer = GearSearcher(cat, pool, eng, metric=rep.metric, floors=fl, objective=obj)
+
+                def m_supports(x):
+                    r = search_supports(cat, pool, x, sk, fixed, rep.metric, allow_triggered=allow, objective=obj)
+                    return apply_supports(x, sk, r.best.supports)
+
+                def m_tree(x):
+                    r = search_trees([x], rep.metric, workers=1, require=require, caps=tuple(tree_caps or DEFAULT_CAPS),
+                                     reset=tree_reset)[0]
+                    if not r.ok:
+                        raise RuntimeError(r.error)
+                    return r.xml
+
+                def m_gear(x):
+                    b = dict(bases)
+                    wb = variant.get("weapon_base")
+                    if wb and cat.resolve("base", wb).entry is not None:
+                        b["weapon"] = cat.resolve("base", wb).entry["name"]
+                    g = search_gear(cat, pool, eng, x, tier, b, rep.metric, slots=tuple(b), floors=fl,
+                                    realloc_rounds=realloc_rounds, objective=obj)
+                    state["pending"] = g
+                    return g.xml
+
+                moves = [Move("supports", m_supports), Move("tree", m_tree),
+                         Move("gear", m_gear, on_accept=lambda _x: state.update(kept=state["pending"]))]
+                lr = run_loop(xml, moves, keyer.key_of, max_rounds=rounds, budget_s=budget_s, trace=trace,
+                              min_gain=min_gain if min_gain is not None else DEFAULT_MIN_GAIN,
+                              label=f"{variant or 'seed'}/{tier}")
+                return SimpleNamespace(loop=lr, gear=state["kept"])
+
             yield Stages(
                 assemble=lambda v: assemble(spec, cat, eng, v),
                 supports=lambda xml, sk: search_supports(cat, pool, xml, sk, fixed, rep.metric, allow_triggered=allow, objective=obj),
                 apply_supports=apply_supports,
                 trees=lambda xmls: search_trees(xmls, rep.metric, workers=workers, require=require, caps=tuple(tree_caps or DEFAULT_CAPS)),
-                gear=gear, bench=bench, stats=stats, actor=actor,
+                gear=gear, bench=bench, stats=stats, actor=actor, improve=improve,
             ), skill_of
     return cm()
