@@ -119,12 +119,18 @@ class PobEngine:
         finally:
             stop.set()
 
+    def rss_mb(self) -> float | None:
+        """Resident memory of the engine process in MB (None if unreadable). load_build_xml leaks 30-50 MB per call, so
+        a long-lived engine must be recycled by its owner before it reaches hard_rss_mb (see pos_engine.recycle)."""
+        try:
+            return int(Path(f"/proc/{self.proc.pid}/status").read_text().split("VmRSS:")[1].split()[0]) / 1024
+        except Exception:
+            return None
+
     def _guard(self, stop: threading.Event) -> None:
-        status = f"/proc/{self.proc.pid}/status"
         while not stop.wait(0.25):
-            try:
-                rss = int(Path(status).read_text().split("VmRSS:")[1].split()[0]) / 1024
-            except Exception:
+            rss = self.rss_mb()
+            if rss is None:
                 return
             if rss > self.hard_rss_mb:
                 self.proc.kill()
@@ -319,3 +325,18 @@ class PobEngine:
 
     def __exit__(self, *exc: object) -> None:
         self.close()
+
+
+SOFT_RSS_MB = float(os.environ.get("POS_ENGINE_SOFT_RSS_MB", 1500))
+
+
+def recycle(eng: PobEngine, soft_rss_mb: float | None = None) -> PobEngine:
+    """Return `eng`, or a fresh engine (closing `eng`) when its RSS passed the soft cap. Call between jobs on an engine
+    the caller owns that serves many loads: the leak is per load, so any loop of reloads must do this or it ends at the
+    hard cap and the engine is killed mid-job (seen: diagnose, ~60 probes x 2 loads, killed at 3.5 GB)."""
+    cap = SOFT_RSS_MB if soft_rss_mb is None else soft_rss_mb
+    rss = eng.rss_mb()
+    if rss is not None and rss > cap:
+        eng.close()
+        return PobEngine(hard_rss_mb=eng.hard_rss_mb)
+    return eng

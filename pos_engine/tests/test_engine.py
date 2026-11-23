@@ -546,3 +546,32 @@ def test_get_passive_parse_reports_parse_status_and_gating_tags(engine):
     assert info["found"] and info["parse"], info
     assert all({"line", "parsed", "mods"} <= set(ln) for ln in info["parse"])
     assert "parse" not in engine.get_passive(node)       # opt-in: the plain summary is unchanged
+
+
+def test_recycle_replaces_an_engine_over_the_soft_cap_and_keeps_one_under_it():
+    """Long loops of reloads leak ~30-50 MB each; owners call recycle() between jobs so the hard cap never kills a job."""
+    from pos_engine.engine import recycle
+
+    with PobEngine() as eng:
+        assert eng.rss_mb() and eng.rss_mb() > 1.0
+        assert recycle(eng, soft_rss_mb=1e9) is eng
+        new = recycle(eng, soft_rss_mb=1.0)
+        try:
+            assert new is not eng and eng.proc.poll() is not None and new.proc.poll() is None
+        finally:
+            new.close()
+
+
+def test_a_reload_loop_with_recycle_stays_under_the_hard_cap():
+    """Guard for the diagnose OOM: many loads of a real build on one owned engine never reach the hard cap."""
+    import pos_engine.engine as E
+    xml = next((Path(__file__).parents[2] / "pos_pipeline" / "tests" / "fixtures").glob("spark_golden_pass1.xml")).read_text(encoding="utf-8")
+    eng, peak = PobEngine(hard_rss_mb=900), 0.0
+    try:
+        for _ in range(40):                       # ~40 x 30-50 MB would pass 900 MB without recycling
+            eng = E.recycle(eng, soft_rss_mb=500)
+            eng.load_build_xml(xml)
+            peak = max(peak, eng.rss_mb() or 0)
+    finally:
+        eng.close()
+    assert peak < 900

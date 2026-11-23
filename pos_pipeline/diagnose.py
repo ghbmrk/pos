@@ -14,7 +14,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any, Sequence
 
-from pos_engine.engine import PobEngine
+from pos_engine.engine import PobEngine, recycle
 
 from . import data
 from .benchmarks import BENCH_KEYS, benchmarks, boss_metrics, pack_metrics, pob_options, _v
@@ -110,6 +110,8 @@ def calibrate(engine: PobEngine | None = None, only: Sequence[str] | None = None
             cal = Calibration(p["id"], p["line"], parsed=True, ok=True)
             for case in p.get("expect") or []:
                 rid, m = case["ref"], case["metric"]
+                if engine is None:
+                    eng = recycle(eng)
                 _build_reference(eng, references()[rid])
                 stats, n = _apply_probe(eng, p["line"], CAL_KEYS)
                 if n == 0:
@@ -265,6 +267,8 @@ def diagnose(xml: str, metric: str = "FullDPS", benchmark_ids: Sequence[str] = (
                 results.append(pr)
                 continue
             try:
+                if engine is None:
+                    eng = recycle(eng)   # owned engine: the per-load leak would otherwise reach the hard cap mid-diagnosis
                 st, n = _measure(eng, xml, keys, p["line"])
                 if n == 0:
                     pr.status, pr.reason = "failed", "PoB did not parse the line on this build"
