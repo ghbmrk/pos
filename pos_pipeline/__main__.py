@@ -53,6 +53,8 @@ def _slate_run(argv: list[str]) -> int:
     ap.add_argument("--preflight", action="store_true", help="print the cost estimate and exit")
     ap.add_argument("--deepen-k", type=int, default=None)
     ap.add_argument("--out", default=None, help="directory for slate_run.json, slate_report.md, slate_results.sqlite, cache.sqlite")
+    ap.add_argument("--no-objective", action="store_true", help="search on the bare metric instead of the benchmark objective (L1 baseline)")
+    ap.add_argument("--hard-ttk", action="store_true", help="the benchmark TTK gate is a hard constraint in the search objective")
     a = ap.parse_args(argv)
     bases = dict(x.split("=", 1) for x in a.bases if "=" in x)
     if "ring" in bases:
@@ -296,7 +298,8 @@ def _run(argv: list[str]) -> int:
         if a.out:
             Path(a.out).mkdir(parents=True, exist_ok=True)
         meta = {"metric_note": rep.metric_note, "limitations": [f"[{i.confidence or i.severity}] {i.message}" for i in rep.issues if i.code == "limitation"]}
-        with engine_stages(spec, cat, rep, bases, workers=a.workers, cache=cache, realloc_rounds=a.realloc_rounds) as (st, skill_of):
+        with engine_stages(spec, cat, rep, bases, workers=a.workers, cache=cache, realloc_rounds=a.realloc_rounds,
+                           objective=not a.no_objective, hard_ttk=a.hard_ttk) as (st, skill_of):
             r = run(spec, st, skill_id=skill_of, force=a.force, allow_assumed=a.assumed, out_dir=a.out, meta=meta, **kw)
     except RunRefused as e:
         print(f"refused: {e}"); return 3

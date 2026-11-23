@@ -130,3 +130,54 @@ Kept from STATE: I14 (cheap ablation re-run) can run any time. I15 folds into L1
 Success measures (L6 eval, same 5 prompts): survival gate passes for a majority of boss-brief candidates and still
 separates them; a loop's final objective beats today's single pass on every golden build; hypotheses confirmed or
 refuted for every candidate (no silent zero).
+
+
+## 4. L1 result (2026-11-23): benchmark objective in supports and gear
+
+Built: `pos_pipeline/objective.py` (`Objective`), used by `search_supports(objective=)`, `GearSearcher(objective=)`,
+`engine_stages(objective=True, hard_ttk=False)` (on whenever the spec/slate names benchmarks), `EngineRunner(objective=)`,
+CLI `--no-objective` / `--hard-ttk`. Key = `(-deficit, goal)`: deficit = sum of fractional shortfalls (stat floors,
+survive every named hit, optional TTK gate; floors unclamped so negative resists keep a gradient), goal = sum of ln
+rate (-ln TTK per boss, -ln clear per pack). Tree stage unchanged (still metric; weights from the objective wait for L2/L3).
+Ranking is unchanged. Scoring evaluates every candidate once per benchmark, so searches cost about 2x evals.
+Scripts: `tools/measure_l1_stages.py` (paired, same input, common yardstick), `tools/measure_l1.py` (end to end).
+
+Paired stages (same input build, scored by one common objective; lower deficit / higher goal is better):
+| case | supports metric -> objective (deficit, goal) | gear metric -> objective (deficit, goal) | gear wall |
+|---|---|---|---|
+| golden | 6.60,-3.58 -> 6.07,-3.08 | 2.68,0.81 -> 2.45,0.81 | 35 -> 105 s |
+| p1 | equal | 5.27,-12.71 -> 5.10,-12.63 | 25 -> 54 s |
+| p2 | equal | 4.14,-1.61 -> 4.07,-1.22 | 23 -> 62 s |
+| p3 | 6.37,-2.07 -> 6.07,-1.95 | 5.32,2.16 -> 5.23,2.16 | 29 -> 68 s |
+| p4 | 6.04,-21.27 -> 6.04,-18.22 | 4.08,-17.47 -> 3.98,-17.75 | 25 -> 76 s |
+| p5 | 6.36,-19.42 -> 6.36,-16.36 | 4.35,-13.44 -> 4.29,-13.38 | 25 -> 93 s |
+Supports never lose on the objective (better in 4 of 6, equal in 2). Gear lowers the deficit in 6 of 6; the goal is
+equal or better in 5 of 6 (p4 -0.28: the deficit was traded first, as designed).
+
+End to end (supports, tree, gear, benchmark; golden + the rank-1 candidate of each I13 arm-B slate; metric -> objective):
+| case | Arbiter survive | TTK s | pack clear s | wall s |
+|---|---|---|---|---|
+| golden | yes -> yes | 280 -> 299 | 67 -> 72 | 152 -> 305 |
+| p1 | no -> no | 2861 -> 2269 | 116 -> 134 | 62 -> 128 |
+| p2 | no -> no | 5254 -> 5254 | 14300 -> 4965 | 86 -> 142 |
+| p3 | yes -> yes | 94 -> 71 | 133 -> 102 | 133 -> 254 |
+| p4 | no -> yes | 181 -> 238 | 11035 -> 745 | 110 -> 189 |
+| p5 | no -> yes | 221 -> 253 | 3104 -> 136 | 119 -> 140 |
+Survival pass rate 2/6 -> 4/6. Pack clear improves in 4 of 6 (large where it was absurd). Boss TTK improves in 2, equal in
+1 and is worse in 3 (golden, p4, p5): the objective spends boss damage on survival and clear, which is the intent, not a
+free gain. Wall time 1.75x in total (662 -> 1158 s). Golden floors stay unmet in both arms (3 gear slots cannot cover
+resists; G7b) and the single feed-forward pass remains order-dependent (L3). Limits: one run per cell (no variance
+estimate), the 6 cases share one machine, and the golden TTK and clear get worse, so L1 is a constraint fix, not a DPS gain.
+Engine note: `GearSearcher` scores whole-build keys through the pool, because each `load_build_xml` on the long-lived
+engine leaks memory (p5 hit the 3.5 GB watchdog before this).
+
+## 5. Acceptance test: the owner's end experience (cmsg_01RxGYnd78N9kMbbAJ5pWDhU1dnxqDdRaEYAuumsEdPHoc)
+
+Player prompt (e.g. "Squire + Cyclone") -> several likely-competitive build ideas -> sim validates each -> several
+rounds of creative improvement, each driven by sim deltas and failure causes -> results for the player. One entry point,
+no manual steps between. The end-to-end Squire + Cyclone run is the acceptance eval; it passes when it runs unattended,
+keeps the best build per round, stops on no gain, and reports the ranked builds with the sim evidence for each change.
+Squire rows are ASSUMED until 1.0 data (K4). Gap map: ideas + validation exist (I-series); L1 makes validation judge
+survival; L2 supplies failure causes (diagnose); L3 is the iteration (rounds, keep best, stop on no gain, trace);
+L4 directs moves by diagnosis; L6 is the single entry point with the creative-improvement step and the final report;
+the acceptance eval is the L6 eval re-run with this prompt.
