@@ -36,7 +36,7 @@ def run_meta(spec, bench_ids: list[str]) -> dict[str, Any]:
                    "banner": actors.assumed_banner(comp.assumed["scenario"]), "assumptions": prof["assumptions"],
                    "standins": prof["standins"], "effects": [{k: v for k, v in e.items()} for e in sc["effects"]]}
     return {"assumed": assumed, "pob_sha": spec.pob_sha, "class": spec.class_, "ascendancy": spec.ascendancy, "level": spec.level,
-            "main_skill": spec.main_skill, "config_profile": spec.config_profile, "tiers": list(spec.tiers) or ["mid"],
+            "main_skill": spec.main_skill, "config_profile": spec.config_profile, "conditions": list(spec.conditions), "tiers": list(spec.tiers) or ["mid"],
             "benchmarks": bm, "metric_note": "",
             "limitations": ([f"companion {spec.companion.kind}: separate_build model (own PoB build, effects applied as config options "
                              "from data/actors.yaml); the table's metric column is the player without effects, the companion's "

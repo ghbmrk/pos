@@ -107,3 +107,12 @@ def test_import_pob_roundtrips_to_a_spec_that_assembles(cat, eng):
     a = assemble(spec, cat, eng)
     assert a.ok, a.issues
     assert a.main_skill == "Detonate Living"
+
+
+def test_declared_conditions_change_the_measured_value(cat, eng):
+    """I11: `conditions` are applied on top of the config profile, so conditional mods can be measured."""
+    base = assemble(spec_for(cat, fixed={"supports": ["Controlled Destruction"]}), cat, eng)
+    cond = assemble(spec_for(cat, conditions=["enemy_shocked", "power_charges", "crit_recently"], fixed={"supports": ["Controlled Destruction"]}), cat, eng)
+    assert base.ok and cond.ok
+    assert cond.stats["TotalDPS"] > base.stats["TotalDPS"]
+    assert "conditionEnemyShocked" in cond.xml and "conditionEnemyShocked" not in base.xml

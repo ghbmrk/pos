@@ -511,3 +511,16 @@ def test_rake_bleed_counted_in_hit_ailment_dps(engine):
     assert s["BleedDPS"] > s["TotalDPS"] > 0
     assert s["AilmentDPS"] == pytest.approx(s["BleedDPS"])
     assert s["HitAilmentDPS"] == pytest.approx(s["TotalDPS"] + s["BleedDPS"])
+
+
+def test_hard_rss_guard_kills_an_engine_over_the_cap():
+    """The memory guard polls the engine's RSS during a call and kills it past hard_rss_mb (runaway protection)."""
+    import threading
+    from pos_engine.engine import PobEngineError
+    with PobEngine(hard_rss_mb=1.0) as eng:           # any engine exceeds 1 MB
+        eng._guard(threading.Event())                  # returns after killing
+        eng.proc.wait(timeout=5)
+        with pytest.raises(PobEngineError):
+            eng.ping()
+    with PobEngine() as eng:                           # default cap leaves a normal call alone
+        assert eng.ping()

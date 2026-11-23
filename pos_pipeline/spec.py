@@ -12,7 +12,7 @@ class SpecError(ValueError):
     """Structural problem (wrong type, unknown key). Game-data problems are Issues from validate()."""
 
 
-_TOP = {"pob_sha", "class", "ascendancy", "level", "main_skill", "fixed", "axes", "tiers", "config_profile", "objective", "benchmarks", "companion"}
+_TOP = {"pob_sha", "class", "ascendancy", "level", "main_skill", "fixed", "axes", "tiers", "config_profile", "objective", "benchmarks", "companion", "conditions"}
 _FIXED = {"keystones", "notables", "uniques", "supports"}
 _OBJ = {"maximise", "floors"}
 _COMP = {"kind", "skills", "gear", "assumed"}
@@ -51,6 +51,7 @@ class BuildSpec:
     maximise: str = "auto"
     floors: dict[str, Any] = field(default_factory=lambda: {"resist_capped": True})
     companion: Companion | None = None
+    conditions: list[str] = field(default_factory=list)   # names from data/config_profiles.yaml `conditions` (I11)
 
 
 def _only(d: Any, allowed: set[str], where: str) -> dict:
@@ -134,7 +135,7 @@ def parse_spec(data: Any) -> BuildSpec:
         axes={k: _strs(v, f"axes.{k}") for k, v in axes.items()},
         tiers=_strs(d["tiers"], "tiers"),
         config_profile=d.get("config_profile", "pinnacle_boss"), benchmarks=_strs(d.get("benchmarks"), "benchmarks"),
-        maximise=obj.get("maximise", "auto"), floors=floors, companion=_companion(d.get("companion")),
+        maximise=obj.get("maximise", "auto"), floors=floors, companion=_companion(d.get("companion")), conditions=_strs(d.get("conditions"), "conditions"),
     )
 
 

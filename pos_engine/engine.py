@@ -58,7 +58,12 @@ class PobEngine:
         src_dir: str | os.PathLike[str] | None = None,
         script: str | os.PathLike[str] | None = None,
         show_engine_logs: bool = False,
+        hard_rss_mb: float | None = None,
     ) -> None:
+        # Hard memory cap: a call that drives the engine past this is killed (PobEngineError) instead of taking the
+        # container's OOM killer along. Seen: an intermittent multi-GB runaway in one alloc_passive/load (14 GB peak,
+        # run-dependent), which a fresh engine does not repeat. Env POS_ENGINE_HARD_RSS_MB overrides; 0 disables.
+        self.hard_rss_mb = float(os.environ.get("POS_ENGINE_HARD_RSS_MB", 3500)) if hard_rss_mb is None else hard_rss_mb
         self.luajit = luajit or _find_luajit()
         self.src_dir = Path(src_dir) if src_dir else paths.pob_src_dir()
         self.script = Path(script) if script else paths.pob_headless_script()
@@ -106,6 +111,26 @@ class PobEngine:
         if self.proc.poll() is not None:
             raise PobEngineError(f"engine is not running (code={self.proc.returncode})")
         assert self.proc.stdin is not None
+        stop = threading.Event()
+        if self.hard_rss_mb > 0:
+            threading.Thread(target=self._guard, args=(stop,), daemon=True).start()
+        try:
+            return self._call(method, params)
+        finally:
+            stop.set()
+
+    def _guard(self, stop: threading.Event) -> None:
+        status = f"/proc/{self.proc.pid}/status"
+        while not stop.wait(0.25):
+            try:
+                rss = int(Path(status).read_text().split("VmRSS:")[1].split()[0]) / 1024
+            except Exception:
+                return
+            if rss > self.hard_rss_mb:
+                self.proc.kill()
+                return
+
+    def _call(self, method: str, params: dict[str, Any]) -> Any:
         # One request/response pair must not interleave with another.
         with self._lock:
             self._next_id += 1

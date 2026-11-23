@@ -31,6 +31,11 @@ hypotheses; the engine and the slate gate decide what is true.
    are rejected (`no_metric`); say so if the idea needs one, and offer the nearest damage-dealing take.
 5. 1-3 `key_pieces` per candidate (keystone, notable, unique or support), each also fixed in that candidate's spec. They
    are the pieces your claims say the build depends on; the runner removes each one and measures the loss.
+6. Conditional pieces (charges, shocked/chilled/ignited enemy, ground effects, corpses, "recently" clauses) read as zero
+   unless the spec declares the condition: `conditions: [name, ...]` at the top level of the spec, names from the
+   `conditions` table (unknown names are rejected with the list). Declare only what the build itself can sustain in the
+   benchmark fight, and say in a claim where it comes from; the report prints every declared condition beside the
+   figures as an assumption. Do not declare a condition just to lift a number.
 
 ## Step 0. Frame (no tools)
 Write the brief: which benchmarks ({benchmark_list}), which tiers ({tier_list}), hard constraints the user stated, and

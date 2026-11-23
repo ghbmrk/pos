@@ -134,11 +134,15 @@ class EnginePool:
         sha: str | None = None,
         max_rss_mb: float = 1500.0,
         max_batch: int = 16,
+        hard_rss_mb: float = 3500.0,
     ) -> None:
         self.max_batch = max_batch
         # load_build_xml leaks engine memory (~30-50 MB/load, measured); a worker above max_rss_mb
         # is recycled between jobs so N workers cannot exhaust RAM.
         self.max_rss_mb = max_rss_mb
+        # A job that balloons past hard_rss_mb is killed mid-run (and retried once on a fresh engine) instead of taking
+        # the container's OOM killer with it; seen as an intermittent multi-GB runaway in one worker (a 14 GB peak).
+        self.hard_rss_mb = hard_rss_mb
         self.workers = workers or os.cpu_count() or 1
         self.timeout = timeout
         self.sha = sha or pob_sha()
@@ -160,6 +164,15 @@ class EnginePool:
         h = canonical_xml_hash(batch[0].xml)
         timer = threading.Timer(self.timeout, eng.proc.kill)  # watchdog: kill unblocks readline
         timer.start()
+        stop = threading.Event()
+
+        def guard() -> None:   # memory watchdog: poll the worker's RSS while the job runs
+            while not stop.wait(0.25):
+                if w.rss_mb() > self.hard_rss_mb:
+                    eng.proc.kill()
+                    return
+
+        threading.Thread(target=guard, daemon=True).start()
         try:
             if batch[0].slot_item is not None:
                 if w.loaded != h:
@@ -178,6 +191,7 @@ class EnginePool:
             return [(r.get("stats", {}), r.get("mainSkill"))]
         finally:
             timer.cancel()
+            stop.set()
             if w.rss_mb() > self.max_rss_mb:
                 w.kill()
 

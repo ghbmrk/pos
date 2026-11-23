@@ -213,3 +213,13 @@ def test_real_catalogue_smoke():
 def test_attack_and_spell_skills_use_ailment_aware_metric():
     for types in (["Attack", "Melee"], ["Spell"], ["Damage"]):
         assert data.metric_for(types)["metric"] == "HitAilmentDPS"
+
+
+def test_conditions_parse_and_validate(cat):
+    assert data.condition_options(["enemy_shocked", "power_charges"]) == {"conditionEnemyShocked": True, "usePowerCharges": True}
+    assert all(c["options"] and c.get("needs") for c in data.conditions().values())
+    assert run(cat, conditions=["enemy_shocked"]).ok
+    assert "condition" in codes(run(cat, conditions=["enemy_on_fire_somehow"]))
+    assert "duplicate" in codes(run(cat, conditions=["enemy_shocked", "enemy_shocked"]))
+    with pytest.raises(SpecError):
+        run(cat, conditions="enemy_shocked")   # must be a list
