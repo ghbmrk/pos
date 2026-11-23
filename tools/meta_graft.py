@@ -53,7 +53,23 @@ def load(eng: PobEngine, src: str) -> str:
             code = Path(src).read_text()
         eng.load_build_code(code.strip())
     eng.set_config(options=BASE)
-    return eng.get_xml()
+    return best_skill(eng, eng.get_xml())
+
+
+def best_skill(eng: PobEngine, xml: str) -> str:
+    """Make the highest-METRIC socket group the main skill. Exports often leave a utility skill selected (e.g. Armour
+    Breaker on a Mace Strike build), which would benchmark the wrong skill."""
+    best, best_xml = metric(eng, xml, BASE), xml
+    for i in range(1, xml.count("<Skill ") + 1):
+        cand = re.sub(r'(<Build [^>]*mainSocketGroup=")\d+(")', lambda m: f"{m.group(1)}{i}{m.group(2)}", xml, count=1)
+        try:
+            v = metric(eng, cand, BASE)
+        except Exception:  # noqa: BLE001
+            continue
+        if v > best:
+            best, best_xml = v, cand
+    eng.load_build_xml(best_xml)
+    return best_xml
 
 
 def metric(eng: PobEngine, xml: str, opts) -> float:
@@ -65,6 +81,21 @@ def metric(eng: PobEngine, xml: str, opts) -> float:
 def nodes(xml: str) -> list[int]:
     m = re.search(r'<Spec [^>]*nodes="([^"]*)"', xml)
     return [int(n) for n in m.group(1).split(",") if n] if m else []
+
+
+def build_inputs(xml: str) -> dict:
+    """The build's own boolean/number config inputs (active set). They are the 'effect off' state: without them an
+    uptime-blended effect would reset a condition the build already assumes (e.g. conditionEnemyShocked) to False."""
+    out: dict = {}
+    for m in re.finditer(r'<Input ([^>]*)/>', xml):
+        a = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+        if "name" not in a:
+            continue
+        if "boolean" in a:
+            out[a["name"]] = a["boolean"] == "true"
+        elif "number" in a:
+            out[a["name"]] = float(a["number"])
+    return out
 
 
 def graft(eng: PobEngine, src: str) -> list[str]:
@@ -89,7 +120,9 @@ def graft(eng: PobEngine, src: str) -> list[str]:
         except Exception:  # noqa: BLE001
             pass
     sq = metric(eng, eng.get_xml(), BASE) * COMPANION_NODE
-    model = actors.SeparateBuildModel("squire", lambda x, o: metric(eng, x, o), None, BASE)
+    model = actors.SeparateBuildModel("squire", lambda x, o: metric(eng, x, o), None, {**build_inputs(noasc), **BASE})
+    if not meta or not no:
+        return [f"## {src}: no damage metric (meta {meta:,.0f}, ascendancy removed {no:,.0f}); skipped", ""]
     out = [f"## {b.get('ascendancy')} / {b.get('mainSkill')} (L{b.get('level')}) - {src}", "",
            "| Variant | Player | Squire own | Total | vs meta |", "|---|---|---|---|---|",
            f"| meta (reference) | {meta:,.0f} | - | {meta:,.0f} | 100% |",
