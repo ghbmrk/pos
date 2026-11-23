@@ -305,7 +305,8 @@ class EngineRunner:
     `cache` (keyed on build + mutations, so reuse across candidates and tiers is safe)."""
 
     def __init__(self, cat: Catalogue, slate: Slate, default_bases: Mapping[str, str], *, workers: int, cache: str | None = None,
-                 cfg: Mapping[str, Any] | None = None, log: Callable[[str], None] = lambda s: None):
+                 cfg: Mapping[str, Any] | None = None, log: Callable[[str], None] = lambda s: None, objective: bool = True):
+        self.objective = objective     # L1: search stages score on the brief's benchmarks (False = bare metric, the old behaviour)
         self.cat, self.slate, self.defaults, self.workers, self.cache = cat, slate, dict(default_bases), workers, cache
         self.cfg, self.log = cfg or data.ideation(), log
 
@@ -326,7 +327,7 @@ class EngineRunner:
         floors = {**(STANDARD_FLOORS if spec.floors.get("resist_capped") else {}), **(self.slate.brief.get("floors") or {})}
         meta = {"metric_note": rep.metric_note}
         with engine_stages(spec, self.cat, rep, bases, workers=self.workers, cache=self.cache, realloc_rounds=realloc,
-                           floors=floors, tree_caps=caps) as (st, skill_of):
+                           floors=floors, tree_caps=caps, objective=self.objective) as (st, skill_of):
             res = run(spec, st, metric=rep.metric, slots=len(bases), workers=self.workers, skill_id=skill_of, realloc_rounds=realloc,
                       force=True, benchmarks=spec.benchmarks, meta=meta, log=self.log)
             return res, rep, skill_of, floors

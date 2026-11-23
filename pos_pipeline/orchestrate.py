@@ -308,7 +308,8 @@ def run(spec, stages: Stages, *, metric: str, slots: int, workers: int, skill_id
 
 # ---- real stages ------------------------------------------------------------------------------------------
 def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cache: str | Path | None = None,
-                  realloc_rounds: int = DEFAULT_REALLOC_ROUNDS, floors: Mapping[str, Any] | None = None, tree_caps: Sequence[int] | None = None):
+                  realloc_rounds: int = DEFAULT_REALLOC_ROUNDS, floors: Mapping[str, Any] | None = None, tree_caps: Sequence[int] | None = None,
+                  benchmarks: Sequence[str] | None = None, objective: bool = True, hard_ttk: bool = False):
     """Context manager yielding (Stages, skill_id_fn). Owns one PobEngine and one EnginePool."""
     from contextlib import contextmanager
 
@@ -327,6 +328,14 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
         allow = [cat.resolve("support", n).entry["id"] for n in data.profiles()[spec.config_profile].get("allow_triggered") or []]
         fixed = [cat.resolve("support", n).entry["id"] for n in spec.supports]
         require = list(spec.keystones) + list(spec.notables)
+        # L1: supports and gear score on the run's benchmarks (constraint deficit, then TTK / clear), not the bare metric
+        bench_ids = list(benchmarks if benchmarks is not None else getattr(spec, "benchmarks", []) or [])
+        sk0 = cat.resolve("skill", spec.main_skill).entry
+        obj = None
+        if objective and bench_ids:
+            from .objective import Objective
+            obj = Objective(rep.metric, bench_ids, floors=fl, hard_ttk=hard_ttk, conditions=spec.conditions,
+                            projectile=bool(sk0 and "Projectile" in (sk0.get("skill_types") or [])))
         with PobEngine() as eng, EnginePool(workers=workers, cache=cache) as pool:
             def skill_of(v):
                 return cat.resolve("skill", v.get("main_skill", spec.main_skill)).entry["id"]
@@ -372,7 +381,7 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                 baked = eng.get_xml()
                 cxml = companion_xml()
                 cmetric = comp_metric()
-                player = GearSearcher(cat, pool, eng, metric=rep.metric, floors=fl)
+                player = GearSearcher(cat, pool, eng, metric=rep.metric, floors=fl, objective=obj)
                 squire = GearSearcher(cat, pool, eng, metric=cmetric, floors={})
                 r = search_two_actors(player, squire, baked, cxml, tier, b, dict(comp.gear), kind=comp.kind, slots=tuple(b),
                                       comp_slots=tuple(comp.gear), realloc_rounds=realloc_rounds, assumed=assumed)
@@ -397,7 +406,7 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
                 if assumed is not None and comp.gear:
                     return two_actor_gear(xml, tier, b)
                 return search_gear(cat, pool, eng, xml, tier, b, rep.metric, slots=tuple(b), floors=fl,
-                                   realloc_rounds=realloc_rounds)
+                                   realloc_rounds=realloc_rounds, objective=obj)
 
             def bench(xml, bid, variant):
                 from .benchmarks import evaluate
@@ -433,7 +442,7 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
 
             yield Stages(
                 assemble=lambda v: assemble(spec, cat, eng, v),
-                supports=lambda xml, sk: search_supports(cat, pool, xml, sk, fixed, rep.metric, allow_triggered=allow),
+                supports=lambda xml, sk: search_supports(cat, pool, xml, sk, fixed, rep.metric, allow_triggered=allow, objective=obj),
                 apply_supports=apply_supports,
                 trees=lambda xmls: search_trees(xmls, rep.metric, workers=workers, require=require, caps=tuple(tree_caps or DEFAULT_CAPS)),
                 gear=gear, bench=bench, stats=stats, actor=actor,

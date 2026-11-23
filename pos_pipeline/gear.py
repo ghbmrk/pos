@@ -11,6 +11,7 @@ so a candidate carrying one would score as a silent zero (docs/pipeline.md stage
 """
 from __future__ import annotations
 
+import hashlib
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -151,13 +152,17 @@ class GearSearcher:
                  index: ModIndex | None = None, metric: str = "TotalDPS",
                  floors: Mapping[str, float | str] | None = None, extra_keys: Sequence[str] = (),
                  shortlist: int = DEFAULT_SHORTLIST, beam: int = DEFAULT_BEAM, roll: float = ROLL,
-                 item_level: int = ITEM_LEVEL, unique_prices: Mapping[str, str] | None = None):
+                 item_level: int = ITEM_LEVEL, unique_prices: Mapping[str, str] | None = None, objective: Any = None):
         self.cat, self.pool, self.eng = cat, pool, engine
+        self.objective = objective or None     # pos_pipeline.objective.Objective: scores every candidate on the benchmarks (L1)
+        self._fight_xmls: dict[tuple[str, str], str] = {}
         self.t = table or TierTable.load()
         self.idx = index or default_index()
         self.metric = metric
         self.floors = _Floors(floors)
-        self.keys = tuple(dict.fromkeys([metric, *self.floors.keys, *extra_keys]))
+        if self.objective:
+            self.floors = _Floors(self.objective.floors)
+        self.keys = tuple(dict.fromkeys([metric, *self.floors.keys, *extra_keys, *(self.objective.keys if self.objective else ())]))
         self.shortlist, self.beam, self.roll, self.ilvl = shortlist, beam, roll, item_level
         self.uniques = dict(unique_prices if unique_prices is not None else load_unique_prices())
         self.price_model = AnchorSumModel(self.t)
@@ -231,18 +236,45 @@ class GearSearcher:
         return self._parse_ok[a.mod_id]
 
     # ---- scoring -----------------------------------------------------------------------------------------
+    def _fight_xml(self, xml: str, fight) -> str:
+        """`xml` with the fight's PoB options baked into its config, so the slot_item fast path scores under them."""
+        k = (hashlib.sha256(xml.encode()).hexdigest(), fight.bid)
+        if k not in self._fight_xmls:
+            self.eng.load_build_xml(xml)
+            self.eng.set_config(options=fight.opts() or None)
+            self._fight_xmls[k] = self.eng.get_xml()
+        return self._fight_xmls[k]
+
+    def key_of(self, xml: str) -> tuple[float, float]:
+        """Objective key of a whole build: (-floor deficit, metric), or the benchmark objective's (-deficit, goal)."""
+        if not self.objective:
+            st = self.stats(xml)
+            return (-self.floors.deficit(st), float(st.get(self.metric) or 0.0))
+        # through the pool, not self.eng: every load_build_xml leaks engine memory (~30-50 MB) and this engine is long-lived
+        rs = self.pool.map([Job(xml, mutations=self.objective.mutations(f), stat_keys=self.keys) for f in self.objective.fights])
+        if any(not r.ok for r in rs):
+            raise RuntimeError("objective evaluation failed: " + "; ".join(str(r.error) for r in rs if not r.ok))
+        sts = [r.stats for r in rs]
+        return self.objective.score(sts).key
+
     def score(self, xml: str, slot: str, raws: list[str]) -> list[tuple[float, float] | None]:
-        """Objective per raw item in `slot` of `xml`: (-floor deficit, metric); None = engine rejected it."""
-        res = self.pool.map([Job(xml, stat_keys=self.keys, slot_item=(SLOTS[slot], r)) for r in raws])
+        """Objective per raw item in `slot` of `xml`: (-deficit, metric or goal); None = engine rejected it."""
+        fx = [self._fight_xml(xml, f) for f in self.objective.fights] if self.objective else [xml]
+        n_raw = len(raws)
+        # fight-major order: consecutive jobs share one XML, so a worker keeps its loaded build (the slot_item fast path)
+        res = self.pool.map([Job(x, stat_keys=self.keys, slot_item=(SLOTS[slot], r)) for x in fx for r in raws])
         out = []
-        for r in res:
+        for n in range(n_raw):
+            rs = [res[i * n_raw + n] for i in range(len(fx))]
             self.counts["evals"] += 1
-            self.counts["cached"] += bool(r.cached)
-            if not r.ok or not r.stats:
+            self.counts["cached"] += all(r.cached for r in rs)
+            if any(not r.ok or not r.stats for r in rs):
                 self.counts["failures"] += 1
                 out.append(None)
+            elif self.objective:
+                out.append(self.objective.score([r.stats for r in rs]).key)
             else:
-                out.append((-self.floors.deficit(r.stats), float(r.stats.get(self.metric) or 0.0)))
+                out.append((-self.floors.deficit(rs[0].stats), float(rs[0].stats.get(self.metric) or 0.0)))
         return out
 
     def stats(self, xml: str) -> dict[str, Any]:
@@ -406,8 +438,7 @@ class GearSearcher:
                         changed = True
                 if not changed:
                     break
-            st = self.stats(cur)
-            return cur, items, (-self.floors.deficit(st), float(st.get(self.metric) or 0.0))
+            return cur, items, self.key_of(cur)
 
         cur, items, obj = descend(cur, items, budgets)
 
