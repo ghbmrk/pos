@@ -125,7 +125,8 @@ def assemble(spec: BuildSpec, cat: Catalogue, engine: PobEngine, variant: dict[s
 
 def assemble_companion(spec: BuildSpec, cat: Catalogue, engine: PobEngine) -> Assembled:
     """Companion as its own PoB build (`separate_build`, docs/second-actor.md section 3): the player's class and level, the
-    companion's skill group, no passives or uniques. One skill group per companion until K4 sources how the actor fires."""
+    companion's skill group, no passives or uniques. One skill group: the Squire takes one skill plus its supports
+    (owner 2026-11-23, data/actors.yaml `skills_source`); the validator enforces the count."""
     from dataclasses import replace
     out = Assembled(variant={})
     comp = spec.companion
@@ -134,7 +135,8 @@ def assemble_companion(spec: BuildSpec, cat: Catalogue, engine: PobEngine) -> As
         return out
     if len(comp.skills) > 1:
         out.issues.append(Issue("error", "companion_skills", "companion.skills",
-                                "separate_build assembles one companion skill group; more arrive with K4", [], None))
+                                "separate_build assembles one companion skill group (the Squire takes one skill plus its supports)",
+                                [], None))
         return out
     sk = comp.skills[0]
     sub = replace(spec, main_skill=sk.gem, supports=list(sk.supports), keystones=[], notables=[], uniques=[], axes={}, companion=None)

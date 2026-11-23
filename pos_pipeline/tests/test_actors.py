@@ -26,7 +26,7 @@ def codes(rep):
 @pytest.fixture
 def fake_registry(monkeypatch):
     reg = {"squire": {"status": "available", "requires": {"class": "Witch", "ascendancy": "Infernalist"},
-                      "gear_slots": ["weapon"], "max_skills": 1, "model": "separate_build",
+                      "gear_slots": ["weapon"], "min_skills": 1, "max_skills": 1, "model": "separate_build",
                       "skill_effects": {"FireballPlayer": [
                           {"effect": "power_charges", "params": {"count": 3}, "uptime": 0.5, "source": "test"},
                           {"effect": "enemy_on_shocked_ground", "source": "test"}]}}}
@@ -73,6 +73,19 @@ def test_available_actor_checks(cat, fake_registry):  # noqa: F811
     assert {"companion_slot", "unresolved", "support_family", "support_incompatible", "companion_skills"} <= codes(rep)
     paths = {i.path for i in rep.errors}
     assert "companion.skills[0].supports[1]" in paths and "companion.skills[1].gem" in paths
+
+
+@pytest.mark.parametrize("skills", [[], [{"gem": "Fireball"}, {"gem": "Fireball"}]])
+def test_companion_takes_exactly_one_skill_group(cat, fake_registry, skills):  # noqa: F811
+    rep = validate(spec(companion={**COMP, "skills": skills}), cat)
+    msg = [i.message for i in rep.errors if i.code == "companion_skills"]
+    assert msg and "exactly 1" in msg[0] and f"spec lists {len(skills)}" in msg[0]
+
+
+def test_real_squire_skill_count_is_one_and_sourced():
+    sq = data.actors()["squire"]
+    assert sq["min_skills"] == sq["max_skills"] == 1
+    assert "cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY" in sq["skills_source"]
 
 
 def test_actor_requires_every_variant(cat, fake_registry):  # noqa: F811
