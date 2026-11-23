@@ -25,7 +25,7 @@ assumptions:
 standins:
   - { for: "Cyclone (confirmed 1.0 Duelist skill, absent from pinned data)", use: "Whirling Slash (whirlwind pickup config keys)", why: "nearest whirlwind skill in pinned data" }
   - { for: "Knight/Duelist class", use: "any class (actor `requires` waived)", why: "no Duelist in pinned catalogue" }
-  - { for: "Squire skills (Blood Hunt, Bloodhound's Mark, Elemental Sundering...)", use: "any catalogue skill as the Squire's damage source", why: "none are in pinned data" }
+  - { for: "Squire's real skill list (unknown: slots, rules, AI)", use: "any one catalogue skill as the Squire's damage source; GGG's demo kit (Blood Hunt, Bloodhound's Mark, Elemental Sundering) IS in pinned data (BloodHuntPlayer, BloodhoundsMarkPlayer, ElementalSunderingPlayer) and can be used", why: "which skills the Squire may take is unsourced (C2); note one Mark per target by default, so a Squire Mark and a player Mark probably compete (docs/theorycraft-squire.md 2.11)" }
   - { for: "Elemental Discharge on Cyclone (owner build 2)", use: "none; fails as written (Spell-only support). Scenario charge_provider = build 2c, the literal charge version", why: "docs/theorycraft-squire.md section 4" }
 # probe: moves = test_squire_assumed.py checks the effect changes a plain Whirling Slash probe build's DPS (PoB gate check, theorycraft section 6);
 #        needs_consumer = changes nothing unless the player build has charge-scaling mods (probe: no change).
