@@ -1,0 +1,1158 @@
+{
+ "prompt": "something nasty with ailments that is not a caster",
+ "brief": {
+  "benchmarks": [
+   "arbiter_ash",
+   "breach_t15"
+  ],
+  "tiers": [
+   "mid"
+  ],
+  "constraints": {},
+  "floors": {}
+ },
+ "screen_tier": "mid",
+ "deepen_k": 0,
+ "candidates": [
+  {
+   "name": "Aggravated bleed lance",
+   "source": "llm",
+   "vector": {
+    "class_asc": "amazon",
+    "delivery": "melee",
+    "damage": "Physical",
+    "defence": "evasion",
+    "main_skill": "blood hunt",
+    "key_pieces": "keystone:Crimson Assault,support:Incision"
+   },
+   "claims": [
+    {
+     "text": "Crimson Assault makes the bleed stronger and aggravated, which feeds the consume on Blood Hunt.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Crimson Assault",
+       "quote": "50% more Magnitude of Bleeding you inflict"
+      },
+      {
+       "kind": "skill",
+       "id": "Blood Hunt",
+       "quote": "Hitting an enemy that has suffered Blood Loss will cause a blood explosion and also Consume Bleeding."
+      }
+     ]
+    },
+    {
+     "text": "Incision raises the bleed chance on every hit, so enemies are bleeding for the payoff; the bleeding condition is declared and comes from Incision plus the keystone.",
+     "cites": [
+      {
+       "kind": "support",
+       "id": "Incision",
+       "quote": "which causes Enemies to be increasingly more likely to be inflicted with Bleeding"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Crimson Assault"
+    },
+    {
+     "kind": "support",
+     "id": "Incision"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportIncisionPlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 516.41657995594,
+     "baseline": 36.80309111562,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 604,
+     "items": {
+      "weapon": "LocalColdDamage r1, LocalFireDamage r1, LocalLightningDamage r1, Dexterity r1, LocalAttributeRequirements r1 [Akoyan Spear]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Hunting Coat]"
+     },
+     "seconds": 32.06243360899953,
+     "notes": [
+      "floors not met (deficit 407); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 362,
+      "FireResist": -7,
+      "FullDPS": 516.41657995594,
+      "HitAilmentDPS": 516.41657995594,
+      "Life": 1292,
+      "LightningResist": -7,
+      "Speed": 1.2903225806452,
+      "TotalDPS": 516.2908708885,
+      "TotalEHP": 1266.2917901239
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 5201.202404708271,
+       "dps": 1095.6589566369,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.466598558374482,
+        "chasm_slam": 0.733299279187241
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.30141554964756,
+       "ehp": 1279.8104238035,
+       "ehp_survival_s": 0.21099088475329,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 42,
+        "magic": 104,
+        "rare": 333
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Crimson Assault"
+     },
+     "baseline": 1095.6589566369,
+     "without": 1095.6589566369,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1279.8104238035,
+     "ehp_without": 1279.8104238035,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Incision"
+     },
+     "baseline": 1095.6589566369,
+     "without": 1474.4592293812,
+     "delta_rel": -0.3457282674045021,
+     "verdict": "not_load_bearing",
+     "replacement": "Uhtred's Exodus",
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1279.8104238035,
+     "ehp_without": 1279.8104238035,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 4,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_bleeding"
+   ]
+  },
+  {
+   "name": "Stacked poison archer",
+   "source": "llm",
+   "vector": {
+    "class_asc": "pathfinder",
+    "delivery": "projectile",
+    "damage": "Chaos",
+    "defence": "evasion",
+    "main_skill": "poisonburst arrow",
+    "key_pieces": "notable:Overwhelming Toxicity,support:Escalating Poison"
+   },
+   "claims": [
+    {
+     "text": "Pathfinder raises how many poisons a target can carry, at the cost of shorter poisons.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Overwhelming Toxicity",
+       "quote": "Double the number of your Poisons that targets can be affected by at the same time"
+      }
+     ]
+    },
+    {
+     "text": "Escalating Poison adds an extra poison on each hit, filling those extra slots; the poisoned condition is sustained by the skill's own poison burst.",
+     "cites": [
+      {
+       "kind": "support",
+       "id": "Escalating Poison",
+       "quote": "allowing it to inflict an extra Poison on enemies but shortening the duration of those Poisons"
+      },
+      {
+       "kind": "skill",
+       "id": "Poisonburst Arrow",
+       "quote": "Fire a virulent arrow that creates a burst of Poison on hit, affecting all enemies in an area."
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Overwhelming Toxicity"
+    },
+    {
+     "kind": "support",
+     "id": "Escalating Poison"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportEscalatingPoisonPlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 496.77863586704,
+     "baseline": 5.1168,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget, body_armour:budget",
+     "evals": 540,
+     "items": {
+      "weapon": "LocalColdDamage r1, LocalFireDamage r1, LocalLightningDamage r1, Dexterity r1 [Crude Bow]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Hunting Coat]"
+     },
+     "seconds": 25.29129386599925,
+     "notes": [
+      "floors not met (deficit 356); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 346,
+      "FireResist": -7,
+      "FullDPS": 496.77863586704,
+      "HitAilmentDPS": 496.77863586704,
+      "Life": 1187,
+      "LightningResist": -7,
+      "Speed": 1.2,
+      "TotalDPS": 496.63660725,
+      "TotalEHP": 1163.3810796262
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 5253.891336046223,
+       "dps": 1084.6710819658,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.3474090470514783,
+        "chasm_slam": 0.6737045235257392
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.27691970389447,
+       "ehp": 1175.8010627359,
+       "ehp_survival_s": 0.19384379272613,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 39,
+        "magic": 97,
+        "rare": 312
+       },
+       "coverage": 0.01818181818181818,
+       "clear_s": 14300.0,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: projectiles treated as single-target, coverage = projectiles / monsters"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Overwhelming Toxicity"
+     },
+     "baseline": 1084.6710819658,
+     "without": 1084.6710819658,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1175.8010627359,
+     "ehp_without": 1175.8010627359,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Escalating Poison"
+     },
+     "baseline": 1084.6710819658,
+     "without": 1518.5395147521,
+     "delta_rel": -0.39999999999998154,
+     "verdict": "not_load_bearing",
+     "replacement": "Hit and Run",
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1175.8010627359,
+     "ehp_without": 1175.8010627359,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 1,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_poisoned"
+   ]
+  },
+  {
+   "name": "Fire-only gas bomber",
+   "source": "sweep:probe1/Avatar of Fire",
+   "vector": {
+    "class_asc": "deadeye",
+    "delivery": "projectile",
+    "damage": "Chaos+Fire",
+    "defence": "energy_shield",
+    "main_skill": "gas arrow",
+    "key_pieces": "keystone:Avatar of Fire"
+   },
+   "claims": [
+    {
+     "text": "Avatar of Fire converts damage to fire so the fire-heavy arrow and its ignites scale together; the sweep showed it as the top lead for this skill.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Avatar of Fire",
+       "quote": "75% of Damage Converted to Fire Damage"
+      }
+     ]
+    },
+    {
+     "text": "The gas cloud explodes when an ignited enemy touches it, so the ignited condition is declared and sustained by the arrow's own fire.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Gas Arrow",
+       "quote": "The cloud will detonate if hit by a Detonator skill or if an Ignited enemy touches it, creating a fiery explosion."
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Avatar of Fire"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 208.27130641222,
+     "baseline": 2.4960301586189,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget, body_armour:budget",
+     "evals": 608,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r1, LocalFireDamage r1, LocalLightningDamage r1, Dexterity r1 [Crude Bow]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Ascetic Garb]"
+     },
+     "seconds": 39.893475502,
+     "notes": [
+      "floors not met (deficit 390); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 57,
+      "Evasion": 199,
+      "FireResist": -7,
+      "FullDPS": 208.27130641222,
+      "HitAilmentDPS": 208.27130641222,
+      "Life": 1449,
+      "LightningResist": -7,
+      "Speed": 1.2,
+      "TotalDPS": 208.078074,
+      "TotalEHP": 1418.1282371242
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 17411.69310701567,
+       "dps": 327.29407559474,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.709518133832794,
+        "chasm_slam": 0.854759066916397
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.337484678744,
+       "ehp": 1432.959945947,
+       "ehp_survival_s": 0.2362392751208,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 93,
+        "magic": 230,
+        "rare": 739
+       },
+       "coverage": 0.09,
+       "clear_s": 6842.592592592593,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Avatar of Fire"
+     },
+     "baseline": 327.29407559474,
+     "without": 439.48803055775,
+     "delta_rel": -0.34279250169480646,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1432.959945947,
+     "ehp_without": 1432.959945947,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 2,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_ignited"
+   ]
+  },
+  {
+   "name": "Freeze then shatter monk",
+   "source": "llm",
+   "vector": {
+    "class_asc": "invoker",
+    "delivery": "melee",
+    "damage": "Cold",
+    "defence": "evasion",
+    "main_skill": "ice strike",
+    "key_pieces": "notable:I am the Blizzard...,support:Biting Frost II"
+   },
+   "claims": [
+    {
+     "text": "Freezing enemies leaves chilled ground behind, which is where the ground condition comes from.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "I am the Blizzard...",
+       "quote": "On Freezing Enemies create Chilled Ground"
+      }
+     ]
+    },
+    {
+     "text": "Biting Frost turns frozen enemies into extra damage and leaves them chilled afterwards.",
+     "cites": [
+      {
+       "kind": "support",
+       "id": "Biting Frost II",
+       "quote": "causing them to deal more damage to Frozen enemies but consume their Freeze, leaving them Chilled"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "I am the Blizzard..."
+    },
+    {
+     "kind": "support",
+     "id": "Biting Frost II"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportBitingFrostPlayerTwo"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 1852.2758256352,
+     "baseline": 121.127461,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 678,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r1, LocalFireDamage r1, LocalLightningDamage r1, Dexterity r1, Intelligence r1, LocalAttributeRequirements r1 [Aegis Quarterstaff]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Ascetic Garb]"
+     },
+     "seconds": 30.01055993999944,
+     "notes": [
+      "floors not met (deficit 332); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 57,
+      "Evasion": 183,
+      "FireResist": -7,
+      "FullDPS": 1852.2758256352,
+      "HitAilmentDPS": 1852.2758256352,
+      "Life": 1187,
+      "LightningResist": -7,
+      "Speed": 1.96,
+      "TotalDPS": 1850.7720714,
+      "TotalEHP": 1314.5424539735
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 1460.2874164351772,
+       "dps": 3902.4810704126,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.4121119246268232,
+        "chasm_slam": 0.7060559623134116
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.31283344211116,
+       "ehp": 1328.290795204,
+       "ehp_survival_s": 0.60828724854948,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 17,
+        "magic": 43,
+        "rare": 136
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "I am the Blizzard..."
+     },
+     "baseline": 3902.4810704126,
+     "without": 3403.8329859326,
+     "delta_rel": 0.12777719493903375,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1328.290795204,
+     "ehp_without": 1328.290795204,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Biting Frost II"
+     },
+     "baseline": 3902.4810704126,
+     "without": 5463.4734985776,
+     "delta_rel": -0.3999999999999899,
+     "verdict": "not_load_bearing",
+     "replacement": "Hit and Run",
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1328.290795204,
+     "ehp_without": 1328.290795204,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 3,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_chilled",
+    "ground_chilled"
+   ]
+  },
+  {
+   "name": "Electrocute pulse gunner",
+   "source": "llm",
+   "vector": {
+    "class_asc": "tactician",
+    "delivery": "attack",
+    "damage": "unknown",
+    "defence": "armour",
+    "main_skill": "shockburst rounds",
+    "key_pieces": "support:Neural Overload"
+   },
+   "claims": [
+    {
+     "text": "Neural Overload applies electrocute to marked enemies, giving the crossbow ammunition its lightning ailment to pay off.",
+     "cites": [
+      {
+       "kind": "support",
+       "id": "Neural Overload",
+       "quote": "hitting a marked enemy with a supported skill will Electrocute them"
+      },
+      {
+       "kind": "skill",
+       "id": "Shockburst Rounds",
+       "quote": "release damaging pulses upon Hitting an enemy affected by a Lightning Ailment"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "support",
+     "id": "Neural Overload"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportNeuralOverloadPlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 444.28349628965,
+     "baseline": 17.009969699399,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 648,
+     "items": {
+      "weapon": "LocalColdDamage r1, LocalFireDamage r1, LocalLightningDamage r1, Dexterity r1, Strength r1 [Alloy Crossbow]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Chain Mail]"
+     },
+     "seconds": 33.024719025000195,
+     "notes": [
+      "floors not met (deficit 332); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 25,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 23,
+      "FireResist": -7,
+      "FullDPS": 444.28349628965,
+      "HitAilmentDPS": 444.28349628965,
+      "Life": 1262,
+      "LightningResist": -7,
+      "Speed": 5.1783567134269,
+      "TotalDPS": 444.25822617234,
+      "TotalEHP": 1186.7112616608
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 5969.990515465932,
+       "dps": 954.56500060373,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.4348146886883477,
+        "chasm_slam": 0.7174073443441739
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.27948922789938,
+       "ehp": 1186.7112616608,
+       "ehp_survival_s": 0.19564245952957,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 189,
+        "magic": 468,
+        "rare": 1508
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Neural Overload"
+     },
+     "baseline": 954.56500060373,
+     "without": 1352.8438172408,
+     "delta_rel": -0.41723593090588085,
+     "verdict": "not_load_bearing",
+     "replacement": "Fresh Clip II",
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1186.7112616608,
+     "ehp_without": 1186.7112616608,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 5,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Stun-rupture bleeder",
+   "source": "llm",
+   "vector": {
+    "class_asc": "warbringer",
+    "delivery": "melee",
+    "damage": "unknown",
+    "defence": "armour",
+    "main_skill": "boneshatter",
+    "key_pieces": "notable:Anvil's Weight,support:Rupture"
+   },
+   "claims": [
+    {
+     "text": "Rupture aggravates bleeding whenever the strike lands on a heavily stunned enemy, which is exactly what Boneshatter causes.",
+     "cites": [
+      {
+       "kind": "support",
+       "id": "Rupture",
+       "quote": "Supported skills Aggravate Bleeding on Hitting Heavily Stunned Enemies."
+      },
+      {
+       "kind": "skill",
+       "id": "Boneshatter",
+       "quote": "The Strike will cause a Heavy Stun on enemies that are Primed for Stun."
+      }
+     ]
+    },
+    {
+     "text": "Breaking armour off each hit raises later hits; bleeding is assumed present from bleed sources in the tree.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Anvil's Weight",
+       "quote": "Break Armour equal to 10% of Hit Damage dealt"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "support",
+     "id": "Rupture"
+    },
+    {
+     "kind": "notable",
+     "id": "Anvil's Weight"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportRupturePlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 560.62520815961,
+     "baseline": 36.266347320929,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 604,
+     "items": {
+      "weapon": "LocalIncreasedPhysicalDamagePercentAndAccuracyRating r1, LocalPhysicalDamage r1, LocalPhysicalDamagePercent r1, LocalAttributeRequirements r4, Strength r1 [Fortified Hammer]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Full Plate]"
+     },
+     "seconds": 30.19280913500006,
+     "notes": [
+      "floors not met (deficit 356); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 270,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 560.62520815961,
+      "HitAilmentDPS": 560.62520815961,
+      "Life": 1271,
+      "LightningResist": -7,
+      "Speed": 0.84,
+      "TotalDPS": 560.62520815961,
+      "TotalEHP": 1203.0029900832
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 7418.467196368895,
+       "dps": 768.18348712108,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.472274249389863,
+        "chasm_slam": 0.7361371246949315
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.28332618701914,
+       "ehp": 1203.0029900832,
+       "ehp_survival_s": 0.19832833091339,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 43,
+        "magic": 106,
+        "rare": 340
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Rupture"
+     },
+     "baseline": 768.18348712108,
+     "without": 1109.7969123807,
+     "delta_rel": -0.44470290104761817,
+     "verdict": "not_load_bearing",
+     "replacement": "Brutality III",
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1203.0029900832,
+     "ehp_without": 1203.0029900832,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Anvil's Weight"
+     },
+     "baseline": 768.18348712108,
+     "without": 768.18348712108,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1203.0029900832,
+     "ehp_without": 1203.0029900832,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 6,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_bleeding"
+   ]
+  },
+  {
+   "name": "Ignite-extending forge blaster",
+   "source": "llm",
+   "vector": {
+    "class_asc": "smith of kitava",
+    "delivery": "projectile",
+    "damage": "Fire",
+    "defence": "armour",
+    "main_skill": "molten blast",
+    "key_pieces": "support:Eternal Flame II,support:Fiery Death"
+   },
+   "claims": [
+    {
+     "text": "Eternal Flame lengthens the ignites, so more damage accumulates before the target dies.",
+     "cites": [
+      {
+       "kind": "support",
+       "id": "Eternal Flame II",
+       "quote": "causing its Ignites to last longer"
+      }
+     ]
+    },
+    {
+     "text": "Fiery Death makes ignited enemies explode on death, a chain effect in packs.",
+     "cites": [
+      {
+       "kind": "support",
+       "id": "Fiery Death",
+       "quote": "causing enemies it Ignites to have a chance to explode on death"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "support",
+     "id": "Eternal Flame II"
+    },
+    {
+     "kind": "support",
+     "id": "Fiery Death"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportIgniteDurationPlayerTwo",
+     "SupportFieryDeathPlayer",
+     "SupportRakiatasFlowPlayer",
+     "SupportConcentratedAreaPlayer",
+     "SupportXophsPyrePlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 142672.03089959,
+     "baseline": 125872.86244474,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget, body_armour:budget",
+     "evals": 442,
+     "items": {
+      "weapon": "LocalFireDamage r1, LocalPhysicalDamage r1, LocalPhysicalDamagePercent r1, LocalIncreasedAttackSpeed r1 [Fortified Hammer]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Full Plate]"
+     },
+     "seconds": 48.82862679800019,
+     "notes": [
+      "floors not met (deficit 234); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 297,
+      "ChaosResist": 0,
+      "ColdResist": -2,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -2,
+      "FullDPS": 142672.03089959,
+      "HitAilmentDPS": 21101.76462891,
+      "Life": 1644,
+      "LightningResist": -2,
+      "Speed": 1.6821,
+      "TotalDPS": 18737.899107688,
+      "TotalEHP": 1607.828428063
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 78.90359958062783,
+       "dps": 72224.132109166,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.8979510755434472,
+        "chasm_slam": 0.9489755377717236
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.37866896562953,
+       "ehp": 1607.828428063,
+       "ehp_survival_s": 0.26506827594067,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 4,
+        "magic": 10,
+        "rare": 32
+       },
+       "coverage": 0.03361111111111112,
+       "clear_s": 565.9985230976037,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Eternal Flame II"
+     },
+     "baseline": 72224.132109166,
+     "without": 87421.213243762,
+     "delta_rel": -0.21041555904923537,
+     "verdict": "not_load_bearing",
+     "replacement": "Fire Attunement",
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1607.828428063,
+     "ehp_without": 1607.828428063,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Fiery Death"
+     },
+     "baseline": 72224.132109166,
+     "without": 31859.032851901,
+     "delta_rel": 0.5588865948053704,
+     "verdict": "confirmed",
+     "replacement": "Hit and Run",
+     "note": "",
+     "ehp_baseline": 1607.828428063,
+     "ehp_without": 1607.828428063,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 7,
+   "rank_note": "survival check FAILED on arbiter_ash; ARTEFACT AUDIT: FullDPS 142,672 > 3x TotalDPS 18,738; time-to-kill rests on FullDPS, ranked after unflagged candidates",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_ignited"
+   ]
+  }
+ ],
+ "estimate": "7 candidate(s) screened, top 0 deepened: ~24.8 min wall (screen 17.9 min, ablation 6.8 min, deepen 0.0 min); cap 45 min",
+ "rejected": [],
+ "notes": [
+  "successive halving: top 0 of 7 by screen rank deepened; the rest keep their screen numbers",
+  "ranking basis: benchmark metrics only (boss time-to-kill with its survival check, pack clear proxy); a candidate missing a benchmark value ranks after those that have it. Per-skill DPS is shown but never ranks across archetypes.",
+  "ablation measures the objective metric under the first benchmark's PoB options, not time-to-kill, and also TotalEHP: a piece is confirmed when removal costs either at least the threshold; a unique key piece is replaced by the best rare for its slot at the screen tier."
+ ],
+ "meta": {}
+}

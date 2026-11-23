@@ -1,0 +1,94 @@
+slate: 1
+pob_sha: "601768b"
+prompt: "use a keystone most players ignore to make a strong boss killer"
+brief: { benchmarks: [arbiter_ash, breach_t15], tiers: [mid], constraints: {}, floors: {} }
+candidates:
+  - name: "Blood Barbs Exsanguinate"
+    archetype: { defence: life, engine: "Aggravated, amplified bleed from a chaining blood spell, with elemental damage also feeding bleed" }
+    spec: { pob_sha: "601768b", class: Witch, ascendancy: "Blood Mage", level: 90, main_skill: { gem: Exsanguinate }, tiers: [mid],
+            conditions: [enemy_bleeding],
+            fixed: { keystones: ["Crimson Assault"], notables: ["Blood Barbs"], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: "Crimson Assault" }, { kind: notable, id: "Blood Barbs" } ]
+    claims:
+      - text: "The keystone makes every bleed this spell inflicts aggravated and stronger, which is the boss damage source."
+        cites: [ { kind: keystone, id: "Crimson Assault", quote: "Bleeding you inflict is Aggravated" } ]
+      - text: "The ascendancy notable lets elemental damage add to bleed magnitude."
+        cites: [ { kind: notable, id: "Blood Barbs", quote: "Elemental Damage also Contributes to Bleeding Magnitude" } ]
+      - text: "The skill itself inflicts the bleed on every enemy its tendrils hit, so the bleed condition is sustained by the build."
+        cites: [ { kind: skill, id: "Exsanguinate", quote: "Enemies Hit by the tendrils take Physical damage and are inflicted with Bleeding" } ]
+    bases: { weapon: "Dark Staff", body_armour: "Abyssal Cuirass" }
+    source: llm
+  - name: "Wildsurge Thunderstorm"
+    archetype: { defence: energy_shield, engine: "Storm spell with a large more-damage multiplier and cheap cost from an ignored keystone, shock set up by drench" }
+    spec: { pob_sha: "601768b", class: Sorceress, ascendancy: Stormweaver, level: 90, main_skill: { gem: Thunderstorm }, tiers: [mid],
+            conditions: [enemy_shocked],
+            fixed: { keystones: ["Wildsurge Incantation"], notables: [], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: "Wildsurge Incantation" } ]
+    claims:
+      - text: "The keystone boosts damage of Storm spells, and this main skill is a Storm spell."
+        cites: [ { kind: keystone, id: "Wildsurge Incantation", quote: "deal 50% more damage" } ]
+      - text: "The storm drenches enemies so shock lands more easily, which is where the shocked condition comes from."
+        cites: [ { kind: skill, id: "Thunderstorm", quote: "Enemies in the area are Drenched, causing them to become Shocked or Frozen more easily" } ]
+    bases: { weapon: "Dark Staff", body_armour: "Feathered Raiment" }
+    source: llm
+  - name: "Blackflame Flameblast"
+    archetype: { defence: energy_shield, engine: "Fire channel converted to chaos, with ignite dealing chaos damage and scaling off the converted hits" }
+    spec: { pob_sha: "601768b", class: Witch, ascendancy: Infernalist, level: 90, main_skill: { gem: Flameblast }, tiers: [mid],
+            conditions: [enemy_ignited],
+            fixed: { keystones: ["Blackflame Covenant"], notables: [], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: "Blackflame Covenant" } ]
+    claims:
+      - text: "The keystone turns fire spell damage into chaos damage, sidestepping fire resistance on a boss."
+        cites: [ { kind: keystone, id: "Blackflame Covenant", quote: "Fire Spells Convert 100% of Fire Damage to Chaos Damage" } ]
+      - text: "Ignite from the spell deals chaos damage and the converted damage still scales ignite."
+        cites: [ { kind: keystone, id: "Blackflame Covenant", quote: "Chaos Damage from Fire Spells Contributes to Flammability and Ignite Magnitudes" } ]
+    bases: { weapon: "Dark Staff", body_armour: "Feathered Raiment" }
+    source: llm
+  - name: "Primal Hunger Bear Slam"
+    archetype: { defence: armour, engine: "Bear form slam that spends rage, with the keystone letting rage pool grow much larger" }
+    spec: { pob_sha: "601768b", class: Druid, ascendancy: Shaman, level: 90, main_skill: { gem: "Furious Slam" }, tiers: [mid],
+            fixed: { keystones: ["Primal Hunger"], notables: [], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: "Primal Hunger" } ]
+    claims:
+      - text: "The keystone enlarges the rage pool and refunds rage as it is spent, feeding a rage-spending slam."
+        cites: [ { kind: keystone, id: "Primal Hunger", quote: "Regenerate 1 Rage per second per 4 Rage spent Recently" } ]
+      - text: "The slam spends rage for larger shockwaves."
+        cites: [ { kind: skill, id: "Furious Slam", quote: "Can spend Rage to create larger shockwaves that leave behind Jagged Ground" } ]
+    bases: { weapon: "Fungal Talisman", body_armour: "Abyssal Cuirass" }
+    source: llm
+  - name: "Resolute Earthquake"
+    archetype: { defence: armour, engine: "Never-crit slam with doubled accuracy, relying on hit damage and aftershock rather than crit" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: Titan, level: 90, main_skill: { gem: Earthquake }, tiers: [mid],
+            fixed: { keystones: ["Resolute Technique"], notables: [], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: "Resolute Technique" } ]
+    claims:
+      - text: "The keystone doubles accuracy and removes crits, so all investment goes to base hit damage and multipliers."
+        cites: [ { kind: keystone, id: "Resolute Technique", quote: "Accuracy Rating is Doubled" } ]
+      - text: "The slam leaves a ground patch that erupts later, a second damage instance that needs no crit."
+        cites: [ { kind: skill, id: "Earthquake", quote: "The Jagged Ground erupts in a powerful Aftershock after a duration" } ]
+    bases: { weapon: "Fanatic Greathammer", body_armour: "Abyssal Cuirass" }
+    source: llm
+  - name: "Avatar Forge Hammer"
+    archetype: { defence: armour, engine: "Fire-only slam attack with nearly all damage converted to fire by an ignored keystone" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: "Smith of Kitava", level: 90, main_skill: { gem: "Forge Hammer" }, tiers: [mid],
+            fixed: { keystones: ["Avatar of Fire"], notables: [], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: "Avatar of Fire" } ]
+    claims:
+      - text: "The keystone converts most damage to fire and removes non-fire damage, matching a fire skill."
+        cites: [ { kind: keystone, id: "Avatar of Fire", quote: "75% of Damage Converted to Fire Damage" } ]
+      - text: "The skill hurls a fiery hammer that slams the ground."
+        cites: [ { kind: skill, id: "Forge Hammer", quote: "Hurl a fiery hammer that Slams into the ground and lodges there" } ]
+    bases: { weapon: "Fanatic Greathammer", body_armour: "Abyssal Cuirass" }
+    source: llm
+  - name: "Ancestral Bond Shockwave"
+    archetype: { defence: armour, engine: "Doubled totem limit with no charge requirement, so several slamming totems deal the damage" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: Warbringer, level: 90, main_skill: { gem: "Shockwave Totem" }, tiers: [mid],
+            fixed: { keystones: ["Ancestral Bond"], notables: [], uniques: [], supports: [] } }
+    key_pieces: [ { kind: keystone, id: "Ancestral Bond" } ]
+    claims:
+      - text: "The keystone doubles how many totems can stand, multiplying totem damage on a boss."
+        cites: [ { kind: keystone, id: "Ancestral Bond", quote: "Your Totem Limit is doubled" } ]
+      - text: "The totem repeatedly slams nearby enemies."
+        cites: [ { kind: skill, id: "Shockwave Totem", quote: "Slams the ground around it, repeatedly damaging nearby enemies" } ]
+    bases: { weapon: "Fanatic Greathammer", body_armour: "Abyssal Cuirass" }
+    source: llm

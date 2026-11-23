@@ -1,0 +1,102 @@
+slate: 1
+pob_sha: "601768b"
+prompt: "a tanky lightning build that deletes Arbiter on a budget"
+brief: { benchmarks: [arbiter_ash, breach_t15], tiers: [budget], constraints: {}, floors: {} }
+candidates:
+  - name: "Plated Thunder Titan"
+    archetype: { defence: armour, engine: "body armour armour is multiplied and also mitigates lightning, slam cone delivers lightning" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: Titan, level: 90, main_skill: { gem: Falling Thunder }, tiers: [budget],
+            fixed: { keystones: [], notables: [Stone Skin, Brinerot Ferocity], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Stone Skin }, { kind: notable, id: Brinerot Ferocity } ]
+    claims:
+      - text: "Armour from the body piece is boosted, making the armour layer the tank."
+        cites: [ { kind: notable, id: Stone Skin, quote: "50% more Armour from Equipped Body Armour" } ]
+      - text: "The same armour also applies against lightning hits, so it is a lightning-specific mitigation."
+        cites: [ { kind: notable, id: Brinerot Ferocity, quote: "+30% of Armour also applies to Lightning Damage" } ]
+    bases: { weapon: Barrier Quarterstaff, body_armour: Full Plate }
+    source: llm
+  - name: "Shock-Locked Arc Weaver"
+    archetype: { defence: energy_shield, engine: "all hit damage builds shock so Arc chains keep the boss shocked and kills refill energy shield" }
+    spec: { pob_sha: "601768b", class: Sorceress, ascendancy: Stormweaver, level: 90, main_skill: { gem: Arc }, tiers: [budget],
+            conditions: [enemy_shocked],
+            fixed: { keystones: [], notables: [Shaper of Storms], uniques: [], supports: [Shock Siphon] } }
+    key_pieces: [ { kind: notable, id: Shaper of Storms }, { kind: support, id: Shock Siphon } ]
+    claims:
+      - text: "Every hit adds to shock chance, which is where the declared shocked-enemy condition comes from."
+        cites: [ { kind: notable, id: Shaper of Storms, quote: "All Damage from Hits Contributes to Shock Chance" } ]
+      - text: "Killing shocked enemies in packs returns energy shield."
+        cites: [ { kind: support, id: Shock Siphon, quote: "causing you to recover Energy Shield when it kills a Shocked enemy" } ]
+    bases: { body_armour: Arcane Raiment }
+    source: llm
+  - name: "Frozen-Life Conduit Lich"
+    archetype: { defence: energy_shield, engine: "life cannot change while energy shield remains, shock support feeds the conduit cone that hits shocked targets harder" }
+    spec: { pob_sha: "601768b", class: Witch, ascendancy: Lich, level: 90, main_skill: { gem: Lightning Conduit }, tiers: [budget],
+            conditions: [enemy_shocked],
+            fixed: { keystones: [], notables: [Eternal Life], uniques: [], supports: [Shock] } }
+    key_pieces: [ { kind: notable, id: Eternal Life }, { kind: support, id: Shock } ]
+    claims:
+      - text: "Life is protected for as long as shield lasts, so the build treats shield as the only health bar."
+        cites: [ { kind: notable, id: Eternal Life, quote: "Your Life cannot change while you have Energy Shield" } ]
+      - text: "The cone is built around shocked targets, and the shock support is the declared source of that condition."
+        cites: [ { kind: skill, id: Lightning Conduit, quote: "dealing significantly more damage to Shocked enemies" },
+                 { kind: support, id: Shock, quote: "making it more likely to Shock" } ]
+    bases: { body_armour: Altar Robe }
+    source: llm
+  - name: "Evasion Arrow Pathfinder"
+    archetype: { defence: evasion, engine: "evasion also reduces elemental damage taken while the arrow chains in packs" }
+    spec: { pob_sha: "601768b", class: Ranger, ascendancy: Pathfinder, level: 90, main_skill: { gem: Lightning Arrow }, tiers: [budget],
+            fixed: { keystones: [], notables: [Sustainable Practices], uniques: [], supports: [Electrocute] } }
+    key_pieces: [ { kind: notable, id: Sustainable Practices }, { kind: support, id: Electrocute } ]
+    claims:
+      - text: "Evasion rating doubles as elemental damage reduction, a direct answer to lightning-heavy boss hits."
+        cites: [ { kind: notable, id: Sustainable Practices, quote: "50% of Evasion Rating also grants Elemental Damage reduction" } ]
+      - text: "Lightning damage can electrocute instead of shock."
+        cites: [ { kind: support, id: Electrocute, quote: "Lightning Damage from Supported Skills can inflict Electrocute" } ]
+    bases: { weapon: Composite Bow, body_armour: Armoured Vest }
+    source: llm
+  - name: "Warded Crossbow Witchhunter"
+    archetype: { defence: energy_shield, engine: "a ward that absorbs all damage types stands in for lost armour and evasion while shards chain" }
+    spec: { pob_sha: "601768b", class: Mercenary, ascendancy: Witchhunter, level: 90, main_skill: { gem: Galvanic Shards }, tiers: [budget],
+            fixed: { keystones: [], notables: [Obsessive Rituals, Ceremonial Ablution], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Obsessive Rituals }, { kind: notable, id: Ceremonial Ablution } ]
+    claims:
+      - text: "The ascendancy trades away armour and evasion for the ward skill."
+        cites: [ { kind: notable, id: Obsessive Rituals, quote: "Grants Skill: Sorcery Ward" } ]
+      - text: "The ward barrier then also soaks physical and chaos hits, not just elemental."
+        cites: [ { kind: notable, id: Ceremonial Ablution, quote: "Sorcery Ward's Barrier can also take Physical and Chaos Damage from Hits" } ]
+    bases: { weapon: Bombard Crossbow, body_armour: Assassin Garb }
+    source: llm
+  - name: "Thunder Monk Staff"
+    archetype: { defence: armour_evasion, engine: "armour and evasion combined feed physical reduction while extra lightning and shocked ground amplify the staff sweep" }
+    spec: { pob_sha: "601768b", class: Monk, ascendancy: Invoker, level: 90, main_skill: { gem: Storm Wave }, tiers: [budget],
+            fixed: { keystones: [], notables: [I am the Thunder..., ...and Protect me from Harm], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: "I am the Thunder..." }, { kind: notable, id: "...and Protect me from Harm" } ]
+    claims:
+      - text: "A share of damage becomes extra lightning, converting the whole build to lightning scaling."
+        cites: [ { kind: notable, id: "I am the Thunder...", quote: "Gain 10% of Damage as Extra Lightning Damage" } ]
+      - text: "Armour mitigation scales from combined armour and evasion, so hybrid gear covers physical hits."
+        cites: [ { kind: notable, id: "...and Protect me from Harm", quote: "Physical Damage Reduction from Armour is based on your combined Armour and Evasion Rating" } ]
+    bases: { weapon: Barrier Quarterstaff, body_armour: Ancestral Mail }
+    source: llm
+  - name: "Panther Spear Amazon"
+    archetype: { defence: evasion, engine: "helmet gloves and boots evasion doubled, thrown spear bursts into lightning bolts" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Amazon, level: 90, main_skill: { gem: Lightning Spear }, tiers: [budget],
+            fixed: { keystones: [], notables: [Stalking Panther], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Stalking Panther } ]
+    claims:
+      - text: "Evasion is concentrated in the small armour slots, trading body armour for them."
+        cites: [ { kind: notable, id: Stalking Panther, quote: "Evasion Rating from Equipped Helmet, Gloves and Boots is doubled" } ]
+    bases: { weapon: Akoyan Spear, body_armour: Hunting Coat }
+    source: llm
+  - name: "Mana-Shield Orb Oracle"
+    archetype: { defence: mana_shield, engine: "hits are taken from mana first and enemy damage rolls are unlucky while a slow ball discharges bolts" }
+    spec: { pob_sha: "601768b", class: Druid, ascendancy: Oracle, level: 90, main_skill: { gem: Ball Lightning }, tiers: [budget],
+            fixed: { keystones: [], notables: [Harmony Within, The Lesser Harm], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: Harmony Within }, { kind: notable, id: The Lesser Harm } ]
+    claims:
+      - text: "Mana acts as a second health pool for hits, under a condition on current mana versus life."
+        cites: [ { kind: notable, id: Harmony Within, quote: "Hit damage is taken from Mana before Life if your current Mana is higher than your current Life" } ]
+      - text: "Enemy damage rolls are unlucky, so big hits are statistically smaller."
+        cites: [ { kind: notable, id: The Lesser Harm, quote: "Damage of Enemies Hitting you is Unlucky" } ]
+    bases: { body_armour: Altar Robe }
+    source: llm

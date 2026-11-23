@@ -24,6 +24,20 @@ def conditions() -> dict[str, dict]:
     return _load("config_profiles.yaml").get("conditions") or {}
 
 
+def conditions_not_in_fight(names, kind: str) -> tuple[dict, list[str]]:
+    """Options that switch off the declared conditions which cannot hold in a benchmark of `kind` (boss | pack), and
+    their names. A condition without `fights` holds in both."""
+    table = conditions()
+    off: dict = {}
+    dropped: list[str] = []
+    for n in names or ():
+        fights = table[n].get("fights")
+        if fights and kind not in fights:
+            dropped.append(n)
+            off.update({k: (False if isinstance(v, bool) else 0) for k, v in table[n]["options"].items()})
+    return off, dropped
+
+
 def condition_options(names) -> dict:
     """PoB config options for declared condition names, merged in order (later names win)."""
     table = conditions()

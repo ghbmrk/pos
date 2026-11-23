@@ -1,0 +1,7 @@
+pob_sha: "601768b"
+class: Witch
+ascendancy: Infernalist
+level: 90
+main_skill: { gem: Flameblast }
+tiers: [mid]
+fixed: { keystones: [], notables: [], uniques: [], supports: [] }

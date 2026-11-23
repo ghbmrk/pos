@@ -1,0 +1,1310 @@
+{
+ "prompt": "a tanky lightning build that deletes Arbiter on a budget",
+ "brief": {
+  "benchmarks": [
+   "arbiter_ash",
+   "breach_t15"
+  ],
+  "tiers": [
+   "budget"
+  ],
+  "constraints": {},
+  "floors": {}
+ },
+ "screen_tier": "budget",
+ "deepen_k": 0,
+ "candidates": [
+  {
+   "name": "Plated Thunder Titan",
+   "source": "llm",
+   "vector": {
+    "class_asc": "titan",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "armour",
+    "main_skill": "falling thunder",
+    "key_pieces": "notable:Brinerot Ferocity,notable:Stone Skin"
+   },
+   "claims": [
+    {
+     "text": "Armour from the body piece is boosted, making the armour layer the tank.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Stone Skin",
+       "quote": "50% more Armour from Equipped Body Armour"
+      }
+     ]
+    },
+    {
+     "text": "The same armour also applies against lightning hits, so it is a lightning-specific mitigation.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Brinerot Ferocity",
+       "quote": "+30% of Armour also applies to Lightning Damage"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Stone Skin"
+    },
+    {
+     "kind": "notable",
+     "id": "Brinerot Ferocity"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 745.19761369085,
+     "baseline": 59.6828232,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget, body_armour:budget",
+     "evals": 520,
+     "items": {
+      "weapon": "LocalColdDamage r7, LocalFireDamage r1, LocalLightningDamage r1, Dexterity r1, Intelligence r1 [Barrier Quarterstaff]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Full Plate]"
+     },
+     "seconds": 46.91434963099982,
+     "notes": [
+      "floors not met (deficit 332); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 510,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 745.19761369085,
+      "HitAilmentDPS": 745.19761369085,
+      "Life": 1361,
+      "LightningResist": 1,
+      "Speed": 0.8736,
+      "TotalDPS": 744.5155536,
+      "TotalEHP": 1487.1982803245
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 3916.898015622125,
+       "dps": 1454.912529576,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.6005448663374766,
+        "chasm_slam": 0.8002724331687383
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.35025866234681,
+       "ehp": 1487.1982803245,
+       "ehp_survival_s": 0.24518106364277,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 19,
+        "magic": 47,
+        "rare": 152
+       },
+       "coverage": 0.4444444444444444,
+       "clear_s": 391.48351648351644,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Stone Skin"
+     },
+     "baseline": 1454.912529576,
+     "without": 1454.912529576,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1487.1982803245,
+     "ehp_without": 1477.2836251224,
+     "ehp_delta_rel": 0.006666666666624076
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Brinerot Ferocity"
+     },
+     "baseline": 1454.912529576,
+     "without": 1398.9543553615,
+     "delta_rel": 0.03846153846156497,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1487.1982803245,
+     "ehp_without": 1457.8456826866,
+     "ehp_delta_rel": 0.019736842105207035
+    }
+   ],
+   "screen_rank": 2,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Gale-Surge Arc Weaver",
+   "source": "sweep:probe1/Constant Gale",
+   "vector": {
+    "class_asc": "stormweaver",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "energy_shield",
+    "main_skill": "arc",
+    "key_pieces": "notable:Constant Gale,notable:Force of Will"
+   },
+   "claims": [
+    {
+     "text": "The surge buff is always on without needing a trigger, which is the damage lever.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Constant Gale",
+       "quote": "You have Arcane Surge"
+      }
+     ]
+    },
+    {
+     "text": "Part of all damage is paid from mana first, and missing mana strengthens the surge, so mana is both defence and offence.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Force of Will",
+       "quote": "of Damage is taken from Mana before Life"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Constant Gale"
+    },
+    {
+     "kind": "notable",
+     "id": "Force of Will"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportRakiatasFlowPlayer",
+     "SupportAddedLightningDamagePlayer",
+     "SupportElementalFocusPlayer",
+     "SupportDeliberationPlayer",
+     "SupportRapidCastingPlayerTwo"
+    ],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 12366.931523625,
+     "baseline": 12366.931523625,
+     "floors_met": false,
+     "price": "no price: missing anchors body_armour:budget",
+     "evals": 148,
+     "items": {
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Arcane Raiment]"
+     },
+     "seconds": 9.279121452000254,
+     "notes": [
+      "floors not met (deficit 362); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 13,
+      "ColdResist": 1,
+      "EnergyShield": 138,
+      "Evasion": 7,
+      "FireResist": 1,
+      "FullDPS": 12366.931523625,
+      "HitAilmentDPS": 12366.931523625,
+      "Life": 1575,
+      "LightningResist": 1,
+      "Speed": 1.9181818181818,
+      "TotalDPS": 12366.931523625,
+      "TotalEHP": 2031.6458277629
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 694.3881586380551,
+       "dps": 8206.856538535,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 2.391736193881605,
+        "chasm_slam": 1.1958680969408024
+       },
+       "survive": true,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.47848465090979,
+       "ehp": 2031.6458277629,
+       "ehp_survival_s": 0.33493925563685,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 8,
+        "magic": 20,
+        "rare": 64
+       },
+       "coverage": 0.01818181818181818,
+       "clear_s": 1835.0710900474107,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AoE radius: projectiles treated as single-target, coverage = projectiles / monsters"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Constant Gale"
+     },
+     "baseline": 8206.856538535,
+     "without": 6818.4508603918,
+     "delta_rel": 0.16917630661922628,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 2031.6458277629,
+     "ehp_without": 1639.0753236866,
+     "ehp_delta_rel": 0.19322782480673306
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Force of Will"
+     },
+     "baseline": 8206.856538535,
+     "without": 8206.856538535,
+     "delta_rel": 0.0,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "confirmed on survivability: removal costs 19% of EHP (damage metric moves +0.0%)",
+     "ehp_baseline": 2031.6458277629,
+     "ehp_without": 1639.0753236866,
+     "ehp_delta_rel": 0.19322782480673306
+    }
+   ],
+   "screen_rank": 3,
+   "rank_note": "",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Frozen-Life Conduit Lich",
+   "source": "llm",
+   "vector": {
+    "class_asc": "lich",
+    "delivery": "area_spell",
+    "damage": "Lightning",
+    "defence": "energy_shield",
+    "main_skill": "lightning conduit",
+    "key_pieces": "notable:Eternal Life,support:Shock"
+   },
+   "claims": [
+    {
+     "text": "Life is protected for as long as shield lasts, so the build treats shield as the only health bar.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Eternal Life",
+       "quote": "Your Life cannot change while you have Energy Shield"
+      }
+     ]
+    },
+    {
+     "text": "The cone is built around shocked targets, and the shock support is the declared source of that condition.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Lightning Conduit",
+       "quote": "dealing significantly more damage to Shocked enemies"
+      },
+      {
+       "kind": "support",
+       "id": "Shock",
+       "quote": "making it more likely to Shock"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Eternal Life"
+    },
+    {
+     "kind": "support",
+     "id": "Shock"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportShockPlayer",
+     "SupportRakiatasFlowPlayer",
+     "SupportAtzirisImpatiencePlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportEshsRadiancePlayer"
+    ],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 445.65573770492,
+     "baseline": 445.65573770492,
+     "floors_met": false,
+     "price": "no price: missing anchors body_armour:budget",
+     "evals": 148,
+     "items": {
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Altar Robe]"
+     },
+     "seconds": 9.236900105999666,
+     "notes": [
+      "floors not met (deficit 396); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 95,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 445.65573770492,
+      "HitAilmentDPS": 445.65573770492,
+      "Life": 1254,
+      "LightningResist": -7,
+      "Speed": 0.24838549428713,
+      "TotalDPS": 445.65573770492,
+      "TotalEHP": 1228.8176746251
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 17355.136495257375,
+       "dps": 328.3606557377,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.5437879561836654,
+        "chasm_slam": 0.7718939780918327
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.28940595257304,
+       "ehp": 1228.8176746251,
+       "ehp_survival_s": 0.20258416680113,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 26,
+        "magic": 64,
+        "rare": 206
+       },
+       "coverage": 1.0,
+       "clear_s": 829.3560000000122,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Eternal Life"
+     },
+     "baseline": 328.3606557377,
+     "without": 328.3606557377,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1228.8176746251,
+     "ehp_without": 1223.8547599457,
+     "ehp_delta_rel": 0.004038772213228571
+    },
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Shock"
+     },
+     "baseline": 328.3606557377,
+     "without": 410.49180327869,
+     "delta_rel": -0.250124812780852,
+     "verdict": "not_load_bearing",
+     "replacement": "Extraction",
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1228.8176746251,
+     "ehp_without": 1228.8176746251,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 7,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_shocked"
+   ]
+  },
+  {
+   "name": "Evasion Arrow Pathfinder",
+   "source": "llm",
+   "vector": {
+    "class_asc": "pathfinder",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "evasion",
+    "main_skill": "lightning arrow",
+    "key_pieces": "notable:Sustainable Practices,support:Electrocute"
+   },
+   "claims": [
+    {
+     "text": "Evasion rating doubles as elemental damage reduction, a direct answer to lightning-heavy boss hits.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Sustainable Practices",
+       "quote": "50% of Evasion Rating also grants Elemental Damage reduction"
+      }
+     ]
+    },
+    {
+     "text": "Lightning damage can electrocute instead of shock.",
+     "cites": [
+      {
+       "kind": "support",
+       "id": "Electrocute",
+       "quote": "Lightning Damage from Supported Skills can inflict Electrocute"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Sustainable Practices"
+    },
+    {
+     "kind": "support",
+     "id": "Electrocute"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportElectrocutePlayer"
+    ],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 602.65551809981,
+     "baseline": 25.15968,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget, body_armour:budget",
+     "evals": 530,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r1, LocalFireDamage r1, LocalLightningDamage r1, Dexterity r1 [Composite Bow]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Armoured Vest]"
+     },
+     "seconds": 21.830432822999683,
+     "notes": [
+      "floors not met (deficit 356); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 550,
+      "FireResist": -7,
+      "FullDPS": 602.65551809981,
+      "HitAilmentDPS": 602.65551809981,
+      "Life": 1187,
+      "LightningResist": -7,
+      "Speed": 1.08,
+      "TotalDPS": 602.25529455,
+      "TotalEHP": 1213.841743215
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 4925.031329950826,
+       "dps": 1157.0980199342,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.3474090470514783,
+        "chasm_slam": 0.6737045235257392
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.29218007805506,
+       "ehp": 1240.5966114218,
+       "ehp_survival_s": 0.20452605463854,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 29,
+        "magic": 72,
+        "rare": 231
+       },
+       "coverage": 0.28444444444444444,
+       "clear_s": 751.953125,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Sustainable Practices"
+     },
+     "baseline": 1157.0980199342,
+     "without": 1157.0980199342,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1240.5966114218,
+     "ehp_without": 1214.6813286279,
+     "ehp_delta_rel": 0.02088937093274775
+    },
+    {
+     "piece": {
+      "kind": "support",
+      "id": "Electrocute"
+     },
+     "baseline": 1157.0980199342,
+     "without": 1619.9372279078,
+     "delta_rel": -0.39999999999993086,
+     "verdict": "not_load_bearing",
+     "replacement": "Hit and Run",
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1240.5966114218,
+     "ehp_without": 1240.5966114218,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 4,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Warded Crossbow Witchhunter",
+   "source": "llm",
+   "vector": {
+    "class_asc": "witchhunter",
+    "delivery": "attack",
+    "damage": "unknown",
+    "defence": "energy_shield",
+    "main_skill": "galvanic shards",
+    "key_pieces": "notable:Ceremonial Ablution,notable:Obsessive Rituals"
+   },
+   "claims": [
+    {
+     "text": "The ascendancy trades away armour and evasion for the ward skill.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Obsessive Rituals",
+       "quote": "Grants Skill: Sorcery Ward"
+      }
+     ]
+    },
+    {
+     "text": "The ward barrier then also soaks physical and chaos hits, not just elemental.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Ceremonial Ablution",
+       "quote": "Sorcery Ward's Barrier can also take Physical and Chaos Damage from Hits"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Obsessive Rituals"
+    },
+    {
+     "kind": "notable",
+     "id": "Ceremonial Ablution"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 100.21190829939,
+     "baseline": 4.6175577234637,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget, body_armour:budget",
+     "evals": 618,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r1, LocalFireDamage r1, LocalLightningDamage r7, Dexterity r1, Strength r1 [Bombard Crossbow]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Assassin Garb]"
+     },
+     "seconds": 33.77506824500051,
+     "notes": [
+      "floors not met (deficit 392); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 76,
+      "Evasion": 166,
+      "FireResist": -7,
+      "FullDPS": 100.21190829939,
+      "HitAilmentDPS": 100.21190829939,
+      "Life": 1262,
+      "LightningResist": -7,
+      "Speed": 0.73743016759777,
+      "TotalDPS": 100.16979146648,
+      "TotalEHP": 1295.7516887429
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 33483.714632612864,
+       "dps": 170.19449790823,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.5755718258697995,
+        "chasm_slam": 0.7877859129348997
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.30516996908689,
+       "ehp": 1295.7516887429,
+       "ehp_survival_s": 0.21361897836082,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 119,
+        "magic": 295,
+        "rare": 949
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Obsessive Rituals"
+     },
+     "baseline": 170.19449790823,
+     "without": 170.19449790823,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1295.7516887429,
+     "ehp_without": 1274.1326061618,
+     "ehp_delta_rel": 0.016684587617303567
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Ceremonial Ablution"
+     },
+     "baseline": 170.19449790823,
+     "without": 170.19449790823,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1295.7516887429,
+     "ehp_without": 1295.7516887429,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 8,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Thunder Monk Staff",
+   "source": "llm",
+   "vector": {
+    "class_asc": "invoker",
+    "delivery": "melee",
+    "damage": "Lightning",
+    "defence": "armour_evasion",
+    "main_skill": "storm wave",
+    "key_pieces": "notable:...and Protect me from Harm,notable:I am the Thunder..."
+   },
+   "claims": [
+    {
+     "text": "A share of damage becomes extra lightning, converting the whole build to lightning scaling.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "I am the Thunder...",
+       "quote": "Gain 10% of Damage as Extra Lightning Damage"
+      }
+     ]
+    },
+    {
+     "text": "Armour mitigation scales from combined armour and evasion, so hybrid gear covers physical hits.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "...and Protect me from Harm",
+       "quote": "Physical Damage Reduction from Armour is based on your combined Armour and Evasion Rating"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "I am the Thunder..."
+    },
+    {
+     "kind": "notable",
+     "id": "...and Protect me from Harm"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 1111.612237379,
+     "baseline": 71.378682375,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget, body_armour:budget",
+     "evals": 620,
+     "items": {
+      "weapon": "IncreasedWeaponElementalDamagePercent r1, LocalFireDamage r1, LocalLightningDamage r7, Dexterity r1, Intelligence r1 [Barrier Quarterstaff]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Ancestral Mail]"
+     },
+     "seconds": 28.221482449000177,
+     "notes": [
+      "floors not met (deficit 369); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 214,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 176,
+      "FireResist": -7,
+      "FullDPS": 1111.612237379,
+      "HitAilmentDPS": 1111.612237379,
+      "Life": 1187,
+      "LightningResist": -7,
+      "Speed": 1.05,
+      "TotalDPS": 1108.904272875,
+      "TotalEHP": 1294.9562545269
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 2860.6383230578795,
+       "dps": 1992.1232104268,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.3894091605652987,
+        "chasm_slam": 0.6947045802826494
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.30817233879552,
+       "ehp": 1308.4997505258,
+       "ehp_survival_s": 0.21572063715687,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 16,
+        "magic": 38,
+        "rare": 122
+       },
+       "coverage": 1.0,
+       "clear_s": 116.19047619047619,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "I am the Thunder..."
+     },
+     "baseline": 1992.1232104268,
+     "without": 1762.3314664268,
+     "delta_rel": 0.11535016649435476,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1308.4997505258,
+     "ehp_without": 1308.4997505258,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "...and Protect me from Harm"
+     },
+     "baseline": 1992.1232104268,
+     "without": 1992.1232104268,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1308.4997505258,
+     "ehp_without": 1316.5636937805,
+     "ehp_delta_rel": -0.006162739619522005
+    }
+   ],
+   "screen_rank": 1,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Panther Spear Amazon",
+   "source": "llm",
+   "vector": {
+    "class_asc": "amazon",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "evasion",
+    "main_skill": "lightning spear",
+    "key_pieces": "notable:Stalking Panther"
+   },
+   "claims": [
+    {
+     "text": "Evasion is concentrated in the small armour slots, trading body armour for them.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Stalking Panther",
+       "quote": "Evasion Rating from Equipped Helmet, Gloves and Boots is doubled"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Stalking Panther"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 439.89540211169,
+     "baseline": 69.543936,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:budget, body_armour:budget",
+     "evals": 592,
+     "items": {
+      "weapon": "LocalFireDamage r1, LocalLightningDamage r2, LocalPhysicalDamagePercent r7, Dexterity r1, LocalAttributeRequirements r1, Strength r2 [Akoyan Spear]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Hunting Coat]"
+     },
+     "seconds": 31.01663014299993,
+     "notes": [
+      "floors not met (deficit 407); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 212,
+      "FireResist": -7,
+      "FullDPS": 439.89540211169,
+      "HitAilmentDPS": 439.89540211169,
+      "Life": 1247,
+      "LightningResist": -7,
+      "Speed": 0.96,
+      "TotalDPS": 439.7091012,
+      "TotalEHP": 1196.8906339722
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 6699.250546467552,
+       "dps": 850.65395904694,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.4155173392360518,
+        "chasm_slam": 0.7077586696180259
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.28483478469967,
+       "ehp": 1209.4084958348,
+       "ehp_survival_s": 0.19938434928977,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 36,
+        "magic": 88,
+        "rare": 284
+       },
+       "coverage": 0.6944444444444445,
+       "clear_s": 425.99999999999994,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Stalking Panther"
+     },
+     "baseline": 850.65395904694,
+     "without": 850.65395904694,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1209.4084958348,
+     "ehp_without": 1248.5604338043,
+     "ehp_delta_rel": -0.032372798855257776
+    }
+   ],
+   "screen_rank": 6,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Mana-Shield Orb Oracle",
+   "source": "llm",
+   "vector": {
+    "class_asc": "oracle",
+    "delivery": "projectile",
+    "damage": "Lightning",
+    "defence": "mana_shield",
+    "main_skill": "ball lightning",
+    "key_pieces": "notable:Harmony Within,notable:The Lesser Harm"
+   },
+   "claims": [
+    {
+     "text": "Mana acts as a second health pool for hits, under a condition on current mana versus life.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Harmony Within",
+       "quote": "Hit damage is taken from Mana before Life if your current Mana is higher than your current Life"
+      }
+     ]
+    },
+    {
+     "text": "Enemy damage rolls are unlucky, so big hits are statistically smaller.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "The Lesser Harm",
+       "quote": "Damage of Enemies Hitting you is Unlucky"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "notable",
+     "id": "Harmony Within"
+    },
+    {
+     "kind": "notable",
+     "id": "The Lesser Harm"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportRakiatasFlowPlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportConcentratedAreaPlayer",
+     "SupportHourglassPlayer",
+     "SupportEshsRadiancePlayer"
+    ],
+    "tier_run": {
+     "tier": "budget",
+     "ok": true,
+     "value": 17978.950092055,
+     "baseline": 17978.950092055,
+     "floors_met": false,
+     "price": "no price: missing anchors body_armour:budget",
+     "evals": 148,
+     "items": {
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Altar Robe]"
+     },
+     "seconds": 20.62088057500023,
+     "notes": [
+      "floors not met (deficit 353); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 10,
+      "ChaosResist": 0,
+      "ColdResist": 1,
+      "EnergyShield": 100,
+      "Evasion": 7,
+      "FireResist": 1,
+      "FullDPS": 17978.950092055,
+      "HitAilmentDPS": 17978.950092055,
+      "Life": 1373,
+      "LightningResist": 1,
+      "Speed": 0.099681020733652,
+      "TotalDPS": 17978.95,
+      "TotalEHP": 1422.06143945
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 458.24996109669075,
+       "dps": 12435.885398357,
+       "dps_metric": "FullDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.6720585731312787,
+        "chasm_slam": 0.8360292865656394
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.33491790849034,
+       "ehp": 1422.06143945,
+       "ehp_survival_s": 0.23444253594323,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 14,
+        "magic": 33,
+        "rare": 106
+       },
+       "coverage": 0.039999999999999994,
+       "clear_s": 26584.80000000009,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Harmony Within"
+     },
+     "baseline": 12435.885398357,
+     "without": 12435.885398357,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1422.06143945,
+     "ehp_without": 1663.9018247956,
+     "ehp_delta_rel": -0.17006324666192676
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "The Lesser Harm"
+     },
+     "baseline": 12435.885398357,
+     "without": 9541.7856581861,
+     "delta_rel": 0.2327216476724096,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1422.06143945,
+     "ehp_without": 1404.4611133044,
+     "ehp_delta_rel": 0.01237662850376369
+    }
+   ],
+   "screen_rank": 5,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  }
+ ],
+ "estimate": "8 candidate(s) screened, top 0 deepened: ~20.9 min wall (screen 18.7 min, ablation 2.1 min, deepen 0.0 min); cap 45 min",
+ "rejected": [],
+ "notes": [
+  "successive halving: top 0 of 8 by screen rank deepened; the rest keep their screen numbers",
+  "ranking basis: benchmark metrics only (boss time-to-kill with its survival check, pack clear proxy); a candidate missing a benchmark value ranks after those that have it. Per-skill DPS is shown but never ranks across archetypes.",
+  "ablation measures the objective metric under the first benchmark's PoB options, not time-to-kill, and also TotalEHP: a piece is confirmed when removal costs either at least the threshold; a unique key piece is replaced by the best rare for its slot at the screen tier."
+ ],
+ "meta": {}
+}

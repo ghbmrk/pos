@@ -1,0 +1,81 @@
+slate: 1
+pob_sha: "601768b"
+prompt: "Cyclone that builds up charges and dumps them with Elemental Discharge"
+brief: { benchmarks: [arbiter_ash, breach_t15], tiers: [mid], constraints: {}, floors: {} }
+candidates:
+  - name: "Whirling Slash shocked-ground discharge"
+    archetype: { defence: evasion, engine: "Whirlwind counted as on shocked ground triggers Catalysing Discharge" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Amazon, level: 90, main_skill: { gem: Whirling Slash },
+            tiers: [mid], fixed: { keystones: [], notables: [], uniques: ["Berek's Grip"], supports: [Catalysing Elements] } }
+    key_pieces: [ { kind: support, id: Catalysing Elements }, { kind: unique, id: "Berek's Grip" } ]
+    claims:
+      - text: "Catalysing Elements triggers a discharge when the skill is boosted by an elemental ground surface."
+        cites: [ { kind: support, id: SupportCatalysingElementsPlayer, quote: "Triggering Catalysing Discharge of the corresponding type" } ]
+      - text: "The ring makes the whirlwind skill count as boosted by shocked ground, so the discharge needs no real ground."
+        cites: [ { kind: unique, id: "Berek's Grip", quote: "Wind Skills which can be boosted by Elemental Ground Surfaces count" } ]
+    bases: { weapon: Barbed Spear }
+    source: llm
+  - name: "Twister projectile discharge"
+    archetype: { defence: energy_shield, engine: "Spear twisters on elemental ground plus Catalysing Discharge" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Ritualist, level: 90, main_skill: { gem: Twister },
+            tiers: [mid], fixed: { keystones: [], notables: [], uniques: ["Berek's Grip"], supports: [Catalysing Elements] } }
+    key_pieces: [ { kind: support, id: Catalysing Elements }, { kind: unique, id: "Berek's Grip" } ]
+    claims:
+      - text: "Twisters take on extra damage of the element of any ground they pass over."
+        cites: [ { kind: skill, id: TwisterPlayer, quote: "Passing over Elemental Ground Surfaces or Consuming an elemental Whirlwind" } ]
+    bases: { weapon: Akoyan Spear }
+    source: llm
+  - name: "Eye of Winter ground-boosted spell"
+    archetype: { defence: energy_shield, engine: "Eye absorbs ground effect and Catalysing Elements discharges" }
+    spec: { pob_sha: "601768b", class: Sorceress, ascendancy: Stormweaver, level: 90, main_skill: { gem: Eye of Winter },
+            tiers: [mid], fixed: { keystones: [], notables: [], uniques: [], supports: [Catalysing Elements] } }
+    key_pieces: [ { kind: support, id: Catalysing Elements } ]
+    claims:
+      - text: "The eye takes on the effect of elemental ground, making its shards deal more damage of that type."
+        cites: [ { kind: skill, id: EyeOfWinterPlayer, quote: "it will take on that surface's effect" } ]
+    bases: { weapon: Gelid Staff }
+    source: llm
+  - name: "Tornado storm discharge"
+    archetype: { defence: life, engine: "Tornado absorbs ground debuff, discharge supplies the ground trigger" }
+    spec: { pob_sha: "601768b", class: Druid, level: 90, main_skill: { gem: Tornado },
+            tiers: [mid], fixed: { keystones: [], notables: [], uniques: [], supports: [Catalysing Elements] } }
+    key_pieces: [ { kind: support, id: Catalysing Elements } ]
+    claims:
+      - text: "A tornado overlapping elemental ground applies that debuff and deals extra damage of that element."
+        cites: [ { kind: skill, id: TornadoPlayer, quote: "absorbs that surface's Debuff" } ]
+    bases: { weapon: Ashen Staff }
+    source: llm
+  - name: "Wind Serpent frenzy dump"
+    archetype: { defence: evasion, engine: "Spend all frenzy charges in one thrust that spawns serpents; charges persist sometimes" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Amazon, level: 90, main_skill: { gem: Wind Serpent's Fury },
+            tiers: [mid], fixed: { keystones: [], notables: [], uniques: [], supports: [Perpetual Charge] } }
+    key_pieces: [ { kind: support, id: Perpetual Charge } ]
+    claims:
+      - text: "Each frenzy charge spent adds a serpent that follows the thrust."
+        cites: [ { kind: skill, id: WindSerpentsFuryPlayer, quote: "For each Frenzy Charge consumed, a Wind Serpent follows" } ]
+      - text: "The support can keep charges while still granting the consume benefits."
+        cites: [ { kind: support, id: SupportPerpetualChargePlayer, quote: "a chance not to remove each Charge" } ]
+    bases: { weapon: Coursing Spear }
+    source: llm
+  - name: "Falling Thunder power dump"
+    archetype: { defence: armour, engine: "Quarterstaff slam spends power charges into lightning projectiles; notable counts extra" }
+    spec: { pob_sha: "601768b", class: Monk, ascendancy: Invoker, level: 90, main_skill: { gem: Falling Thunder },
+            tiers: [mid], fixed: { keystones: [], notables: [One with the Storm], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: One with the Storm } ]
+    claims:
+      - text: "The slam turns stored power charges into forward lightning projectiles."
+        cites: [ { kind: skill, id: FallingThunderPlayer, quote: "Consumes your Power Charges to fire Lightning Projectiles" } ]
+      - text: "The notable makes each charge-spending quarterstaff skill count an extra charge."
+        cites: [ { kind: notable, id: One with the Storm, quote: "count as consuming an additional Power Charge" } ]
+    bases: { weapon: Wrapped Quarterstaff }
+    source: llm
+  - name: "Spiral Volley frenzy spin"
+    archetype: { defence: evasion, engine: "Bow spin consuming frenzy charges for damage and chaining" }
+    spec: { pob_sha: "601768b", class: Ranger, ascendancy: Deadeye, level: 90, main_skill: { gem: Spiral Volley },
+            tiers: [mid], fixed: { keystones: [], notables: [], uniques: [], supports: [Perpetual Charge] } }
+    key_pieces: [ { kind: support, id: Perpetual Charge } ]
+    claims:
+      - text: "Spending frenzy charges makes the volley deal more damage and chain."
+        cites: [ { kind: skill, id: SpiralVolleyPlayer, quote: "Consumes Frenzy Charges to cause the arrows to deal more damage" } ]
+    bases: { weapon: Composite Bow }
+    source: llm

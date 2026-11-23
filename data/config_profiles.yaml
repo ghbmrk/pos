@@ -25,6 +25,13 @@ profiles:
 # conditions the build can plausibly sustain belong here; the slate must justify each one in a claim (the report lists
 # them next to every figure). Option keys checked with PobEngine.list_config_options at the pinned PoB.
 # `needs` = what the build itself must provide for the assumption to be fair (reviewed by Opus, not enforced).
+# `fights` (I13): benchmark kinds (boss | pack) where the condition can hold; absent = both. A declared condition is
+# switched off (booleans false, numbers 0) when a benchmark of another kind is evaluated, and the result says so.
+# Review (I13): a condition is credited in a fight only where it can be near-permanent. corpses_nearby and
+# killed_recently need trash, and Arbiter of Ash is a lone boss. enemy_frozen, enemy_electrocuted and
+# enemy_heavy_stunned are buildup states with short windows on a pinnacle boss, so always-on overstates them there.
+# Every other condition can hold in both fights when the build has the source its `needs` names (the client must still
+# argue that source).
 conditions:
   power_charges:     { options: { usePowerCharges: true },     needs: "a way to gain Power Charges", description: "Power Charges at maximum" }
   frenzy_charges:    { options: { useFrenzyCharges: true },    needs: "a way to gain Frenzy Charges", description: "Frenzy Charges at maximum" }
@@ -32,6 +39,9 @@ conditions:
   enemy_shocked:     { options: { conditionEnemyShocked: true },  needs: "lightning hits or a shock source", description: "Enemy is Shocked" }
   enemy_chilled:     { options: { conditionEnemyChilled: true },  needs: "cold hits or a chill source", description: "Enemy is Chilled" }
   enemy_ignited:     { options: { conditionEnemyIgnited: true },  needs: "fire hits or an ignite source", description: "Enemy is Ignited" }
+  enemy_frozen:      { fights: [pack], options: { conditionEnemyFrozen: true },      needs: "a freeze source that fills the target's freeze buildup", description: "Enemy is Frozen" }
+  enemy_electrocuted: { fights: [pack], options: { conditionEnemyElectrocuted: true }, needs: "an electrocute source that fills the target's buildup", description: "Enemy is Electrocuted" }
+  enemy_heavy_stunned: { fights: [pack], options: { conditionEnemyHeavyStunned: true }, needs: "stun buildup high enough to Heavy Stun the target", description: "Enemy is Heavy Stunned" }
   enemy_bleeding:    { options: { conditionEnemyBleeding: true }, needs: "physical hits or a bleed source", description: "Enemy is Bleeding" }
   enemy_poisoned:    { options: { conditionEnemyPoisoned: true }, needs: "chaos/physical hits or a poison source", description: "Enemy is Poisoned" }
   ground_shocked:    { options: { conditionEnemyOnShockedGround: true }, needs: "a shocked-ground source", description: "Enemy stands on Shocked Ground" }
@@ -39,8 +49,8 @@ conditions:
   ground_scorched:   { options: { conditionEnemyOnScorchedGround: true }, needs: "a scorched-ground source", description: "Enemy stands on Scorched Ground" }
   ground_brittle:    { options: { conditionEnemyOnBrittleGround: true }, needs: "a brittle-ground source", description: "Enemy stands on Brittle Ground" }
   ground_sapped:     { options: { conditionEnemyOnSappedGround: true }, needs: "a sapped-ground source", description: "Enemy stands on Sapped Ground" }
-  corpses_nearby:    { options: { multiplierNearbyCorpse: 5 }, needs: "kills or corpse generation in the fight (not true on a lone boss)", description: "5 nearby corpses" }
+  corpses_nearby:    { fights: [pack], options: { multiplierNearbyCorpse: 5 }, needs: "kills or corpse generation in the fight (not true on a lone boss)", description: "5 nearby corpses" }
   onslaught:         { options: { buffOnslaught: true }, needs: "an Onslaught source", description: "Onslaught active" }
   hit_recently:      { options: { conditionHitRecently: true }, needs: "none for attacks and spells that hit continuously", description: "Hit recently" }
   crit_recently:     { options: { conditionCritRecently: true }, needs: "a crit chance high enough to crit every few seconds", description: "Crit recently" }
-  killed_recently:   { options: { conditionKilledRecently: true }, needs: "trash in the fight (not true on a lone boss)", description: "Killed recently" }
+  killed_recently:   { fights: [pack], options: { conditionKilledRecently: true }, needs: "trash in the fight (not true on a lone boss)", description: "Killed recently" }

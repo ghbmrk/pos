@@ -147,10 +147,12 @@ def _tree_alloc(cat: Catalogue, pool: EnginePool, xml: str, entries: list[dict],
                 eng.load_build_xml(xml)
                 r = eng.alloc_passive(e["node"])
             except PobEngineError:
-                if not own:
-                    raise
-                eng.close()          # runaway engine killed by the memory guard: retry once on a fresh process
-                eng = PobEngine()
+                # runaway engine killed by the memory guard (intermittent, run-dependent): retry once on a fresh
+                # process. A caller's engine is dead too, so it is replaced by an owned one (I13: keystone sweeps in
+                # the MCP job passed their own engine and failed with code -9 instead of retrying).
+                if own:
+                    eng.close()
+                own, eng = True, PobEngine()
                 eng.load_build_xml(xml)
                 r = eng.alloc_passive(e["node"])
             if not r.get("ok"):
@@ -345,7 +347,7 @@ def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapp
                     continue
                 rest = [i for i in cur if i != sid]
                 fixed = [cat.get("support", i) for i in rest]
-                cands = [c for c in eligible(cat, skill, fixed) if c["id"] != sid]
+                cands = [c for c in eligible(cat, skill, fixed, allow_triggered=()) if c["id"] != sid]   # I13: triggered stand-ins (Fiery Death) are FullDPS artefacts, gated as in the support search
                 jobs = [Job(xml, mutations=(*cfg, *_support_job(cat, skill, [*rest, c["id"]], _keys(metric, (EHP_KEY,)), xml).mutations), stat_keys=_keys(metric, (EHP_KEY,))) for c in cands]
                 jobs.append(Job(xml, mutations=(*cfg, *_support_job(cat, skill, rest, _keys(metric, (EHP_KEY,)), xml).mutations), stat_keys=_keys(metric, (EHP_KEY,))))
                 vals = _score_ehp(pool, jobs, metric)

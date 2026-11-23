@@ -1,0 +1,133 @@
+slate: 1
+pob_sha: "601768b"
+prompt: "Cyclone that builds up charges and dumps them with Elemental Discharge"
+brief: { benchmarks: [arbiter_ash, breach_t15], tiers: [mid], constraints: {}, floors: {} }
+candidates:
+  - name: "Serpent Surge Amazon"
+    archetype: { defence: evasion, engine: "Spear thrust that consumes every Frenzy Charge, and the Amazon surge notable turns each consumption into elemental surges" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Amazon, level: 90, main_skill: { gem: "Wind Serpent's Fury" },
+            tiers: [mid], conditions: [frenzy_charges],
+            fixed: { keystones: [], notables: ["Elemental Surge", "Prize of the Hunt"], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: "Elemental Surge" }, { kind: notable, id: "Prize of the Hunt" } ]
+    claims:
+      - text: "The dump skill spends all Frenzy Charges, which is the trigger the Amazon notable listens for."
+        cites:
+          - { kind: skill, id: "Wind Serpent's Fury", quote: "Consume all Frenzy Charges to perform a gigantic spear thrust" }
+          - { kind: notable, id: "Elemental Surge", quote: "When you Consume a Charge, Trigger Elemental Surge to gain 3 Lightning Surges" }
+      - text: "A passive that refills the charge pool on gain chance keeps the dump supplied."
+        cites:
+          - { kind: notable, id: "Prize of the Hunt", quote: "you instead gain up to your maximum number of Frenzy Charges" }
+    bases: { weapon: "Akoyan Spear", body_armour: "Armoured Vest" }
+    source: llm
+  - name: "Rainfall Deadeye"
+    archetype: { defence: evasion, engine: "Bow volley that burns Frenzy Charges, with consumption benefits doubled by the Deadeye notable" }
+    spec: { pob_sha: "601768b", class: Ranger, ascendancy: Deadeye, level: 90, main_skill: { gem: "Rain of Arrows" },
+            tiers: [mid], conditions: [frenzy_charges],
+            fixed: { keystones: [], notables: ["Thrilling Chase", "Avidity"], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: "Thrilling Chase" }, { kind: notable, id: "Avidity" } ]
+    claims:
+      - text: "The area bow skill uses a Frenzy Charge to fire more arrows, and the Deadeye notable can double that benefit."
+        cites:
+          - { kind: skill, id: "Rain of Arrows", quote: "Consumes a Frenzy Charge to fire more arrows." }
+          - { kind: notable, id: "Thrilling Chase", quote: "Benefits from consuming Frenzy Charges for your Skills have 50% chance to be doubled" }
+      - text: "Another Deadeye notable makes charge gain generous so the consumption never starves."
+        cites:
+          - { kind: notable, id: "Avidity", quote: "chance when you gain a Frenzy Charge to gain an additional Frenzy Charge" }
+    bases: { weapon: "Composite Bow", body_armour: "Armoured Vest" }
+    source: llm
+  - name: "Combo Whirl Amazon"
+    archetype: { defence: evasion, engine: "Spinning spear skill builds Combo from other melee hits and releases it as bonus damage on use" }
+    spec: { pob_sha: "601768b", class: Huntress, ascendancy: Amazon, level: 90, main_skill: { gem: "Whirling Slash" },
+            tiers: [mid],
+            fixed: { keystones: [], notables: ["Predatory Instinct"], uniques: [], supports: ["Culmination II"] } }
+    key_pieces: [ { kind: support, id: "Culmination II" }, { kind: notable, id: "Predatory Instinct" } ]
+    claims:
+      - text: "The whirlwind skill is the literal spin; the support turns it into a build up and release skill."
+        cites:
+          - { kind: skill, id: "Whirling Slash", quote: "Perform a circular slash that kicks up a Whirlwind around you" }
+          - { kind: support, id: "Culmination II", quote: "Supported Skills reset their Combo on use, dealing more Damage the higher Combo you had on use." }
+      - text: "The Amazon notable adds a damage multiplier against weakened rares and bosses."
+        cites:
+          - { kind: notable, id: "Predatory Instinct", quote: "50% more damage against enemies with an Open Weakness" }
+    bases: { weapon: "Akoyan Spear", body_armour: "Armoured Vest" }
+    source: llm
+  - name: "Storm Teleport Monk"
+    archetype: { defence: energy_shield, engine: "Teleport strike chain that spends all Power Charges, doubled in count by a staff notable" }
+    spec: { pob_sha: "601768b", class: Monk, ascendancy: Invoker, level: 90, main_skill: { gem: "Flicker Strike" },
+            tiers: [mid], conditions: [power_charges],
+            fixed: { keystones: [], notables: ["One with the Storm", "Overflowing Power"], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: "One with the Storm" }, { kind: notable, id: "Overflowing Power" } ]
+    claims:
+      - text: "Each Power Charge spent adds a further teleporting strike, and the staff notable counts an extra spent charge."
+        cites:
+          - { kind: skill, id: "Flicker Strike", quote: "Consumes Power Charges to perform additional teleporting Strikes on nearby enemies." }
+          - { kind: notable, id: "One with the Storm", quote: "Quarterstaff Skills that consume Power Charges count as consuming an additional Power Charge" }
+      - text: "A larger charge pool means longer chains per dump."
+        cites:
+          - { kind: notable, id: "Overflowing Power", quote: "+2 to Maximum Power Charges" }
+    bases: { weapon: "Arcing Quarterstaff", body_armour: "Assassin Garb" }
+    source: llm
+  - name: "Bell Combo Artist"
+    archetype: { defence: energy_shield, engine: "Build Combo with other skills, then drop a giant bell and shatter it with follow-up hits" }
+    spec: { pob_sha: "601768b", class: Monk, ascendancy: Martial Artist, level: 90, main_skill: { gem: "Tempest Bell" },
+            tiers: [mid],
+            fixed: { keystones: [], notables: ["Martial Master", "Martial Adept"], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: "Martial Master" }, { kind: notable, id: "Martial Adept" } ]
+    claims:
+      - text: "The bell skill is a delayed dump of Combo built by other strikes."
+        cites:
+          - { kind: skill, id: "Tempest Bell", quote: "Build Combo by successfully Striking Enemies with other skills." }
+      - text: "Martial Artist notables speed up Combo gain from all attack hits."
+        cites:
+          - { kind: notable, id: "Martial Master", quote: "Gain Combo from all Attack Hits" }
+          - { kind: notable, id: "Martial Adept", quote: "When you gain Combo, gain an additional Combo" }
+    bases: { weapon: "Arcing Quarterstaff", body_armour: "Assassin Garb" }
+    source: llm
+  - name: "Infusion Orb Stormweaver"
+    archetype: { defence: energy_shield, engine: "Slow lightning projectile consumes collected Elemental Infusions, which the Stormweaver notable duplicates" }
+    spec: { pob_sha: "601768b", class: Sorceress, ascendancy: Stormweaver, level: 90, main_skill: { gem: "Ball Lightning" },
+            tiers: [mid],
+            fixed: { keystones: [], notables: ["Refracted Infusion", "Everlasting Infusions"], uniques: [], supports: [] } }
+    key_pieces: [ { kind: notable, id: "Refracted Infusion" }, { kind: notable, id: "Everlasting Infusions" } ]
+    claims:
+      - text: "The projectile consumes a Fire Infusion if possible to upgrade its behaviour."
+        cites:
+          - { kind: skill, id: "Ball Lightning", quote: "Consumes a Fire Infusion if possible" }
+      - text: "Collecting an infusion grants a different type, and a passive lets some infusions survive consumption."
+        cites:
+          - { kind: notable, id: "Refracted Infusion", quote: "When collecting an Elemental Infusion, gain another different Elemental Infusion" }
+          - { kind: notable, id: "Everlasting Infusions", quote: "Skills have 10% chance to not remove Elemental Infusions but still count as consuming them" }
+    bases: { weapon: "Attuned Wand", body_armour: "Adherent's Raiment" }
+    source: llm
+  - name: "Aftershock Titan"
+    archetype: { defence: armour, engine: "Channel a heavy mace swing, release into a slam with extra aftershocks" }
+    spec: { pob_sha: "601768b", class: Warrior, ascendancy: Titan, level: 90, main_skill: { gem: "Supercharged Slam" },
+            tiers: [mid],
+            fixed: { keystones: [], notables: ["Earthbreaker", "Stone Skin"], uniques: [], supports: ["Burgeon II"] } }
+    key_pieces: [ { kind: notable, id: "Earthbreaker" }, { kind: support, id: "Burgeon II" } ]
+    claims:
+      - text: "Longer channelling raises damage, and the slam is followed by larger aftershocks."
+        cites:
+          - { kind: support, id: "Burgeon II", quote: "causing them to deal more damage the longer they have been Channelled." }
+          - { kind: skill, id: "Supercharged Slam", quote: "followed by Aftershocks dealing damage in a larger area" }
+      - text: "The Titan notable adds a chance for another aftershock on slam skills."
+        cites:
+          - { kind: notable, id: "Earthbreaker", quote: "chance for Slam Skills you use yourself to cause an additional Aftershock" }
+    bases: { weapon: "Forge Maul", body_armour: "Abyssal Cuirass" }
+    source: llm
+  - name: "Charged Blast Chrono"
+    archetype: { defence: energy_shield, engine: "Spell that stores energy while channelled and explodes on release, with a repeat chance from the Chronomancer" }
+    spec: { pob_sha: "601768b", class: Sorceress, ascendancy: Chronomancer, level: 90, main_skill: { gem: "Flameblast" },
+            tiers: [mid],
+            fixed: { keystones: [], notables: ["Phased Form"], uniques: [], supports: ["Burgeon II"] } }
+    key_pieces: [ { kind: support, id: "Burgeon II" }, { kind: notable, id: "Phased Form" } ]
+    claims:
+      - text: "The explosion grows with channel time and the support multiplies damage by channel length."
+        cites:
+          - { kind: skill, id: "Flameblast", quote: "Releasing the energy causes a devastating explosion that is larger and more intense the longer you Channel for." }
+          - { kind: support, id: "Burgeon II", quote: "causing them to deal more damage the longer they have been Channelled." }
+      - text: "The Chronomancer notable reduces incoming damage while standing in the channel."
+        cites:
+          - { kind: notable, id: "Phased Form", quote: "Take 30% less Damage" }
+    bases: { weapon: "Chiming Staff", body_armour: "Adherent's Raiment" }
+    source: llm

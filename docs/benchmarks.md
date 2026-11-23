@@ -86,6 +86,8 @@ Boss:
 
 Pack (a **density proxy**, not real seconds; nothing in it is Breach-specific: the content id only fixes level, counts and footprint):
 - `hits_to_kill[r] = ceil(life[r] / AverageHit)` under the pack profile (hit chance and crit included by PoB's average hit).
+- Attacks (I13): PoB has no top-level `AverageHit` for attacks (kept per hand), so `AverageDamage` (expected damage per attack, misses included) stands in, with a flag.
+- Declared spec `conditions` with `fights` (data/config_profiles.yaml) are switched off in benchmarks of other kinds (I13; e.g. corpses_nearby in the boss fight); the result flags name them.
 - `coverage = min(1, (AoE_radius_m / spread_radius_m)^2)` per cast, with `ProjectileCount` raising effective coverage for projectile skills (capped at 1); radius from `AreaOfEffectRadiusMetres`.
 - `clear_s = max_r(hits_to_kill[r]) / coverage / Speed`: casts until every monster in the footprint has taken enough hits, assuming each cast hits a `coverage` share of the pack, divided by casts (or attacks) per second.
 - Explicitly not modelled: movement between packs, monster movement, on-kill effects (explosions, chains), proliferation of ailments. These dominate real clear speed, so the proxy ranks raw AoE kill power only. Report says so.

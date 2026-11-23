@@ -1,0 +1,162 @@
+slate: 1
+pob_sha: "601768b"
+prompt: "something nasty with ailments that is not a caster"
+brief:
+  benchmarks: [arbiter_ash, breach_t15]
+  tiers: [mid]
+  constraints: {}
+  floors: {}
+candidates:
+  - name: "Aggravated bleed lance"
+    archetype: { defence: evasion, engine: "Crimson Assault aggravates bleed, Blood Hunt then consumes it in a blood explosion" }
+    spec:
+      pob_sha: "601768b"
+      class: Huntress
+      ascendancy: Amazon
+      level: 90
+      main_skill: { gem: Blood Hunt }
+      tiers: [mid]
+      conditions: [enemy_bleeding]
+      fixed: { keystones: [Crimson Assault], notables: [], uniques: [], supports: [Incision] }
+    key_pieces: [ { kind: keystone, id: Crimson Assault }, { kind: support, id: Incision } ]
+    claims:
+      - text: "Crimson Assault makes the bleed stronger and aggravated, which feeds the consume on Blood Hunt."
+        cites:
+          - { kind: keystone, id: Crimson Assault, quote: "50% more Magnitude of Bleeding you inflict" }
+          - { kind: skill, id: Blood Hunt, quote: "Hitting an enemy that has suffered Blood Loss will cause a blood explosion and also Consume Bleeding." }
+      - text: "Incision raises the bleed chance on every hit, so enemies are bleeding for the payoff; the bleeding condition is declared and comes from Incision plus the keystone."
+        cites:
+          - { kind: support, id: Incision, quote: "which causes Enemies to be increasingly more likely to be inflicted with Bleeding" }
+    bases: { weapon: Akoyan Spear, body_armour: Hunting Coat }
+    source: llm
+
+  - name: "Stacked poison archer"
+    archetype: { defence: evasion, engine: "Pathfinder lets many poisons stack on one target, Escalating Poison adds yet another poison per hit" }
+    spec:
+      pob_sha: "601768b"
+      class: Ranger
+      ascendancy: Pathfinder
+      level: 90
+      main_skill: { gem: Poisonburst Arrow }
+      tiers: [mid]
+      conditions: [enemy_poisoned]
+      fixed: { keystones: [], notables: [Overwhelming Toxicity], uniques: [], supports: [Escalating Poison] }
+    key_pieces: [ { kind: notable, id: Overwhelming Toxicity }, { kind: support, id: Escalating Poison } ]
+    claims:
+      - text: "Pathfinder raises how many poisons a target can carry, at the cost of shorter poisons."
+        cites:
+          - { kind: notable, id: Overwhelming Toxicity, quote: "Double the number of your Poisons that targets can be affected by at the same time" }
+      - text: "Escalating Poison adds an extra poison on each hit, filling those extra slots; the poisoned condition is sustained by the skill's own poison burst."
+        cites:
+          - { kind: support, id: Escalating Poison, quote: "allowing it to inflict an extra Poison on enemies but shortening the duration of those Poisons" }
+          - { kind: skill, id: Poisonburst Arrow, quote: "Fire a virulent arrow that creates a burst of Poison on hit, affecting all enemies in an area." }
+    bases: { weapon: Crude Bow, body_armour: Hunting Coat }
+    source: llm
+
+  - name: "Fire-only gas bomber"
+    archetype: { defence: energy_shield, engine: "Avatar of Fire turns the whole hit into fire so ignite carries the damage, and the gas cloud detonates off ignited enemies" }
+    spec:
+      pob_sha: "601768b"
+      class: Ranger
+      ascendancy: Deadeye
+      level: 90
+      main_skill: { gem: Gas Arrow }
+      tiers: [mid]
+      conditions: [enemy_ignited]
+      fixed: { keystones: [Avatar of Fire], notables: [], uniques: [], supports: [] }
+    key_pieces: [ { kind: keystone, id: Avatar of Fire } ]
+    claims:
+      - text: "Avatar of Fire converts damage to fire so the fire-heavy arrow and its ignites scale together; the sweep showed it as the top lead for this skill."
+        cites:
+          - { kind: keystone, id: Avatar of Fire, quote: "75% of Damage Converted to Fire Damage" }
+      - text: "The gas cloud explodes when an ignited enemy touches it, so the ignited condition is declared and sustained by the arrow's own fire."
+        cites:
+          - { kind: skill, id: Gas Arrow, quote: "The cloud will detonate if hit by a Detonator skill or if an Ignited enemy touches it, creating a fiery explosion." }
+    bases: { weapon: Crude Bow, body_armour: Ascetic Garb }
+    source: "sweep:probe1/Avatar of Fire"
+
+  - name: "Freeze then shatter monk"
+    archetype: { defence: evasion, engine: "Invoker freezes into chilled ground, Biting Frost consumes the freeze for more damage and leaves the enemy chilled" }
+    spec:
+      pob_sha: "601768b"
+      class: Monk
+      ascendancy: Invoker
+      level: 90
+      main_skill: { gem: Ice Strike }
+      tiers: [mid]
+      conditions: [enemy_chilled, ground_chilled]
+      fixed: { keystones: [], notables: ["I am the Blizzard..."], uniques: [], supports: [Biting Frost II] }
+    key_pieces: [ { kind: notable, id: "I am the Blizzard..." }, { kind: support, id: Biting Frost II } ]
+    claims:
+      - text: "Freezing enemies leaves chilled ground behind, which is where the ground condition comes from."
+        cites:
+          - { kind: notable, id: "I am the Blizzard...", quote: "On Freezing Enemies create Chilled Ground" }
+      - text: "Biting Frost turns frozen enemies into extra damage and leaves them chilled afterwards."
+        cites:
+          - { kind: support, id: Biting Frost II, quote: "causing them to deal more damage to Frozen enemies but consume their Freeze, leaving them Chilled" }
+    bases: { weapon: Aegis Quarterstaff, body_armour: Ascetic Garb }
+    source: llm
+
+  - name: "Electrocute pulse gunner"
+    archetype: { defence: armour, engine: "Neural Overload electrocutes marked enemies, and Shockburst Rounds pulse when hitting an enemy with a lightning ailment" }
+    spec:
+      pob_sha: "601768b"
+      class: Mercenary
+      ascendancy: Tactician
+      level: 90
+      main_skill: { gem: Shockburst Rounds }
+      tiers: [mid]
+      fixed: { keystones: [], notables: [], uniques: [], supports: [Neural Overload] }
+    key_pieces: [ { kind: support, id: Neural Overload } ]
+    claims:
+      - text: "Neural Overload applies electrocute to marked enemies, giving the crossbow ammunition its lightning ailment to pay off."
+        cites:
+          - { kind: support, id: Neural Overload, quote: "hitting a marked enemy with a supported skill will Electrocute them" }
+          - { kind: skill, id: Shockburst Rounds, quote: "release damaging pulses upon Hitting an enemy affected by a Lightning Ailment" }
+    bases: { weapon: Alloy Crossbow, body_armour: Chain Mail }
+    source: llm
+
+  - name: "Stun-rupture bleeder"
+    archetype: { defence: armour, engine: "Boneshatter heavy-stuns, Rupture aggravates bleed on heavily stunned enemies, broken armour lifts the hit" }
+    spec:
+      pob_sha: "601768b"
+      class: Warrior
+      ascendancy: Warbringer
+      level: 90
+      main_skill: { gem: Boneshatter }
+      tiers: [mid]
+      conditions: [enemy_bleeding]
+      fixed: { keystones: [], notables: ["Anvil's Weight"], uniques: [], supports: [Rupture] }
+    key_pieces: [ { kind: support, id: Rupture }, { kind: notable, id: "Anvil's Weight" } ]
+    claims:
+      - text: "Rupture aggravates bleeding whenever the strike lands on a heavily stunned enemy, which is exactly what Boneshatter causes."
+        cites:
+          - { kind: support, id: Rupture, quote: "Supported skills Aggravate Bleeding on Hitting Heavily Stunned Enemies." }
+          - { kind: skill, id: Boneshatter, quote: "The Strike will cause a Heavy Stun on enemies that are Primed for Stun." }
+      - text: "Breaking armour off each hit raises later hits; bleeding is assumed present from bleed sources in the tree."
+        cites:
+          - { kind: notable, id: "Anvil's Weight", quote: "Break Armour equal to 10% of Hit Damage dealt" }
+    bases: { weapon: Fortified Hammer, body_armour: Full Plate }
+    source: llm
+
+  - name: "Ignite-extending forge blaster"
+    archetype: { defence: armour, engine: "Longer ignites combined with ignite-triggered death explosions on a mace projectile" }
+    spec:
+      pob_sha: "601768b"
+      class: Warrior
+      ascendancy: Smith of Kitava
+      level: 90
+      main_skill: { gem: Molten Blast }
+      tiers: [mid]
+      conditions: [enemy_ignited]
+      fixed: { keystones: [], notables: [], uniques: [], supports: [Eternal Flame II, Fiery Death] }
+    key_pieces: [ { kind: support, id: Eternal Flame II }, { kind: support, id: Fiery Death } ]
+    claims:
+      - text: "Eternal Flame lengthens the ignites, so more damage accumulates before the target dies."
+        cites:
+          - { kind: support, id: Eternal Flame II, quote: "causing its Ignites to last longer" }
+      - text: "Fiery Death makes ignited enemies explode on death, a chain effect in packs."
+        cites:
+          - { kind: support, id: Fiery Death, quote: "causing enemies it Ignites to have a chance to explode on death" }
+    bases: { weapon: Fortified Hammer, body_armour: Full Plate }
+    source: llm

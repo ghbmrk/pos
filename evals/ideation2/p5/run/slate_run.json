@@ -1,0 +1,1527 @@
+{
+ "prompt": "use a keystone most players ignore to make a strong boss killer",
+ "brief": {
+  "benchmarks": [
+   "arbiter_ash",
+   "breach_t15"
+  ],
+  "tiers": [
+   "mid"
+  ],
+  "constraints": {},
+  "floors": {}
+ },
+ "screen_tier": "mid",
+ "deepen_k": 0,
+ "candidates": [
+  {
+   "name": "Blood Barbs Exsanguinate",
+   "source": "llm",
+   "vector": {
+    "class_asc": "blood mage",
+    "delivery": "spell",
+    "damage": "Physical",
+    "defence": "life",
+    "main_skill": "exsanguinate",
+    "key_pieces": "keystone:Crimson Assault,notable:Blood Barbs"
+   },
+   "claims": [
+    {
+     "text": "The keystone makes every bleed this spell inflicts aggravated and stronger, which is the boss damage source.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Crimson Assault",
+       "quote": "Bleeding you inflict is Aggravated"
+      }
+     ]
+    },
+    {
+     "text": "The ascendancy notable lets elemental damage add to bleed magnitude.",
+     "cites": [
+      {
+       "kind": "notable",
+       "id": "Blood Barbs",
+       "quote": "Elemental Damage also Contributes to Bleeding Magnitude"
+      }
+     ]
+    },
+    {
+     "text": "The skill itself inflicts the bleed on every enemy its tendrils hit, so the bleed condition is sustained by the build.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Exsanguinate",
+       "quote": "Enemies Hit by the tendrils take Physical damage and are inflicted with Bleeding"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Crimson Assault"
+    },
+    {
+     "kind": "notable",
+     "id": "Blood Barbs"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportExtractionPlayer",
+     "SupportPoisonPlayerThree",
+     "SupportDeliberationPlayer",
+     "SupportAddedFireDamagePlayer",
+     "SupportAddedColdDamagePlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 5597.4871647068,
+     "baseline": 220.58420488998,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 528,
+     "items": {
+      "weapon": "PhysicalSpellDamageWeaponPrefix r2, WeaponSpellDamage r2, WeaponSpellDamageAndMana r7, GlobalIncreasePhysicalSpellSkillGemLevelWeapon r1, GlobalIncreaseSpellSkillGemLevelWeapon r2, Intelligence r1 [Dark Staff]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Abyssal Cuirass]"
+     },
+     "seconds": 30.18639575599991,
+     "notes": [
+      "floors not met (deficit 359); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 496,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 10,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 5597.4871647068,
+      "HitAilmentDPS": 5597.4871647068,
+      "Life": 1449,
+      "LightningResist": -7,
+      "Speed": 1,
+      "TotalDPS": 3181.905923412,
+      "TotalEHP": 1382.2487252614
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 934.6304394668963,
+       "dps": 6097.3233476651,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.7106532720358703,
+        "chasm_slam": 0.8553266360179351
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.32554138607193,
+       "ehp": 1382.2487252614,
+       "ehp_survival_s": 0.22787897025035,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 10,
+        "magic": 24,
+        "rare": 77
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Crimson Assault"
+     },
+     "baseline": 6097.3233476651,
+     "without": 5285.7167046289,
+     "delta_rel": 0.13310867683390878,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1382.2487252614,
+     "ehp_without": 1382.2487252614,
+     "ehp_delta_rel": 0.0
+    },
+    {
+     "piece": {
+      "kind": "notable",
+      "id": "Blood Barbs"
+     },
+     "baseline": 6097.3233476651,
+     "without": 5890.7733476651,
+     "delta_rel": 0.033875520162317804,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1382.2487252614,
+     "ehp_without": 1382.2487252614,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 5,
+   "rank_note": "no value for breach_t15; survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_bleeding"
+   ]
+  },
+  {
+   "name": "Wildsurge Thunderstorm",
+   "source": "llm",
+   "vector": {
+    "class_asc": "stormweaver",
+    "delivery": "area_spell",
+    "damage": "Lightning",
+    "defence": "energy_shield",
+    "main_skill": "thunderstorm",
+    "key_pieces": "keystone:Wildsurge Incantation"
+   },
+   "claims": [
+    {
+     "text": "The keystone boosts damage of Storm spells, and this main skill is a Storm spell.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Wildsurge Incantation",
+       "quote": "deal 50% more damage"
+      }
+     ]
+    },
+    {
+     "text": "The storm drenches enemies so shock lands more easily, which is where the shocked condition comes from.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Thunderstorm",
+       "quote": "Enemies in the area are Drenched, causing them to become Shocked or Frozen more easily"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Wildsurge Incantation"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportRakiatasFlowPlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportConcentratedAreaPlayer",
+     "SupportHourglassPlayer",
+     "SupportEshsRadiancePlayer"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 36130.884,
+     "baseline": 1720.02,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 564,
+     "items": {
+      "weapon": "LightningDamageWeaponPrefix r2, WeaponSpellDamage r2, WeaponSpellDamageAndMana r7, GlobalIncreaseLightningSpellSkillGemLevelWeapon r1, GlobalIncreaseSpellSkillGemLevelWeapon r2, Intelligence r1 [Dark Staff]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Feathered Raiment]"
+     },
+     "seconds": 27.319578513000124,
+     "notes": [
+      "floors not met (deficit 354); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 153,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 36130.884,
+      "HitAilmentDPS": 36130.884,
+      "Life": 1281,
+      "LightningResist": -7,
+      "Speed": 0.099681020733652,
+      "TotalDPS": 36130.884,
+      "TotalEHP": 1381.259788451
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 220.65525046793093,
+       "dps": 25826.46,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.7537885237527668,
+        "chasm_slam": 0.8768942618763834
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.32530847584809,
+       "ehp": 1381.259788451,
+       "ehp_survival_s": 0.22771593309366,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 3,
+        "magic": 7,
+        "rare": 22
+       },
+       "coverage": 0.07111111111111111,
+       "clear_s": 3103.65000000001,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Wildsurge Incantation"
+     },
+     "baseline": 25826.46,
+     "without": 17217.204,
+     "delta_rel": 0.3333502152443656,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1381.259788451,
+     "ehp_without": 1381.259788451,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 1,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_shocked"
+   ]
+  },
+  {
+   "name": "Blackflame Flameblast",
+   "source": "llm",
+   "vector": {
+    "class_asc": "infernalist",
+    "delivery": "channel",
+    "damage": "Fire",
+    "defence": "energy_shield",
+    "main_skill": "flameblast",
+    "key_pieces": "keystone:Blackflame Covenant"
+   },
+   "claims": [
+    {
+     "text": "The keystone turns fire spell damage into chaos damage, sidestepping fire resistance on a boss.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Blackflame Covenant",
+       "quote": "Fire Spells Convert 100% of Fire Damage to Chaos Damage"
+      }
+     ]
+    },
+    {
+     "text": "Ignite from the spell deals chaos damage and the converted damage still scales ignite.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Blackflame Covenant",
+       "quote": "Chaos Damage from Fire Spells Contributes to Flammability and Ignite Magnitudes"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Blackflame Covenant"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [
+     "SupportAtzirisImpatiencePlayer",
+     "SupportExtractionPlayer",
+     "SupportConsideredCastingPlayer",
+     "SupportConcentratedAreaPlayer",
+     "SupportPoisonPlayerThree"
+    ],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 102859.33896443,
+     "baseline": 8403.4120340554,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 504,
+     "items": {
+      "weapon": "ChaosDamageWeaponPrefix r7, WeaponSpellDamage r1, GlobalIncreaseFireSpellSkillGemLevelWeapon r2, GlobalIncreaseSpellSkillGemLevelWeapon r1, Intelligence r1 [Dark Staff]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Feathered Raiment]"
+     },
+     "seconds": 28.76763415500045,
+     "notes": [
+      "floors not met (deficit 349); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 0,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 190,
+      "Evasion": 9,
+      "FireResist": -7,
+      "FullDPS": 102859.33896443,
+      "HitAilmentDPS": 102859.33896443,
+      "Life": 1607,
+      "LightningResist": -7,
+      "Speed": 0.21958717610892,
+      "TotalDPS": 31686.198007905,
+      "TotalEHP": 1738.2863981752
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 55.10978122146514,
+       "dps": 103407.124356,
+       "dps_metric": "FullDPS",
+       "gate_ttk": true,
+       "hit_margins": {
+        "basic_attack": 2.198762699358647,
+        "chasm_slam": 1.0993813496793234
+       },
+       "survive": true,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.40939387615996,
+       "ehp": 1738.2863981752,
+       "ehp_survival_s": 0.28657571331197,
+       "flags": [
+        "FullDPS includes all-hits-landing and ailment/DoT: an upper bound"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 1,
+        "magic": 1,
+        "rare": 2
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Blackflame Covenant"
+     },
+     "baseline": 103407.124356,
+     "without": 62111.194483905,
+     "delta_rel": 0.39935285048567243,
+     "verdict": "confirmed",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1738.2863981752,
+     "ehp_without": 1738.2863981752,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 7,
+   "rank_note": "no value for breach_t15; ARTEFACT AUDIT: FullDPS 102,859 > 3x TotalDPS 31,686; time-to-kill rests on FullDPS, ranked after unflagged candidates",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": [
+    "enemy_ignited"
+   ]
+  },
+  {
+   "name": "Primal Hunger Bear Slam",
+   "source": "llm",
+   "vector": {
+    "class_asc": "shaman",
+    "delivery": "melee",
+    "damage": "unknown",
+    "defence": "armour",
+    "main_skill": "furious slam",
+    "key_pieces": "keystone:Primal Hunger"
+   },
+   "claims": [
+    {
+     "text": "The keystone enlarges the rage pool and refunds rage as it is spent, feeding a rage-spending slam.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Primal Hunger",
+       "quote": "Regenerate 1 Rage per second per 4 Rage spent Recently"
+      }
+     ]
+    },
+    {
+     "text": "The slam spends rage for larger shockwaves.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Furious Slam",
+       "quote": "Can spend Rage to create larger shockwaves that leave behind Jagged Ground"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Primal Hunger"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 562.00989045542,
+     "baseline": 42.045707045097,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:mid, body_armour:budget",
+     "evals": 636,
+     "items": {
+      "weapon": "LocalColdDamage r1, LocalFireDamage r1, LocalLightningDamage r1, Intelligence r1, Strength r1 [Fungal Talisman]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Abyssal Cuirass]"
+     },
+     "seconds": 35.14419563499996,
+     "notes": [
+      "floors not met (deficit 297); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 1416,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 5,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 562.00989045542,
+      "HitAilmentDPS": 562.00989045542,
+      "Life": 1409,
+      "LightningResist": -7,
+      "Speed": 0.98,
+      "TotalDPS": 561.7887854451,
+      "TotalEHP": 1406.1075774405
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 4661.606933573596,
+       "dps": 1222.4848815452,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.7515182473466144,
+        "chasm_slam": 0.8757591236733072
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.33116052224223,
+       "ehp": 1406.1075774405,
+       "ehp_survival_s": 0.23181236556956,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 29,
+        "magic": 72,
+        "rare": 230
+       },
+       "coverage": 0.1111111111111111,
+       "clear_s": 2112.2448979591836,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Primal Hunger"
+     },
+     "baseline": 1222.4848815452,
+     "without": 1222.4848815452,
+     "delta_rel": 0.0,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1406.1075774405,
+     "ehp_without": 1406.1075774405,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 2,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Resolute Earthquake",
+   "source": "llm",
+   "vector": {
+    "class_asc": "titan",
+    "delivery": "melee",
+    "damage": "unknown",
+    "defence": "armour",
+    "main_skill": "earthquake",
+    "key_pieces": "keystone:Resolute Technique"
+   },
+   "claims": [
+    {
+     "text": "The keystone doubles accuracy and removes crits, so all investment goes to base hit damage and multipliers.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Resolute Technique",
+       "quote": "Accuracy Rating is Doubled"
+      }
+     ]
+    },
+    {
+     "text": "The slam leaves a ground patch that erupts later, a second damage instance that needs no crit.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Earthquake",
+       "quote": "The Jagged Ground erupts in a powerful Aftershock after a duration"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Resolute Technique"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 28.0665,
+     "baseline": 28.0665,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:starter, body_armour:budget",
+     "evals": 106,
+     "items": {
+      "weapon": "(no affixes) [Fanatic Greathammer]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Abyssal Cuirass]"
+     },
+     "seconds": 12.812299435000568,
+     "notes": [
+      "weapon: final item has unparsed lines [{'line': 'Strikes deal Splash Damage', 'unparsed': 'Strikes deal Splash Damage'}]",
+      "floors not met (deficit 344); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 516,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 28.0665,
+      "HitAilmentDPS": 28.0665,
+      "Life": 1308,
+      "LightningResist": -7,
+      "Speed": 0.7875,
+      "TotalDPS": 28.0665,
+      "TotalEHP": 1243.4534612393
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 183240.33952407876,
+       "dps": 31.099833228868,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.5403825415744365,
+        "chasm_slam": 0.7701912707872183
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.29285291126691,
+       "ehp": 1243.4534612393,
+       "ehp_survival_s": 0.20499703788684,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 915,
+        "magic": 2268,
+        "rare": 7315
+       },
+       "coverage": 0.09,
+       "clear_s": 103209.87654320989,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [
+      "GlobalMeleeSkillGemLevelTwoHandWeapon2",
+      "GlobalMeleeSkillGemLevelTwoHandWeapon3",
+      "GlobalMeleeSkillGemLevelTwoHandWeapon4",
+      "GlobalMeleeSkillGemLevelTwoHandWeapon5",
+      "LifeGainPerTargetLocal1",
+      "LifeGainPerTargetLocal2",
+      "LifeGainPerTargetLocal3",
+      "LifeGainPerTargetLocal4",
+      "LifeGainedFromEnemyDeath1",
+      "LifeGainedFromEnemyDeath2",
+      "LifeGainedFromEnemyDeath3",
+      "LifeGainedFromEnemyDeath4",
+      "LifeGainedFromEnemyDeath5",
+      "LifeGainedFromEnemyDeath6",
+      "LifeGainedFromEnemyDeath7",
+      "LifeGainedFromEnemyDeath8",
+      "LifeLeechLocal2",
+      "LifeLeechLocal3",
+      "LifeLeechLocal4",
+      "LifeLeechLocal5",
+      "LocalAddedColdDamageTwoHand1",
+      "LocalAddedColdDamageTwoHand10",
+      "LocalAddedColdDamageTwoHand2",
+      "LocalAddedColdDamageTwoHand3",
+      "LocalAddedColdDamageTwoHand4",
+      "LocalAddedColdDamageTwoHand5",
+      "LocalAddedColdDamageTwoHand6",
+      "LocalAddedColdDamageTwoHand7",
+      "LocalAddedColdDamageTwoHand8",
+      "LocalAddedColdDamageTwoHand9",
+      "LocalAddedFireDamageTwoHand1",
+      "LocalAddedFireDamageTwoHand10",
+      "LocalAddedFireDamageTwoHand2",
+      "LocalAddedFireDamageTwoHand3",
+      "LocalAddedFireDamageTwoHand4",
+      "LocalAddedFireDamageTwoHand5",
+      "LocalAddedFireDamageTwoHand6",
+      "LocalAddedFireDamageTwoHand7",
+      "LocalAddedFireDamageTwoHand8_",
+      "LocalAddedFireDamageTwoHand9",
+      "LocalAddedLightningDamageTwoHand10",
+      "LocalAddedLightningDamageTwoHand1_",
+      "LocalAddedLightningDamageTwoHand2",
+      "LocalAddedLightningDamageTwoHand3",
+      "LocalAddedLightningDamageTwoHand4",
+      "LocalAddedLightningDamageTwoHand5",
+      "LocalAddedLightningDamageTwoHand6",
+      "LocalAddedLightningDamageTwoHand7",
+      "LocalAddedLightningDamageTwoHand8",
+      "LocalAddedLightningDamageTwoHand9",
+      "LocalAddedPhysicalDamageTwoHand1",
+      "LocalAddedPhysicalDamageTwoHand2",
+      "LocalAddedPhysicalDamageTwoHand3",
+      "LocalAddedPhysicalDamageTwoHand4",
+      "LocalAddedPhysicalDamageTwoHand5",
+      "LocalAddedPhysicalDamageTwoHand6",
+      "LocalAddedPhysicalDamageTwoHand7",
+      "LocalAddedPhysicalDamageTwoHand8",
+      "LocalAddedPhysicalDamageTwoHand9",
+      "LocalCriticalMultiplier1",
+      "LocalCriticalMultiplier2",
+      "LocalCriticalMultiplier3",
+      "LocalCriticalMultiplier4",
+      "LocalCriticalMultiplier5",
+      "LocalCriticalMultiplier6",
+      "LocalCriticalStrikeChance1",
+      "LocalCriticalStrikeChance2",
+      "LocalCriticalStrikeChance3",
+      "LocalCriticalStrikeChance4",
+      "LocalCriticalStrikeChance5",
+      "LocalCriticalStrikeChance6",
+      "LocalIncreasedAccuracy1",
+      "LocalIncreasedAccuracy2",
+      "LocalIncreasedAccuracy3",
+      "LocalIncreasedAccuracy4",
+      "LocalIncreasedAccuracy5",
+      "LocalIncreasedAccuracy6",
+      "LocalIncreasedAccuracy7",
+      "LocalIncreasedAccuracy8",
+      "LocalIncreasedAccuracy9_",
+      "LocalIncreasedAttackSpeed1",
+      "LocalIncreasedAttackSpeed2",
+      "LocalIncreasedAttackSpeed3",
+      "LocalIncreasedAttackSpeed4",
+      "LocalIncreasedAttackSpeed5",
+      "LocalIncreasedAttackSpeed6",
+      "LocalIncreasedAttackSpeed7",
+      "LocalIncreasedAttackSpeed8",
+      "LocalIncreasedPhysicalDamagePercent1",
+      "LocalIncreasedPhysicalDamagePercent2",
+      "LocalIncreasedPhysicalDamagePercent3",
+      "LocalIncreasedPhysicalDamagePercent4",
+      "LocalIncreasedPhysicalDamagePercent5",
+      "LocalIncreasedPhysicalDamagePercent6",
+      "LocalIncreasedPhysicalDamagePercent7",
+      "LocalIncreasedPhysicalDamagePercent8",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating1",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating2",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating3",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating4",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating5",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating6",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating7",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating8",
+      "LocalLightRadiusAndAccuracy1",
+      "LocalLightRadiusAndAccuracy2",
+      "LocalLightRadiusAndAccuracy3",
+      "ManaGainedFromEnemyDeath1",
+      "ManaGainedFromEnemyDeath2",
+      "ManaGainedFromEnemyDeath3",
+      "ManaGainedFromEnemyDeath4",
+      "ManaGainedFromEnemyDeath5",
+      "ManaGainedFromEnemyDeath6",
+      "ManaGainedFromEnemyDeath7",
+      "ManaGainedFromEnemyDeath8",
+      "ManaLeechLocal2",
+      "ManaLeechLocal3",
+      "ManaLeechLocal4",
+      "ManaLeechLocal5",
+      "ReducedLocalAttributeRequirements1",
+      "ReducedLocalAttributeRequirements2",
+      "ReducedLocalAttributeRequirements3",
+      "ReducedLocalAttributeRequirements4",
+      "ReducedLocalAttributeRequirements5",
+      "Strength1",
+      "Strength2",
+      "Strength3",
+      "Strength4",
+      "Strength5",
+      "Strength6",
+      "Strength7",
+      "Strength8",
+      "StunDamageIncrease1",
+      "StunDamageIncrease2",
+      "StunDamageIncrease3",
+      "StunDamageIncrease4",
+      "StunDamageIncrease5",
+      "StunDamageIncrease6",
+      "StunDuration1",
+      "StunDuration2",
+      "StunDuration3",
+      "StunDuration4",
+      "StunDuration5",
+      "StunDuration6",
+      "WeaponElementalDamageOnTwohandWeapon1",
+      "WeaponElementalDamageOnTwohandWeapon2____",
+      "WeaponElementalDamageOnTwohandWeapon3",
+      "WeaponElementalDamageOnTwohandWeapon4",
+      "WeaponElementalDamageOnTwohandWeapon5",
+      "WeaponElementalDamageOnTwohandWeapon6"
+     ],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Resolute Technique"
+     },
+     "baseline": 31.099833228868,
+     "without": 29.968546504837,
+     "delta_rel": 0.03637597397084748,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1243.4534612393,
+     "ehp_without": 1243.4534612393,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 3,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Avatar Forge Hammer",
+   "source": "llm",
+   "vector": {
+    "class_asc": "smith of kitava",
+    "delivery": "melee",
+    "damage": "Fire",
+    "defence": "armour",
+    "main_skill": "forge hammer",
+    "key_pieces": "keystone:Avatar of Fire"
+   },
+   "claims": [
+    {
+     "text": "The keystone converts most damage to fire and removes non-fire damage, matching a fire skill.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Avatar of Fire",
+       "quote": "75% of Damage Converted to Fire Damage"
+      }
+     ]
+    },
+    {
+     "text": "The skill hurls a fiery hammer that slams the ground.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Forge Hammer",
+       "quote": "Hurl a fiery hammer that Slams into the ground and lodges there"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Avatar of Fire"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 10.414608112013,
+     "baseline": 10.414608112013,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:starter, body_armour:budget",
+     "evals": 106,
+     "items": {
+      "weapon": "(no affixes) [Fanatic Greathammer]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Abyssal Cuirass]"
+     },
+     "seconds": 9.481595879999986,
+     "notes": [
+      "weapon: final item has unparsed lines [{'line': 'Strikes deal Splash Damage', 'unparsed': 'Strikes deal Splash Damage'}]",
+      "floors not met (deficit 329); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 516,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 10.414608112013,
+      "HitAilmentDPS": 10.414608112013,
+      "Life": 1340,
+      "LightningResist": -7,
+      "Speed": 0.12470382840753,
+      "TotalDPS": 10.409435091657,
+      "TotalEHP": 1273.874341025
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": 344412.2718751343,
+       "dps": 16.546286138335,
+       "dps_metric": "HitAilmentDPS",
+       "gate_ttk": false,
+       "hit_margins": {
+        "basic_attack": 1.5767069640728757,
+        "chasm_slam": 0.7883534820364378
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.30001750848445,
+       "ehp": 1273.874341025,
+       "ehp_survival_s": 0.21001225593912,
+       "flags": []
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": 191,
+        "magic": 473,
+        "rare": 1525
+       },
+       "coverage": 0.09,
+       "clear_s": 135877.5000000023,
+       "gate_clear": false,
+       "complete": true,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)"
+       ]
+      }
+     },
+     "unparsed": [
+      "GlobalMeleeSkillGemLevelTwoHandWeapon2",
+      "GlobalMeleeSkillGemLevelTwoHandWeapon3",
+      "GlobalMeleeSkillGemLevelTwoHandWeapon4",
+      "GlobalMeleeSkillGemLevelTwoHandWeapon5",
+      "LifeGainPerTargetLocal1",
+      "LifeGainPerTargetLocal2",
+      "LifeGainPerTargetLocal3",
+      "LifeGainPerTargetLocal4",
+      "LifeGainedFromEnemyDeath1",
+      "LifeGainedFromEnemyDeath2",
+      "LifeGainedFromEnemyDeath3",
+      "LifeGainedFromEnemyDeath4",
+      "LifeGainedFromEnemyDeath5",
+      "LifeGainedFromEnemyDeath6",
+      "LifeGainedFromEnemyDeath7",
+      "LifeGainedFromEnemyDeath8",
+      "LifeLeechLocal2",
+      "LifeLeechLocal3",
+      "LifeLeechLocal4",
+      "LifeLeechLocal5",
+      "LocalAddedColdDamageTwoHand1",
+      "LocalAddedColdDamageTwoHand10",
+      "LocalAddedColdDamageTwoHand2",
+      "LocalAddedColdDamageTwoHand3",
+      "LocalAddedColdDamageTwoHand4",
+      "LocalAddedColdDamageTwoHand5",
+      "LocalAddedColdDamageTwoHand6",
+      "LocalAddedColdDamageTwoHand7",
+      "LocalAddedColdDamageTwoHand8",
+      "LocalAddedColdDamageTwoHand9",
+      "LocalAddedFireDamageTwoHand1",
+      "LocalAddedFireDamageTwoHand10",
+      "LocalAddedFireDamageTwoHand2",
+      "LocalAddedFireDamageTwoHand3",
+      "LocalAddedFireDamageTwoHand4",
+      "LocalAddedFireDamageTwoHand5",
+      "LocalAddedFireDamageTwoHand6",
+      "LocalAddedFireDamageTwoHand7",
+      "LocalAddedFireDamageTwoHand8_",
+      "LocalAddedFireDamageTwoHand9",
+      "LocalAddedLightningDamageTwoHand10",
+      "LocalAddedLightningDamageTwoHand1_",
+      "LocalAddedLightningDamageTwoHand2",
+      "LocalAddedLightningDamageTwoHand3",
+      "LocalAddedLightningDamageTwoHand4",
+      "LocalAddedLightningDamageTwoHand5",
+      "LocalAddedLightningDamageTwoHand6",
+      "LocalAddedLightningDamageTwoHand7",
+      "LocalAddedLightningDamageTwoHand8",
+      "LocalAddedLightningDamageTwoHand9",
+      "LocalAddedPhysicalDamageTwoHand1",
+      "LocalAddedPhysicalDamageTwoHand2",
+      "LocalAddedPhysicalDamageTwoHand3",
+      "LocalAddedPhysicalDamageTwoHand4",
+      "LocalAddedPhysicalDamageTwoHand5",
+      "LocalAddedPhysicalDamageTwoHand6",
+      "LocalAddedPhysicalDamageTwoHand7",
+      "LocalAddedPhysicalDamageTwoHand8",
+      "LocalAddedPhysicalDamageTwoHand9",
+      "LocalCriticalMultiplier1",
+      "LocalCriticalMultiplier2",
+      "LocalCriticalMultiplier3",
+      "LocalCriticalMultiplier4",
+      "LocalCriticalMultiplier5",
+      "LocalCriticalMultiplier6",
+      "LocalCriticalStrikeChance1",
+      "LocalCriticalStrikeChance2",
+      "LocalCriticalStrikeChance3",
+      "LocalCriticalStrikeChance4",
+      "LocalCriticalStrikeChance5",
+      "LocalCriticalStrikeChance6",
+      "LocalIncreasedAccuracy1",
+      "LocalIncreasedAccuracy2",
+      "LocalIncreasedAccuracy3",
+      "LocalIncreasedAccuracy4",
+      "LocalIncreasedAccuracy5",
+      "LocalIncreasedAccuracy6",
+      "LocalIncreasedAccuracy7",
+      "LocalIncreasedAccuracy8",
+      "LocalIncreasedAccuracy9_",
+      "LocalIncreasedAttackSpeed1",
+      "LocalIncreasedAttackSpeed2",
+      "LocalIncreasedAttackSpeed3",
+      "LocalIncreasedAttackSpeed4",
+      "LocalIncreasedAttackSpeed5",
+      "LocalIncreasedAttackSpeed6",
+      "LocalIncreasedAttackSpeed7",
+      "LocalIncreasedAttackSpeed8",
+      "LocalIncreasedPhysicalDamagePercent1",
+      "LocalIncreasedPhysicalDamagePercent2",
+      "LocalIncreasedPhysicalDamagePercent3",
+      "LocalIncreasedPhysicalDamagePercent4",
+      "LocalIncreasedPhysicalDamagePercent5",
+      "LocalIncreasedPhysicalDamagePercent6",
+      "LocalIncreasedPhysicalDamagePercent7",
+      "LocalIncreasedPhysicalDamagePercent8",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating1",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating2",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating3",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating4",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating5",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating6",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating7",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating8",
+      "LocalLightRadiusAndAccuracy1",
+      "LocalLightRadiusAndAccuracy2",
+      "LocalLightRadiusAndAccuracy3",
+      "ManaGainedFromEnemyDeath1",
+      "ManaGainedFromEnemyDeath2",
+      "ManaGainedFromEnemyDeath3",
+      "ManaGainedFromEnemyDeath4",
+      "ManaGainedFromEnemyDeath5",
+      "ManaGainedFromEnemyDeath6",
+      "ManaGainedFromEnemyDeath7",
+      "ManaGainedFromEnemyDeath8",
+      "ManaLeechLocal2",
+      "ManaLeechLocal3",
+      "ManaLeechLocal4",
+      "ManaLeechLocal5",
+      "ReducedLocalAttributeRequirements1",
+      "ReducedLocalAttributeRequirements2",
+      "ReducedLocalAttributeRequirements3",
+      "ReducedLocalAttributeRequirements4",
+      "ReducedLocalAttributeRequirements5",
+      "Strength1",
+      "Strength2",
+      "Strength3",
+      "Strength4",
+      "Strength5",
+      "Strength6",
+      "Strength7",
+      "Strength8",
+      "StunDamageIncrease1",
+      "StunDamageIncrease2",
+      "StunDamageIncrease3",
+      "StunDamageIncrease4",
+      "StunDamageIncrease5",
+      "StunDamageIncrease6",
+      "StunDuration1",
+      "StunDuration2",
+      "StunDuration3",
+      "StunDuration4",
+      "StunDuration5",
+      "StunDuration6",
+      "WeaponElementalDamageOnTwohandWeapon1",
+      "WeaponElementalDamageOnTwohandWeapon2____",
+      "WeaponElementalDamageOnTwohandWeapon3",
+      "WeaponElementalDamageOnTwohandWeapon4",
+      "WeaponElementalDamageOnTwohandWeapon5",
+      "WeaponElementalDamageOnTwohandWeapon6"
+     ],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Avatar of Fire"
+     },
+     "baseline": 16.546286138335,
+     "without": 47.002401541715,
+     "delta_rel": -1.8406617139793224,
+     "verdict": "not_load_bearing",
+     "replacement": null,
+     "note": "removing it RAISES the metric",
+     "ehp_baseline": 1273.874341025,
+     "ehp_without": 1273.874341025,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 4,
+   "rank_note": "survival check FAILED on arbiter_ash",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  },
+  {
+   "name": "Ancestral Bond Shockwave",
+   "source": "llm",
+   "vector": {
+    "class_asc": "warbringer",
+    "delivery": "other",
+    "damage": "unknown",
+    "defence": "armour",
+    "main_skill": "shockwave totem",
+    "key_pieces": "keystone:Ancestral Bond"
+   },
+   "claims": [
+    {
+     "text": "The keystone doubles how many totems can stand, multiplying totem damage on a boss.",
+     "cites": [
+      {
+       "kind": "keystone",
+       "id": "Ancestral Bond",
+       "quote": "Your Totem Limit is doubled"
+      }
+     ]
+    },
+    {
+     "text": "The totem repeatedly slams nearby enemies.",
+     "cites": [
+      {
+       "kind": "skill",
+       "id": "Shockwave Totem",
+       "quote": "Slams the ground around it, repeatedly damaging nearby enemies"
+      }
+     ]
+    }
+   ],
+   "key_pieces": [
+    {
+     "kind": "keystone",
+     "id": "Ancestral Bond"
+    }
+   ],
+   "status": "screened",
+   "error": null,
+   "screen": {
+    "variant": {},
+    "supports": [],
+    "tier_run": {
+     "tier": "mid",
+     "ok": true,
+     "value": 0.0,
+     "baseline": 0.0,
+     "floors_met": false,
+     "price": "no price: missing anchors weapon:starter, body_armour:budget",
+     "evals": 106,
+     "items": {
+      "weapon": "(no affixes) [Fanatic Greathammer]",
+      "body_armour": "ColdResistance r1, FireResistance r1, LightningResistance r1 [Abyssal Cuirass]"
+     },
+     "seconds": 19.77490580599988,
+     "notes": [
+      "weapon: final item has unparsed lines [{'line': 'Strikes deal Splash Damage', 'unparsed': 'Strikes deal Splash Damage'}]",
+      "floors not met (deficit 304); other slots (G7b) must cover the rest"
+     ],
+     "error": null,
+     "stats": {
+      "Armour": 496,
+      "ChaosResist": 0,
+      "ColdResist": -7,
+      "EnergyShield": 0,
+      "Evasion": 7,
+      "FireResist": -7,
+      "FullDPS": 9.14761575,
+      "HitAilmentDPS": 0,
+      "Life": 1392,
+      "LightningResist": -7,
+      "Speed": 1.6666666666667,
+      "TotalDPS": 0,
+      "TotalEHP": 1323.3082706767
+     },
+     "bench": {
+      "arbiter_ash": {
+       "id": "arbiter_ash",
+       "patch": "0.5.2",
+       "ttk_s": null,
+       "dps": 0,
+       "dps_metric": "TotalDPS",
+       "gate_ttk": null,
+       "hit_margins": {
+        "basic_attack": 1.633463874226687,
+        "chasm_slam": 0.8167319371133435
+       },
+       "survive": false,
+       "survive_basis": "named",
+       "generic_hits_to_die": 0.31165997896295,
+       "ehp": 1323.3082706767,
+       "ehp_survival_s": 0.21816198527407,
+       "flags": [
+        "ttk unavailable: no DPS"
+       ]
+      },
+      "breach_t15": {
+       "id": "breach_t15",
+       "patch": "0.5.2",
+       "hits_to_kill": {
+        "normal": null,
+        "magic": null,
+        "rare": null
+       },
+       "coverage": null,
+       "clear_s": null,
+       "gate_clear": null,
+       "complete": false,
+       "flags": [
+        "density proxy only: no movement, monster movement, on-kill effects or ailment spread; no swarm survival in v1",
+        "no AverageHit from PoB: hits-to-kill unavailable",
+        "incomplete: ",
+        "no AoE radius: coverage unavailable"
+       ]
+      }
+     },
+     "unparsed": [
+      "GlobalMeleeSkillGemLevelTwoHandWeapon2",
+      "GlobalMeleeSkillGemLevelTwoHandWeapon3",
+      "GlobalMeleeSkillGemLevelTwoHandWeapon4",
+      "GlobalMeleeSkillGemLevelTwoHandWeapon5",
+      "LifeGainPerTargetLocal1",
+      "LifeGainPerTargetLocal2",
+      "LifeGainPerTargetLocal3",
+      "LifeGainPerTargetLocal4",
+      "LifeGainedFromEnemyDeath1",
+      "LifeGainedFromEnemyDeath2",
+      "LifeGainedFromEnemyDeath3",
+      "LifeGainedFromEnemyDeath4",
+      "LifeGainedFromEnemyDeath5",
+      "LifeGainedFromEnemyDeath6",
+      "LifeGainedFromEnemyDeath7",
+      "LifeGainedFromEnemyDeath8",
+      "LifeLeechLocal2",
+      "LifeLeechLocal3",
+      "LifeLeechLocal4",
+      "LifeLeechLocal5",
+      "LocalAddedColdDamageTwoHand1",
+      "LocalAddedColdDamageTwoHand10",
+      "LocalAddedColdDamageTwoHand2",
+      "LocalAddedColdDamageTwoHand3",
+      "LocalAddedColdDamageTwoHand4",
+      "LocalAddedColdDamageTwoHand5",
+      "LocalAddedColdDamageTwoHand6",
+      "LocalAddedColdDamageTwoHand7",
+      "LocalAddedColdDamageTwoHand8",
+      "LocalAddedColdDamageTwoHand9",
+      "LocalAddedFireDamageTwoHand1",
+      "LocalAddedFireDamageTwoHand10",
+      "LocalAddedFireDamageTwoHand2",
+      "LocalAddedFireDamageTwoHand3",
+      "LocalAddedFireDamageTwoHand4",
+      "LocalAddedFireDamageTwoHand5",
+      "LocalAddedFireDamageTwoHand6",
+      "LocalAddedFireDamageTwoHand7",
+      "LocalAddedFireDamageTwoHand8_",
+      "LocalAddedFireDamageTwoHand9",
+      "LocalAddedLightningDamageTwoHand10",
+      "LocalAddedLightningDamageTwoHand1_",
+      "LocalAddedLightningDamageTwoHand2",
+      "LocalAddedLightningDamageTwoHand3",
+      "LocalAddedLightningDamageTwoHand4",
+      "LocalAddedLightningDamageTwoHand5",
+      "LocalAddedLightningDamageTwoHand6",
+      "LocalAddedLightningDamageTwoHand7",
+      "LocalAddedLightningDamageTwoHand8",
+      "LocalAddedLightningDamageTwoHand9",
+      "LocalAddedPhysicalDamageTwoHand1",
+      "LocalAddedPhysicalDamageTwoHand2",
+      "LocalAddedPhysicalDamageTwoHand3",
+      "LocalAddedPhysicalDamageTwoHand4",
+      "LocalAddedPhysicalDamageTwoHand5",
+      "LocalAddedPhysicalDamageTwoHand6",
+      "LocalAddedPhysicalDamageTwoHand7",
+      "LocalAddedPhysicalDamageTwoHand8",
+      "LocalAddedPhysicalDamageTwoHand9",
+      "LocalCriticalMultiplier1",
+      "LocalCriticalMultiplier2",
+      "LocalCriticalMultiplier3",
+      "LocalCriticalMultiplier4",
+      "LocalCriticalMultiplier5",
+      "LocalCriticalMultiplier6",
+      "LocalCriticalStrikeChance1",
+      "LocalCriticalStrikeChance2",
+      "LocalCriticalStrikeChance3",
+      "LocalCriticalStrikeChance4",
+      "LocalCriticalStrikeChance5",
+      "LocalCriticalStrikeChance6",
+      "LocalIncreasedAccuracy1",
+      "LocalIncreasedAccuracy2",
+      "LocalIncreasedAccuracy3",
+      "LocalIncreasedAccuracy4",
+      "LocalIncreasedAccuracy5",
+      "LocalIncreasedAccuracy6",
+      "LocalIncreasedAccuracy7",
+      "LocalIncreasedAccuracy8",
+      "LocalIncreasedAccuracy9_",
+      "LocalIncreasedAttackSpeed1",
+      "LocalIncreasedAttackSpeed2",
+      "LocalIncreasedAttackSpeed3",
+      "LocalIncreasedAttackSpeed4",
+      "LocalIncreasedAttackSpeed5",
+      "LocalIncreasedAttackSpeed6",
+      "LocalIncreasedAttackSpeed7",
+      "LocalIncreasedAttackSpeed8",
+      "LocalIncreasedPhysicalDamagePercent1",
+      "LocalIncreasedPhysicalDamagePercent2",
+      "LocalIncreasedPhysicalDamagePercent3",
+      "LocalIncreasedPhysicalDamagePercent4",
+      "LocalIncreasedPhysicalDamagePercent5",
+      "LocalIncreasedPhysicalDamagePercent6",
+      "LocalIncreasedPhysicalDamagePercent7",
+      "LocalIncreasedPhysicalDamagePercent8",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating1",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating2",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating3",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating4",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating5",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating6",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating7",
+      "LocalIncreasedPhysicalDamagePercentAndAccuracyRating8",
+      "LocalLightRadiusAndAccuracy1",
+      "LocalLightRadiusAndAccuracy2",
+      "LocalLightRadiusAndAccuracy3",
+      "ManaGainedFromEnemyDeath1",
+      "ManaGainedFromEnemyDeath2",
+      "ManaGainedFromEnemyDeath3",
+      "ManaGainedFromEnemyDeath4",
+      "ManaGainedFromEnemyDeath5",
+      "ManaGainedFromEnemyDeath6",
+      "ManaGainedFromEnemyDeath7",
+      "ManaGainedFromEnemyDeath8",
+      "ManaLeechLocal2",
+      "ManaLeechLocal3",
+      "ManaLeechLocal4",
+      "ManaLeechLocal5",
+      "ReducedLocalAttributeRequirements1",
+      "ReducedLocalAttributeRequirements2",
+      "ReducedLocalAttributeRequirements3",
+      "ReducedLocalAttributeRequirements4",
+      "ReducedLocalAttributeRequirements5",
+      "Strength1",
+      "Strength2",
+      "Strength3",
+      "Strength4",
+      "Strength5",
+      "Strength6",
+      "Strength7",
+      "Strength8",
+      "StunDamageIncrease1",
+      "StunDamageIncrease2",
+      "StunDamageIncrease3",
+      "StunDamageIncrease4",
+      "StunDamageIncrease5",
+      "StunDamageIncrease6",
+      "StunDuration1",
+      "StunDuration2",
+      "StunDuration3",
+      "StunDuration4",
+      "StunDuration5",
+      "StunDuration6",
+      "WeaponElementalDamageOnTwohandWeapon1",
+      "WeaponElementalDamageOnTwohandWeapon2____",
+      "WeaponElementalDamageOnTwohandWeapon3",
+      "WeaponElementalDamageOnTwohandWeapon4",
+      "WeaponElementalDamageOnTwohandWeapon5",
+      "WeaponElementalDamageOnTwohandWeapon6"
+     ],
+     "actor": {}
+    }
+   },
+   "ablations": [
+    {
+     "piece": {
+      "kind": "keystone",
+      "id": "Ancestral Bond"
+     },
+     "baseline": 0.0,
+     "without": 0.0,
+     "delta_rel": null,
+     "verdict": "possibly_unmodelled",
+     "replacement": null,
+     "note": "",
+     "ehp_baseline": 1323.3082706767,
+     "ehp_without": 1323.3082706767,
+     "ehp_delta_rel": 0.0
+    }
+   ],
+   "screen_rank": 6,
+   "rank_note": "no value for arbiter_ash, breach_t15",
+   "deep": null,
+   "deep_rank": {},
+   "deepen_error": null,
+   "conditions": []
+  }
+ ],
+ "estimate": "7 candidate(s) screened, top 0 deepened: ~18.0 min wall (screen 17.9 min, ablation 0.1 min, deepen 0.0 min); cap 45 min",
+ "rejected": [],
+ "notes": [
+  "successive halving: top 0 of 7 by screen rank deepened; the rest keep their screen numbers",
+  "ranking basis: benchmark metrics only (boss time-to-kill with its survival check, pack clear proxy); a candidate missing a benchmark value ranks after those that have it. Per-skill DPS is shown but never ranks across archetypes.",
+  "ablation measures the objective metric under the first benchmark's PoB options, not time-to-kill, and also TotalEHP: a piece is confirmed when removal costs either at least the threshold; a unique key piece is replaced by the best rare for its slot at the screen tier."
+ ],
+ "meta": {}
+}
