@@ -33,15 +33,36 @@ class Effect:
     source: str = ""
 
 
-def actor(kind: str) -> dict:
+def assumed_scenario(kind: str, assumed: Mapping[str, Any]) -> dict:
+    """The scenario (data/squire_assumed.yaml) an opt-in spec names. Raises KeyError for another actor kind or an unknown id."""
+    prof = data.squire_assumed()
+    if kind != prof["kind"]:
+        raise KeyError(f"assumed what-if exists only for {prof['kind']!r}, not {kind!r}")
+    sc = prof["scenarios"]
+    if assumed.get("scenario") not in sc:
+        raise KeyError(f"unknown assumed scenario {assumed.get('scenario')!r}; known: {sorted(sc)}")
+    return sc[assumed["scenario"]]
+
+
+def assumed_banner(scenario: str | None = None) -> str:
+    b = " ".join(data.squire_assumed()["banner"].split())
+    return b + (f" Scenario: {scenario}." if scenario else "")
+
+
+def actor(kind: str, assumed: Mapping[str, Any] | None = None) -> dict:
+    """Registry entry. With `assumed` (the spec's opt-in) the pending Squire is overlaid by the ASSUMED profile (K5);
+    without it a pending actor stays pending."""
     reg = data.actors()
     if kind not in reg:
         raise KeyError(f"unknown actor kind {kind!r}; known: {sorted(reg)}")
-    return reg[kind]
+    if assumed is None:
+        return reg[kind]
+    assumed_scenario(kind, assumed)
+    return {**reg[kind], **data.squire_assumed()["actor"], "requires": {}, "assumed": assumed["scenario"]}
 
 
-def require_available(kind: str) -> dict:
-    a = actor(kind)
+def require_available(kind: str, assumed: Mapping[str, Any] | None = None) -> dict:
+    a = actor(kind, assumed)
     if a.get("status") != "available":
         raise ActorUnavailable(kind, a.get("unknowns") or [])
     return a
@@ -69,8 +90,13 @@ def make_effect(eid: str, params: Mapping[str, Any] | None = None, uptime: float
 def effects_for(comp: Companion, skill_ids: Sequence[str]) -> list[Effect]:
     """Effects the companion's skills (catalogue ids, resolved by the caller) apply to the player.
     Raises ActorUnavailable for a pending actor."""
-    a = require_available(comp.kind)
+    a = require_available(comp.kind, comp.assumed)
     out: list[Effect] = []
+    if comp.assumed is not None:   # K5: the scenario's effects, every one labelled ASSUMED; `uptime` overrides them all
+        for e in assumed_scenario(comp.kind, comp.assumed)["effects"]:
+            up = float(comp.assumed.get("uptime") or e.get("uptime", 1.0))
+            out.append(make_effect(e["effect"], e.get("params"), up, e.get("source", "ASSUMED")))
+        return out
     for sid in skill_ids:
         for e in (a.get("skill_effects") or {}).get(sid, []):
             out.append(make_effect(e["effect"], e.get("params"), float(e.get("uptime", 1.0)), e.get("source", "")))
@@ -106,6 +132,7 @@ class Combined:
     without_companion: float | None = None
     effects: list[Effect] = field(default_factory=list)
     blended: bool = False
+    assumed: str | None = None        # K5: scenario id when the numbers rest on the assumed Squire profile
 
     @property
     def total(self) -> float:
@@ -137,8 +164,10 @@ class SeparateBuildModel:
     MAX_PARTIAL = 4
 
     def __init__(self, kind: str, player_metric: Callable[[str, Mapping[str, Any]], float],
-                 companion_metric: Callable[[str], float | None] | None = None, base: Mapping[str, Any] | None = None):
+                 companion_metric: Callable[[str], float | None] | None = None, base: Mapping[str, Any] | None = None,
+                 assumed: str | None = None):
         self.kind, self.player_metric, self.companion_metric, self.base = kind, player_metric, companion_metric, dict(base or {})
+        self.assumed = assumed
 
     def evaluate(self, main_xml: str, companion_xml: str | None, effects: Sequence[Effect]) -> Combined:
         sure = [e for e in effects if e.uptime >= 1.0]
@@ -159,7 +188,7 @@ class SeparateBuildModel:
         comp = 0.0
         if companion_xml is not None and self.companion_metric is not None:
             comp = float(self.companion_metric(companion_xml) or 0.0)
-        return Combined(main, comp, without, list(effects), blended=bool(part))
+        return Combined(main, comp, without, list(effects), blended=bool(part), assumed=self.assumed)
 
 
 def reset_options(base: Mapping[str, Any] | None, effects: Sequence[Effect]) -> dict[str, Any]:
@@ -174,14 +203,14 @@ def reset_options(base: Mapping[str, Any] | None, effects: Sequence[Effect]) -> 
 
 def model_for(kind: str, *, player_metric: Callable[[str, Mapping[str, Any]], float] | None = None,
               companion_metric: Callable[[str], float | None] | None = None,
-              base: Mapping[str, Any] | None = None) -> ActorModel:
+              base: Mapping[str, Any] | None = None, assumed: Mapping[str, Any] | None = None) -> ActorModel:
     """The evaluation model for an actor. A pending actor gets the loud stub; `separate_build` needs the metric callables
     (the engine-backed ones live in orchestrate.engine_stages). `native_pob` waits for K4 (1.0 data)."""
-    a = actor(kind)
+    a = actor(kind, assumed)
     if a.get("status") != "available":
         return PendingActorModel(kind)
     if a.get("model") == "separate_build":
         if player_metric is None:
             raise ValueError(f"actor {kind!r} uses separate_build: player_metric is required")
-        return SeparateBuildModel(kind, player_metric, companion_metric, base)
+        return SeparateBuildModel(kind, player_metric, companion_metric, base, assumed=(assumed or {}).get("scenario"))
     raise NotImplementedError(f"actor {kind!r} is available but model {a.get('model')!r} is not built (K4, needs 1.0 data)")

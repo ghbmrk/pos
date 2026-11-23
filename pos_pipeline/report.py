@@ -26,12 +26,25 @@ def run_meta(spec, bench_ids: list[str]) -> dict[str, Any]:
         assumptions = sorted({k for k, v in _cells(b) if "ASSUMPTION" in str(v.get("source", ""))})
         bm[bid] = {"kind": b["kind"], "patch": b["patch"], "description": b.get("description", ""),
                    "unsourced": [u.split(".", 1)[1] for u in unsourced], "assumptions": assumptions}
-    return {"pob_sha": spec.pob_sha, "class": spec.class_, "ascendancy": spec.ascendancy, "level": spec.level,
+    comp = getattr(spec, "companion", None)
+    assumed = None
+    if comp is not None and comp.assumed is not None:   # K5: every artefact of this run says so
+        from . import actors, data
+        prof = data.squire_assumed()
+        sc = actors.assumed_scenario(comp.kind, comp.assumed)
+        assumed = {"scenario": comp.assumed["scenario"], "uptime_override": comp.assumed.get("uptime"), "idea": sc["idea"],
+                   "banner": actors.assumed_banner(comp.assumed["scenario"]), "assumptions": prof["assumptions"],
+                   "standins": prof["standins"], "effects": [{k: v for k, v in e.items()} for e in sc["effects"]]}
+    return {"assumed": assumed, "pob_sha": spec.pob_sha, "class": spec.class_, "ascendancy": spec.ascendancy, "level": spec.level,
             "main_skill": spec.main_skill, "config_profile": spec.config_profile, "tiers": list(spec.tiers) or ["mid"],
             "benchmarks": bm, "metric_note": "",
             "limitations": ([f"companion {spec.companion.kind}: separate_build model (own PoB build, effects applied as config options "
                              "from data/actors.yaml); the table's metric column is the player without effects, the companion's "
-                             "gear is not searched (K3)"] if getattr(spec, "companion", None) else [])}
+                             "gear is not searched (K3)"] if comp is not None and assumed is None else [])
+            + ([f"ASSUMED companion {comp.kind}: separate_build model; effects come from data/squire_assumed.yaml scenario "
+                f"`{assumed['scenario']}`, not from game data; the metric column is the player without effects; both gear sets are searched "
+                "together (K3) with every assumed effect on, as an upper bound for choosing gear; the with-effects columns blend uptimes"]
+               if assumed else [])}
 
 
 def _cells(b: dict):
@@ -104,8 +117,32 @@ def render_markdown(d: dict) -> str:
     m, metric = d.get("meta", {}), d["metric"]
     L: list[str] = []
     a = L.append
-    a(f"# Ranked report: {m.get('class')} {m.get('ascendancy') or ''} L{m.get('level')}, {m.get('main_skill')}".replace("  ", " "))
-    a("")
+    ass = m.get("assumed")
+    if ass:
+        a(f"# ASSUMED SQUIRE WHAT-IF: {m.get('class')} {m.get('ascendancy') or ''} L{m.get('level')}, {m.get('main_skill')}".replace("  ", " "))
+        a("")
+        a(f"> **{ass['banner']}**")
+        a(">")
+        a(f"> Scenario `{ass['scenario']}`: {ass['idea']}." + (f" Uptime override {ass['uptime_override']:g} on every effect." if ass.get("uptime_override") else ""))
+        a("")
+        a("Assumptions (every one is a guess, check ids refer to docs/theorycraft-squire.md section 5):")
+        a("")
+        for x in ass["assumptions"]:
+            a(f"- ASSUMED [{x['id']}, check {x['check']}]: {x['text']}")
+        a("")
+        a("Stand-ins for content missing from the pinned data:")
+        a("")
+        for x in ass["standins"]:
+            a(f"- {x['for']} -> {x['use']} ({x['why']})")
+        a("")
+        a("Assumed effects:")
+        a("")
+        for x in ass["effects"]:
+            a(f"- {x['effect']}{' ' + str(x['params']) if x.get('params') else ''} uptime {x.get('uptime', 1.0):g}: {x['source']}")
+        a("")
+    else:
+        a(f"# Ranked report: {m.get('class')} {m.get('ascendancy') or ''} L{m.get('level')}, {m.get('main_skill')}".replace("  ", " "))
+        a("")
     a(f"- Objective metric: `{metric}` (PoB output, one config profile `{m.get('config_profile')}` for every variant). {m.get('metric_note', '')}".rstrip())
     a(f"- Engine: PoB-PoE2 pin `{m.get('pob_sha')}`. Tiers: {', '.join(m.get('tiers', []))}.")
     a("- Source of numbers: PoB calculations unless marked: `~` = price model estimate, `proxy` = benchmark density proxy, "
@@ -115,7 +152,7 @@ def render_markdown(d: dict) -> str:
     rk = ranked(d)
     for tier in m.get("tiers") or list(rk):
         rows = rk.get(tier, [])
-        a(f"## Tier `{tier}`")
+        a(f"## Tier `{tier}`" + (" (ASSUMED Squire what-if)" if ass else ""))
         a("")
         if not rows:
             a("No variant completed at this tier.")
@@ -126,7 +163,8 @@ def render_markdown(d: dict) -> str:
         has_actor = any((tr.get("actor") or {}) for _, tr in rows)
         head = ["#", "variant", metric, "vs best", "EHP", "Life / ES", "min res", "price", "floors"] + bids
         if has_actor:
-            head += [f"{metric} with effects", "companion", "combined", "without companion"]
+            tag = " (ASSUMED)" if ass else ""
+            head += [f"{metric} with effects{tag}", f"companion{tag}", f"combined{tag}", "without companion"]
         a("| " + " | ".join(head) + " |")
         a("|---|---|---:|---:|---:|---:|---|---|---|" + "---|" * len(bids) + ("---:|---:|---:|---:|" if has_actor else ""))
         for n, (s, tr) in enumerate(rows, 1):
@@ -148,6 +186,9 @@ def render_markdown(d: dict) -> str:
                 a(f"  - {slot}: {desc}")
             if (tr.get("actor") or {}).get("effects"):
                 a("  - companion effects: " + _effects(tr["actor"]))
+                ac = tr["actor"]
+                if ass and ac.get("main") is not None and ac.get("main") == ac.get("without_companion"):
+                    a("  - ASSUMED effects changed the player's metric by 0: this build has no consumer for them (not a model error)")
             if (tr.get("actor") or {}).get("error"):
                 a(f"  - companion FAILED: {tr['actor']['error']}")
             if tr.get("unparsed"):
@@ -239,7 +280,7 @@ SCHEMA = """
 CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE seeds(seed INTEGER PRIMARY KEY, axes TEXT, ok INTEGER, supports TEXT, supports_gain REAL, tree_gain REAL,
                    tree_points INTEGER, error TEXT);
-CREATE TABLE tier_runs(seed INTEGER, tier TEXT, rank INTEGER, ok INTEGER, value REAL, baseline REAL, price TEXT,
+CREATE TABLE tier_runs(seed INTEGER, tier TEXT, rank INTEGER, ok INTEGER, assumed TEXT, value REAL, baseline REAL, price TEXT,
                        floors_met INTEGER, evals INTEGER, seconds REAL, items TEXT, stats TEXT, unparsed TEXT, notes TEXT, error TEXT,
                        PRIMARY KEY(seed, tier));
 CREATE TABLE bench(seed INTEGER, tier TEXT, benchmark TEXT, result TEXT, PRIMARY KEY(seed, tier, benchmark));
@@ -252,15 +293,19 @@ def write_sqlite(d: dict, path: Path) -> None:
     rk = ranked(d)
     rank = {(id(s), t): n for t, rows in rk.items() for n, (s, _) in enumerate(rows, 1)}
     j = lambda x: json.dumps(x, sort_keys=True)  # noqa: E731
+    ass = (d.get("meta") or {}).get("assumed")
+    assumed = ass["scenario"] if ass else None       # NULL = real data; else every row of this run is an ASSUMED what-if
     with sqlite3.connect(path) as c:
         c.executescript(SCHEMA)
+        if ass:
+            c.execute("INSERT INTO meta VALUES(?,?)", ("ASSUMED", ass["banner"]))
         c.executemany("INSERT INTO meta VALUES(?,?)", [("metric", d["metric"]), ("meta", j(d.get("meta", {}))), ("estimate", j(d["estimate"]))])
         for i, s in enumerate(d["seeds"]):
             c.execute("INSERT INTO seeds VALUES(?,?,?,?,?,?,?,?)", (i, j(s["variant"]), int(s["ok"]), j(s["supports"]), s["supports_gain"],
                                                                       s["tree_gain"], s["tree_points"], s["error"]))
             for t, tr in s["tiers"].items():
-                c.execute("INSERT INTO tier_runs VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                          (i, t, rank.get((id(s), t)), int(tr["ok"]), tr["value"], tr["baseline"], tr["price"],
+                c.execute("INSERT INTO tier_runs VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                          (i, t, rank.get((id(s), t)), int(tr["ok"]), assumed, tr["value"], tr["baseline"], tr["price"],
                            None if tr["floors_met"] is None else int(tr["floors_met"]), tr["evals"], tr["seconds"], j(tr["items"]),
                            j(tr.get("stats", {})), j(tr.get("unparsed", [])), j(tr["notes"]), tr["error"]))
                 for bid, b in (tr.get("bench") or {}).items():
