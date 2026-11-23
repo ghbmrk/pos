@@ -524,3 +524,25 @@ def test_hard_rss_guard_kills_an_engine_over_the_cap():
             eng.ping()
     with PobEngine() as eng:                           # default cap leaves a normal call alone
         assert eng.ping()
+
+
+def test_set_config_reports_how_many_custom_mods_parsed(fireball):
+    """PoB drops a custom line it cannot parse without a word; the count is how callers tell a true zero from a dropped line (L2)."""
+    assert fireball.set_config(custom_mods="10% more Damage")["customMods"]["count"] == 1
+    assert fireball.set_config(custom_mods="not a modifier at all")["customMods"]["count"] == 0
+    fireball.set_config(custom_mods="")
+
+
+def test_get_stats_all_returns_every_scalar_output(fireball):
+    st = fireball.get_stats("all")["stats"]
+    assert len(st) > 200 and st["TotalDPS"] > 0 and "Life" in st
+
+
+def test_get_passive_parse_reports_parse_status_and_gating_tags(engine):
+    from pos_catalogue import Catalogue
+    engine.new_build()
+    node = Catalogue.load().entries("keystone")[0]["node"]
+    info = engine.get_passive(node, parse=True)
+    assert info["found"] and info["parse"], info
+    assert all({"line", "parsed", "mods"} <= set(ln) for ln in info["parse"])
+    assert "parse" not in engine.get_passive(node)       # opt-in: the plain summary is unchanged

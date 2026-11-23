@@ -1,0 +1,128 @@
+# Probe levers for `diagnose` (docs/loop.md 2.2). Each probe is one PoB custom-modifier line applied on top of a build;
+# the change it causes in the build's outputs is that lever's marginal value, measured by the engine only.
+#
+# A probe is usable only if (1) PoB parsed the line (the engine reports the mods it produced; an unparsed line is
+# silently dropped by PoB, which reads as a zero), and (2) it passes every calibration case below. A failing probe is
+# EXCLUDED from a diagnosis and listed as failed, never reported as zero. A parsed, calibrated probe that moves
+# nothing on this build is a real zero (`inert`).
+#
+# cost: tier points of one affix at `rank` in affix group `group` (data/tiers.yaml rank_points x premium_weights)
+# times `affixes` (how many such affixes the probe step is taken to equal). `affixes` is an authored sizing, not game
+# data: it only scales the price, never the measured gain. cost null = no gear affix buys this lever (tree / support).
+schema_version: 1
+
+# Reference builds the calibration cases run on: built in-engine, no fixtures. `options` = PoB config.
+references:
+  fire_spell:      { skill: "Fireball 20/0  1",  options: { enemyIsBoss: Pinnacle } }
+  lightning_spell: { skill: "Spark 20/0  1",     options: { enemyIsBoss: Pinnacle } }
+  cold_spell:      { skill: "Frost Bomb 20/0  1", options: { enemyIsBoss: Pinnacle } }
+
+# metric names in `expect`: dps = FullDPS, ehp = TotalEHP, life, es = EnergyShield
+# expect: { ref: <reference>, metric, rel_min, rel_max }   relative change of the metric, probe vs no probe
+# rel_min = rel_max = 0 is a calibrated zero (the lever must not move this reference).
+probes:
+  - id: more_damage
+    universal: true      # applies to any damaging build: a zero or a reversed sign on a build is itself a finding
+    line: "10% more Damage"
+    group: null
+    expect:
+      - { ref: fire_spell, metric: dps, rel_min: 0.095, rel_max: 0.105 }
+      - { ref: lightning_spell, metric: dps, rel_min: 0.095, rel_max: 0.105 }
+  - id: inc_spell_damage
+    line: "30% increased Spell Damage"
+    cost: { group: SpellDamage, rank: 3, affixes: 1 }
+    expect:
+      - { ref: fire_spell, metric: dps, rel_min: 0.05, rel_max: 0.40 }
+  - id: crit_chance
+    line: "+5% to Critical Hit Chance"
+    cost: { group: CriticalStrikeChance, rank: 3, affixes: 1 }
+    expect:
+      - { ref: fire_spell, metric: dps, rel_min: 0.0, rel_max: 1.0 }
+  - id: crit_damage
+    line: "+30% to Critical Damage Bonus"
+    cost: { group: CriticalStrikeMultiplier, rank: 3, affixes: 1 }
+    expect:
+      - { ref: fire_spell, metric: dps, rel_min: 0.0, rel_max: 0.5 }
+  - id: cast_speed
+    line: "10% increased Cast Speed"
+    cost: { group: AttackAndCastSpeed, rank: 3, affixes: 1 }
+    expect:
+      - { ref: fire_spell, metric: dps, rel_min: 0.02, rel_max: 0.12 }
+  - id: skill_level
+    line: "+1 to Level of all Spell Skills"
+    cost: { group: GlobalIncreaseFireSpellSkillGemLevel, rank: 3, affixes: 1 }
+    expect:
+      - { ref: fire_spell, metric: dps, rel_min: 0.01, rel_max: 0.40 }
+  - id: added_fire
+    universal: true      # applies to any damaging build: a zero or a reversed sign on a build is itself a finding
+    line: "Adds 10 to 100 Fire Damage to Spells"
+    cost: { group: SpellAddedFireDamage, rank: 3, affixes: 1 }
+    expect:
+      - { ref: fire_spell, metric: dps, rel_min: 0.01, rel_max: 5.0 }
+      - { ref: lightning_spell, metric: dps, rel_min: 0.01, rel_max: 5.0 }   # added damage of any element applies to any spell
+  - id: added_lightning
+    universal: true      # applies to any damaging build: a zero or a reversed sign on a build is itself a finding
+    line: "Adds 10 to 100 Lightning Damage to Spells"
+    cost: { group: SpellAddedLightningDamage, rank: 3, affixes: 1 }
+    expect:
+      - { ref: lightning_spell, metric: dps, rel_min: 0.01, rel_max: 5.0 }
+      - { ref: fire_spell, metric: dps, rel_min: 0.01, rel_max: 5.0 }
+  - id: pen_fire
+    line: "Damage Penetrates 10% Fire Resistance"
+    cost: { group: FireResistancePenetration, rank: 3, affixes: 1 }
+    expect:
+      - { ref: fire_spell, metric: dps, rel_min: 0.15, rel_max: 0.25 }
+      - { ref: lightning_spell, metric: dps, rel_min: 0.0, rel_max: 0.0 }
+  - id: pen_lightning
+    line: "Damage Penetrates 10% Lightning Resistance"
+    cost: { group: LightningResistancePenetration, rank: 3, affixes: 1 }
+    expect:
+      - { ref: lightning_spell, metric: dps, rel_min: 0.15, rel_max: 0.25 }
+      - { ref: fire_spell, metric: dps, rel_min: 0.0, rel_max: 0.0 }
+  - id: pen_cold
+    line: "Damage Penetrates 10% Cold Resistance"
+    cost: { group: ColdResistancePenetration, rank: 3, affixes: 1 }
+    expect:
+      - { ref: cold_spell, metric: dps, rel_min: 0.15, rel_max: 0.25 }
+      - { ref: fire_spell, metric: dps, rel_min: 0.0, rel_max: 0.0 }
+  - id: enemy_res_all
+    universal: true      # applies to any damaging build: a zero or a reversed sign on a build is itself a finding
+    line: "Nearby Enemies have -10% to all Resistances"
+    group: null
+    expect:
+      - { ref: fire_spell, metric: dps, rel_min: 0.15, rel_max: 0.25 }
+      - { ref: lightning_spell, metric: dps, rel_min: 0.15, rel_max: 0.25 }
+  - id: life
+    line: "+500 to maximum Life"
+    cost: { group: BaseLifeAndMana, rank: 3, affixes: 2 }
+    expect:
+      - { ref: fire_spell, metric: ehp, rel_min: 1.0, rel_max: 20.0 }
+      - { ref: fire_spell, metric: dps, rel_min: 0.0, rel_max: 0.0 }
+  - id: energy_shield
+    line: "+500 to maximum Energy Shield"
+    cost: { group: EnergyShield, rank: 3, affixes: 2 }
+    expect:
+      - { ref: fire_spell, metric: ehp, rel_min: 1.0, rel_max: 30.0 }
+  - id: armour
+    line: "+1000 to Armour"
+    cost: { group: PhysicalDamageReductionRating, rank: 3, affixes: 2 }
+    expect:
+      - { ref: fire_spell, metric: ehp, rel_min: 0.0, rel_max: 10.0 }
+  - id: evasion
+    line: "+1000 to Evasion Rating"
+    cost: { group: EvasionRating, rank: 3, affixes: 2 }
+    expect:
+      - { ref: fire_spell, metric: ehp, rel_min: 0.0, rel_max: 10.0 }
+  - id: all_res
+    line: "+10% to all Elemental Resistances"
+    cost: { group: AllResistances, rank: 3, affixes: 1 }
+    expect:
+      - { ref: fire_spell, metric: ehp, rel_min: 0.0, rel_max: 5.0 }
+      - { ref: fire_spell, metric: dps, rel_min: 0.0, rel_max: 0.0 }
+
+# Lines the L0 audit used that are NOT probes, and the measured cause of each "lie" (docs/probes.md). Asserted in the tests.
+rejected:
+  - { line: "Enemies have -10% to Lightning Resistance", why: "PoB drops the line (no parse): it contributes nothing, so it reads as a silent zero. The engine now reports the parsed mod count and the probe is excluded when it is 0." }
+  - { line: "Nearby Enemies have -10% to Lightning Resistance", why: "a real mod, not a lie: the golden Spark build carries Rakiata's Flow (hits treat enemy elemental resistances as inverted), so lowering enemy resistance LOWERS damage there (-6.5%). The same line is +20% on a plain Spark. Superseded by enemy_res_all, which carries a reversed-sign flag." }
+  - { line: "Damage Penetrates 10% Lightning Resistance (as a zero)", why: "same cause: with inverted resistances penetration has nothing to remove, so 0 is the engine's true answer for that build. Kept as pen_lightning (+20% on a plain Spark); on an inverting build it is reported `inert` with a note." }
+  - { line: "+10 to Intelligence", why: "parsed; PoB damage does not read Intelligence, so the zero is true. Attributes only matter through requirements, which PoB does not gate." }
