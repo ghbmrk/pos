@@ -43,21 +43,25 @@ Measured on poe.ninja's PoE2 exchange overview (`/poe2/api/economy/exchange/curr
 | Tier | What | ToS / ban risk | Plausible edge (estimate) |
 |---|---|---|---|
 | 0. Market intelligence | Collect public aggregates (poe.ninja hourly, GGG per-pair exchange digests) into history; trend, volatility, volume filters; LLM reads via MCP | None found: documented, public endpoints | Indirect: avoids selling under value and buying spikes. Main value is pricing, not profit. |
-| 1. Decision support, manual execution | Ranked signals: league-start trends (what rises as crafting demand arrives), spread between pair digests, items cheap vs history; human places Currency Exchange orders or whispers | None: all in-game actions are manual | The only tier with real edge for one player. Exchange limit orders capture the spread with no automation; early-league speculation on predictable demand is where most currency is made. Order of magnitude: a few percent per cycle on liquid pairs; larger, riskier on early-league trends. |
+| 1. Decision support, manual execution | Ranked signals: league-start trends (what rises as crafting demand arrives), spread between pair digests, items cheap vs history; human places Currency Exchange orders or whispers | None found: all in-game actions are manual (7(3) is broad and GGG has sole discretion) | Furthest tier with no ToU breach found; edge untested. Exchange limit orders capture the spread with no automation; early-league speculation on predictable demand is where most currency is made. Order of magnitude: a few percent per cycle on liquid pairs; larger, riskier on early-league trends. |
 | 2. Automated trade-site reads | Polling trade-site search/live search with `POESESSID`, alerts to a human | High in principle, enforcement uneven: automated use of undocumented Website endpoints breaches ToU 7(3)/7(6) at any rate, and runs under the account's session | Small over tier 1 for currency (the Exchange already pools currency liquidity); matters for underpriced gear, which is a different goal. |
 | 3. Automated execution | Auto-whisper, sniping, input automation in the client | Highest: breaches 7(3) and the macro rule; the sniper's own README says so. Account loss erases the gain. | Largest gross edge on mispriced listings, but a ban takes the account and its stash. |
 
-**Decision boundary.** Tiers 0-1 read only documented public data and leave every in-game action to the player. Tier 2 is the first that automates against undocumented Website endpoints (ToU 7(3)/7(6)); tier 3 also acts in game. The line follows one test: *does software use the account's session or act in game?* If no, it is in bounds.
+**Decision boundary.** Tiers 0-1 read only documented public data and leave every in-game action to the player. Tier 2 is the first that automates against undocumented Website endpoints (ToU 7(3)/7(6)); tier 3 also acts in game. The line follows one test: *does software automate against undocumented GGG endpoints or act in game?* If no, it is in bounds. A session cookie is not the test: cookieless polling of the trade API breaches 7(3)/7(6) too.
 
 ## Recommendation
 
-1. Draw the line between tiers 1 and 2. Build nothing that holds `POESESSID` or sends whispers.
+1. Draw the line between tiers 1 and 2. Build nothing that calls undocumented trade endpoints or sends whispers. Manual browser live search (a human watching the trade site) covers most of what tier 2 adds.
+   Gear flipping (buying underpriced rares/uniques to resell) is the same currency goal by another route; it stays manual under the same line.
 2. Do not build a collector. Reuse GlacianNex/POE2MarketMCP (MIT, local SQLite history, poe.ninja hourly) with its trade-API watchlist/sweep/listing options left off (they call undocumented trade endpoints), run on the owner's device; add sergeyklay/poe2-mcp-server (MIT, no accounts) for ad-hoc questions. vanzan01/poe2scout-mcp is a fallback only, because it targets poe2scout's temporary API path.
 3. Fit with this repo: the same price history is what `pos_tiers` needs for unique prices and currency-to-divine conversion (docs/price-tiers.md step 4, still empty). One `data/prices/` snapshot importer from poe.ninja's exchange overview serves both; keep the trading goal outside `pos` so the build simulator stays one task.
 4. Timing: the 1.0 reset (2026-12-11) empties every history. Start the collector on launch day; signals are meaningless for the first 24-48 h of data, which is also when most currency is made by playing and selling early drops. The 2026-12-12 repin reminder is the natural start point.
 5. Measure before scaling: log every manual trade (paid, received, divine value at the hour) for the first 1.0 week. If logged edge does not beat time spent mapping, stop at tier 0 as a pricing aid.
 
 ## Open questions (not blocking)
+
+- Check at 1.0: Currency Exchange fee (gold cost per order) and any instant-buyout trade listings; both change spread-capture economics (recalled, unverified).
+- Dependency choice (POE2MarketMCP vs sergeyklay/poe2-mcp-server) is a separate vetting step, not part of the boundary decision.
 
 - Exact fields of GGG's per-pair Currency Exchange digests (public endpoint, but unreachable from this environment); add it to the collector if POE2MarketMCP does not already read it.
 - Whether this cloud environment should be allowed to reach poe2scout.com (currently blocked); not needed if the collector runs on the owner's device.
