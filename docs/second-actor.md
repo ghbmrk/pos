@@ -29,7 +29,7 @@ of unknowns. No number is ever produced for a pending actor.
 ```yaml
 companion:
   kind: squire                         # key in data/actors.yaml
-  skills:                              # its own skill groups (catalogue skills + supports, same rules as main)
+  skills:                              # its skill groups (catalogue skill + supports, same rules as main); Squire: exactly one
     - { gem: "Whirling Slash", supports: [] }
   gear: { weapon: "Spear" }            # base per companion slot; slot names come from the actor's gear_slots
 ```
@@ -42,15 +42,17 @@ everything else is a validator `Issue`:
 | `actor_kind` | error | kind not in `data/actors.yaml` |
 | `actor_unavailable` | error | actor is `pending`; message lists its unknowns |
 | `actor_requires` | error | class/ascendancy does not grant this actor |
-| `companion_skills` | error | more skills than the actor allows |
+| `companion_skills` | error | skill-group count outside the actor's `min_skills`..`max_skills` (Squire: exactly one) |
 | `companion_slot` | error | gear slot not in the actor's `gear_slots` |
 | `unresolved` / `support_incompatible` / ... | error | companion skills and supports get the same checks as the main skill |
 
 ## 2. Registry: `data/actors.yaml`
 
 Per actor: `status` (pending | available), `requires` {class, ascendancy}, `unknowns` (what blocks it),
-`model` (`native_pob` | `separate_build`, see 3), `gear_slots`, `max_skills`, `skill_effects` {skill id ->
-[{effect, uptime, source}]}, `budget_share` (see 5). Squire is `pending` with every 1.0-dependent field null.
+`model` (`native_pob` | `separate_build`, see 3), `gear_slots`, `min_skills`/`max_skills` (+ `skills_source`), `skill_effects`
+{skill id -> [{effect, uptime, source}]}, `budget_share` (see 5). Squire is `pending` with every 1.0-dependent field null,
+except its skill count: one skill plus its supports (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY,
+2026-11-23; the ExileCon demo showed two skills, so K4 re-checks).
 
 ## 3. How cross-actor effects enter PoB calcs
 

@@ -59,6 +59,13 @@ def test_unknown_scenario_and_slot_errors(cat):  # noqa: F811
     assert "companion_slot" in codes(validate(spec({**COMP, "gear": {"ring_1": "Oak Staff"}}), cat))
 
 
+@pytest.mark.parametrize("skills", [[], [{"gem": "Fireball"}, {"gem": "Fireball"}]])
+def test_assumed_squire_takes_exactly_one_skill_group(cat, skills):  # noqa: F811
+    """The overlay keeps the registry's count: one skill plus its supports (owner, 2026-11-23)."""
+    assert "companion_skills" in codes(validate(spec({**COMP, "skills": skills}), cat))
+    assert actors.actor("squire", {"scenario": "debuff_bot"})["max_skills"] == 1
+
+
 def test_assumed_only_for_the_squire():
     with pytest.raises(KeyError, match="unknown actor kind"):
         actors.actor("other", {"scenario": "ground_painter"})

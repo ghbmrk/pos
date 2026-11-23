@@ -11,12 +11,11 @@ banner: >-
 actor:                 # overlaid on actors.yaml `squire` while assumed; `requires` is waived (no Duelist/Knight pre-1.0)
   status: available
   model: separate_build
-  gear_slots: [weapon, body_armour, helmet, gloves, boots]
-  max_skills: 1
+  gear_slots: [weapon, body_armour, helmet, gloves, boots]   # skill count (exactly one) comes from data/actors.yaml
   budget_share: 0.25
 assumptions:
   - { id: slots,      text: "Squire wears weapon, body armour, helmet, gloves and boots; no jewellery or belt", check: C1 }
-  - { id: one_skill,  text: "Squire's damage comes from one skill group (the assembler builds one); a catalogue skill stands in for its real skills", check: C2 }
+  - { id: one_skill,  text: "Squire has one skill group, one skill plus its supports (owner fact 2026-11-23, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY; demo showed two); a catalogue skill stands in for it", check: C2 }
   - { id: effects,    text: "Cross-actor effects come only from the scenario below, at the stated uptimes; they do not depend on the Squire's skill or gear", check: C6 }
   - { id: share,      text: "Squire slots get 25% of the tier budget before reallocation; the search can move points either way", check: C1 }
   - { id: scaling,    text: "Squire is a copy of the player's class and level with its own gear, no passives, no minion scaling, no player stat sharing", check: C2 }
@@ -32,10 +31,10 @@ standins:
 # Scenarios: what the Squire is assumed to do for the player. Every uptime is ASSUMED. `uptime` in the spec overrides all of them.
 scenarios:
   debuff_bot:
-    idea: "theorycraft rank 1: Squire's weapon skill keeps Shock, Intimidate and Armour Break on the player's target"
+    idea: "theorycraft rank 1: Squire's one skill and its supports keep Shock, Intimidate and Armour Break on the player's target"
     effects:
       - { effect: enemy_shocked, probe: moves,        uptime: 0.5, source: "ASSUMED: uptime; the Squire has a shock source" }
-      - { effect: enemy_intimidated, probe: moves,    uptime: 0.5, source: "ASSUMED: uptime; the Squire has an intimidate source" }
+      - { effect: enemy_intimidated, probe: moves,    uptime: 0.5, source: "ASSUMED: uptime; the Squire has an intimidate source. With one skill, the only skill-side source in pinned data is Syzygy (slams on Ignited, Fully Broken, Heavy Stunned enemies); gear routes are Blackheart (a ring, outside the assumed slots) and Perfidy (body armour, needs the Squire to have a Presence, C3)" }
       - { effect: enemy_armour_broken, probe: moves,  uptime: 0.5, source: "ASSUMED: uptime; the Squire has an armour break source" }
   ground_painter:
     idea: "theorycraft rank 3 (owner build 1): Squire lays element ground and the player's whirlwind skill picks it up"
