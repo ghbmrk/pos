@@ -53,6 +53,6 @@ Totals: 35/35 candidates passed the gate on the first submission; 0 PoE1 names r
 - I8: ailment/DoT-aware damage metric (TotalDPS + the build's ailment DPS, or FullDPS with the overlap caveat) for attack and ailment skills; re-run p2.
 - I9: carry the G5 >3x audit flag into slate ranking (demote or label rank on an artefact).
 - I10: ablation measures EHP as well as damage; a defensive key piece is confirmed on EHP loss.
-- I11: per-candidate config conditions (charges, enemy ailments, ground, corpses) declared in the slate and applied in screen and ablation, so conditional mods are measured instead of `possibly_unmodelled`.
+- I11 (done): per-candidate config conditions declared as `conditions: [...]` in the spec (table `conditions` in `data/config_profiles.yaml`), applied at assembly on top of the config profile and therefore in screen, ablation and the full run; conditional mods are measured instead of `possibly_unmodelled`. Declared conditions are assumptions and are printed per candidate in the slate report. Which conditions are fair per fight is for I13 to review.
 - I12: sweep probe seed with a plain weapon base (spec or sweep argument), so attack skills can be probed; runner accepts candidates with no searched slot.
 - Re-run this eval (same five prompts, `tools/eval_ideation.py`) after I8-I11; then tune `data/ideation.yaml`.

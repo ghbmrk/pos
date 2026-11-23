@@ -48,6 +48,7 @@ class CandidateRun:
     deep: dict | None = None                    # tier -> {variant, supports, tier_run}, from the full run
     deep_rank: dict[str, int] = field(default_factory=dict)   # tier -> rank among the deepened
     deepen_error: str | None = None
+    conditions: list[str] = field(default_factory=list)   # declared config conditions (I11), applied in screen, ablation and deepen
 
 
 @dataclass
@@ -229,6 +230,7 @@ def run_slate(slate: Slate, rep: SlateReport, runner: CandidateRunner, *, k: int
     runs: dict[str, CandidateRun] = {}
     for c, r in kept:
         cr = CandidateRun(c.name, c.source, dict(r.vector), [asdict(cl) for cl in c.claims], list(c.key_pieces))
+        cr.conditions = list(c.spec.conditions) if c.spec else []
         out.candidates.append(cr)
         runs[c.name] = cr
         try:
@@ -456,6 +458,11 @@ def render_slate_markdown(d: dict) -> str:
             a("")
             continue
         a(f"Source: `{c['source']}`. Archetype: {_arch(c['vector'])}. Main skill: {c['vector'].get('main_skill')}.")
+        if c.get("conditions"):
+            from . import data as _d
+            tab = _d.conditions()
+            a("Measured under declared conditions (assumed, not earned by the build): "
+              + "; ".join(f"{n} ({tab[n]['description']}; needs {tab[n]['needs']})" if n in tab else n for n in c["conditions"]) + ".")
         if c["deepen_error"]:
             a(f"Full run FAILED: {c['deepen_error']}")
         a("")

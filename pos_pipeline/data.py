@@ -20,6 +20,19 @@ def profiles() -> dict[str, dict]:
     return _load("config_profiles.yaml")["profiles"]
 
 
+def conditions() -> dict[str, dict]:
+    return _load("config_profiles.yaml").get("conditions") or {}
+
+
+def condition_options(names) -> dict:
+    """PoB config options for declared condition names, merged in order (later names win)."""
+    table = conditions()
+    out: dict = {}
+    for n in names or ():
+        out.update(table[n]["options"])
+    return out
+
+
 def profile_hash(name: str) -> str:
     """Stable hash of a profile's options and custom mods; part of the result-cache key."""
     p = profiles()[name]

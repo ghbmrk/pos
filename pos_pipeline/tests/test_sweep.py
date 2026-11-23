@@ -87,3 +87,21 @@ def test_support_key_piece_by_gem_id(cat):
     from pos_pipeline.sweep import _support_id
     assert _support_id(cat, "SupportChainPlayer") == _support_id(cat, "Chain I") == "SupportChainPlayer"
     assert _support_id(cat, "Nope") is None
+
+
+def test_ablation_measures_a_conditional_notable_under_a_declared_condition(cat):
+    """I11: 'Sigil of Lightning' (damage against Shocked enemies) reads possibly_unmodelled with no condition and is
+    confirmed once the spec declares `enemy_shocked` (real engine)."""
+    out = {}
+    for conds in ([], ["enemy_shocked"]):
+        spec = parse_spec({"pob_sha": cat.pob_sha[:7], "class": "Sorceress", "ascendancy": "Stormweaver", "level": 90,
+                           "main_skill": {"gem": "Spark"}, "tiers": ["mid"], "conditions": conds,
+                           "fixed": {"supports": ["Controlled Destruction"], "notables": ["Sigil of Lightning"]}})
+        with PobEngine() as eng:
+            a = assemble(spec, cat, eng)
+        assert a.ok, a.issues
+        with EnginePool(workers=1) as pool:
+            [r] = ablate(cat, pool, a.xml, [{"kind": "notable", "id": "Sigil of Lightning"}], "TotalDPS")
+        out[bool(conds)] = r
+    assert out[False].verdict == "possibly_unmodelled"
+    assert out[True].verdict == "confirmed" and out[True].without < out[True].baseline

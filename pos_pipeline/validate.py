@@ -140,6 +140,14 @@ def validate(spec: BuildSpec, cat: Catalogue, tiers: TierTable | None = None) ->
     else:
         add("error", "config_profile", "config_profile", f"unknown config profile {spec.config_profile!r}", sorted(profs))
 
+    # declared conditions (I11)
+    ctab = data.conditions()
+    for i, n in enumerate(spec.conditions):
+        if n not in ctab:
+            add("error", "condition", f"conditions[{i}]", f"unknown condition {n!r}", sorted(ctab))
+    if len(set(spec.conditions)) != len(spec.conditions):
+        add("error", "duplicate", "conditions", "conditions listed more than once")
+
     # objective metric + floors
     _check_objective(spec, skill, rep, add)
 

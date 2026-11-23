@@ -161,3 +161,13 @@ def test_worker_recycled_above_rss_cap():
         for n in (1, 2, 3):
             assert p.evaluate(Job(XML, weapon(n), KEYS)).ok
         assert p._pool[0].starts == 3
+
+
+def test_hard_rss_cap_kills_runaway_job_and_reports_failure():
+    """A job whose engine passes hard_rss_mb is killed mid-run (not left to the container OOM killer), retried once,
+    then reported as failed."""
+    with EnginePool(workers=1, hard_rss_mb=1.0) as p:   # any engine exceeds 1 MB
+        r = p.evaluate(Job(XML, weapon(1), KEYS))
+        assert not r.ok and r.attempts == 2 and p.stats["failures"] == 1
+    with EnginePool(workers=1) as p:                    # default cap leaves normal jobs alone
+        assert p.evaluate(Job(XML, weapon(1), KEYS)).ok

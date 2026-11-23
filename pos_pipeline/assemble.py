@@ -116,7 +116,7 @@ def assemble(spec: BuildSpec, cat: Catalogue, engine: PobEngine, variant: dict[s
         _equip_unique(engine, e, slots_used, add, f"fixed.uniques[{i}]")
 
     prof = data.profiles()[spec.config_profile]
-    engine.set_config(options=prof.get("options") or None, custom_mods=prof.get("custom_mods") or None)
+    engine.set_config(options={**(prof.get("options") or {}), **data.condition_options(spec.conditions)} or None, custom_mods=prof.get("custom_mods") or None)
 
     _round_trip(engine, spec, skill, sups, keystones, notables, asc, out, add)
     out.xml = engine.get_xml()
