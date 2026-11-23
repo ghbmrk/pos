@@ -434,3 +434,19 @@ def start_sweep(spec: str | dict, kind: str, *, searched: bool = True, top: int 
     extra = (["--workers", str(workers)] if workers else []) + ([] if searched else ["--no-search"]) + (["--weapon", weapon] if weapon else [])
     return _launch("sweep", "spec.yaml", _plain(spec), lambda d: ["-m", "pos_mcp.jobs", "sweep", str(d / "spec.yaml"), kind,
                    "--out", str(d), "--top", str(top), *extra], est, {"kind": kind, **({"weapon": weapon} if weapon else {})})
+
+
+def diagnose(build: str, metric: str = "FullDPS", benchmarks: list[str] | None = None, top: int = 8) -> dict:
+    """Diagnose a PoB build (XML text): binding constraint, levers by shadow price, probes that failed calibration."""
+    from pos_pipeline.diagnose import diagnose as _diag, render
+    xml = build.strip()
+    if not xml.startswith("<"):
+        return {"error": "build must be PoB build XML text (a run's builds are exported as XML)"}
+    try:
+        d = _diag(xml, metric, benchmarks or [])
+    except Exception as ex:
+        return {"error": f"{type(ex).__name__}: {ex}"}
+    out = d.to_dict()
+    out["probes"] = out["probes"][:top]
+    out["text"] = render(d, top)
+    return out

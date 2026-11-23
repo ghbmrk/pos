@@ -123,3 +123,13 @@ def test_gear_search_with_no_slots_is_the_bare_build(cat, seed):
     with PobEngine() as eng, EnginePool(workers=1) as pool:
         r = search_gear(cat, pool, eng, seed, "mid", {}, "TotalDPS", slots=())
     assert r.items == {} and r.xml and r.value > 0
+
+
+def test_zero_delta_keystones_carry_an_engine_derived_cause(cat, seed, skill):
+    from pos_pipeline.sweep import CAUSES
+    with PobEngine() as eng, EnginePool(workers=2) as pool:
+        s = sweep(cat, pool, seed, "keystone", "TotalDPS", skill_id=skill, engine=eng)
+    zero = s.flagged("possibly_unmodelled")
+    assert zero, "expected some zero-delta keystones on a probe seed"
+    assert all(e.cause in CAUSES for e in zero)
+    assert any(e.cause != "not_classified" for e in zero)

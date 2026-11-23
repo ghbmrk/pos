@@ -161,6 +161,17 @@ def explain(kind: str, name: str) -> dict[str, Any]:
 
 
 @mcp.tool()
+def diagnose(build: str, metric: str = "FullDPS", benchmarks: list[str] | None = None, top: int = 8) -> dict[str, Any]:
+    """What limits this build? `build` = PoB build XML text. Applies ~17 calibrated probe levers (custom modifiers: more damage, crit,
+    speed, skill level, penetration, added damage, life, ES, armour, evasion, resistances) and returns: constraints from the named
+    benchmarks (e.g. ['arbiter_ash','breach_t15']; pressure = required/actual, > 1 violated), the BINDING constraint, levers ranked by
+    shadow price (share of the binding constraint's pressure removed per gear-tier point), and probes that failed (excluded, never
+    shown as zero: PoB did not parse the line, or it failed calibration). `notes` flag levers whose sign reverses or vanishes on this
+    build. About 25 s with two benchmarks. A lever is a measurement, not a recommendation."""
+    return core.diagnose(build, metric, benchmarks, top)
+
+
+@mcp.tool()
 def sweep(spec: str | dict[str, Any], kind: str, searched: bool = True, top: int = 20, workers: int | None = None,
           weapon: str | None = None) -> dict[str, Any]:
     """Engine sweep, background job (returns run_id; read with get_report): measure the change in the spec's metric from adding each

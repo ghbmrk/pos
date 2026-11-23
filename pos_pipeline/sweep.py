@@ -12,6 +12,7 @@ come from the engine only.
 """
 from __future__ import annotations
 
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping, Sequence
@@ -37,6 +38,8 @@ class SweepEntry:
     rel: float | None = None        # delta / baseline
     points: int | None = None       # passive points the change spends (keystone / ascendancy notable path)
     flags: list[str] = field(default_factory=list)   # audit_outlier | possibly_unmodelled | no_effect | unreachable | over_budget | unparsed | failed
+    cause: str | None = None        # engine-derived cause of a zero delta (see CAUSES); set for node entries flagged possibly_unmodelled
+    cause_detail: str = ""
 
 
 @dataclass
@@ -65,6 +68,77 @@ class Ablation:
     ehp_baseline: float | None = None   # TotalEHP before / after removal (I10); a defensive piece is confirmed on this
     ehp_without: float | None = None
     ehp_delta_rel: float | None = None
+    cause: str | None = None            # engine-derived cause when the verdict is possibly_unmodelled (see CAUSES)
+    cause_detail: str = ""
+
+
+# ---- cause of a zero delta (L2, docs/probes.md) -----------------------------------------------------------------------
+CAUSES = {
+    "unparsed": "PoB could not parse a stat line of the piece: it contributes nothing",
+    "gated_equipment": "parsed, but every mod waits on an equipment condition (weapon type, shield, dual wield) this build does not meet",
+    "gated_state": "parsed, but every mod waits on an unset condition or a multiplier at zero (charges, a status on the enemy, a recent event)",
+    "moves_other_output": "parsed and active: it changes PoB outputs, but not the metric nor EHP",
+    "no_compute": "parsed into mods, untagged, and nothing in the calculation changes: PoB parses it but has no compute for it",
+    "no_text": "the catalogue has no effect text for the piece",
+    "not_classified": "no node data to triage (supports and uniques are triaged by their own search, not by node parse)",
+}
+_EQUIP_VAR = re.compile(r"^(Using|Wielding|DualWielding|Have|Holding|Main|Off)")
+_GATE_TAGS = {"Condition", "ActorCondition", "Multiplier", "MultiplierThreshold", "StatThreshold", "PerStat", "Limit", "SkillType"}
+
+
+def _primitive(line: str) -> str:
+    """Stat line with numbers replaced, so the census can count one primitive across many nodes."""
+    return re.sub(r"\d+(\.\d+)?", "#", line).strip()
+
+
+def classify_zero(eng: PobEngine, xml: str, node: str | int, *, allocated: bool, options: Mapping[str, Any] | None = None) -> tuple[str, str]:
+    """Engine-derived cause of a zero delta on a passive node: (cause, detail). `allocated` = the node is in the build (ablation: it
+    is removed to compare); otherwise it is added. Compares EVERY PoB output scalar with and without the node."""
+    eng.load_build_xml(xml)
+    if options:
+        eng.set_config(options=dict(options))
+    info = eng.get_passive(node, parse=True)
+    lines = info.get("parse") or []
+    bad = [ln for ln in lines if not ln.get("parsed")]
+    if bad:
+        return "unparsed", "; ".join(f"{b['line']!r}" for b in bad[:3])
+    before = eng.get_stats("all")["stats"]
+    r = eng.dealloc_passive(node) if allocated else eng.alloc_passive(node)
+    if not r.get("ok"):
+        return "not_classified", str(r.get("error") or "could not toggle the node")
+    after = eng.get_stats("all")["stats"]
+    changed = sorted(k for k, v in after.items() if isinstance(v, (int, float)) and not isinstance(v, bool)
+                     and abs(v - (before.get(k) or 0)) > 1e-9 * max(1.0, abs(before.get(k) or 0)))
+    if changed:
+        return "moves_other_output", ", ".join(changed[:6]) + (f" (+{len(changed) - 6} more)" if len(changed) > 6 else "")
+    mods = [m for ln in lines for m in ln.get("mods") or []]
+    if mods and all(any(t.get("type") in _GATE_TAGS for t in m.get("tags") or []) for m in mods):
+        vars_ = sorted({str(t.get("var")) for m in mods for t in m.get("tags") or [] if t.get("type") in _GATE_TAGS and t.get("var")})
+        kind = "gated_equipment" if vars_ and all(_EQUIP_VAR.match(v) for v in vars_) else "gated_state"
+        return kind, ", ".join(vars_) or "tag without a variable"
+    return "no_compute", ", ".join(sorted({str(m.get("name")) for m in mods})[:6])
+
+
+def _ehp_moved(a: "Ablation") -> bool:
+    return a.ehp_delta_rel is not None and abs(a.ehp_delta_rel) > 1e-6
+
+
+def _verdict(res: "Ablation", base: float, v: float, has_text: bool, threshold: float) -> None:
+    """Set verdict and note from the measured deltas. `possibly_unmodelled` only when the piece moves neither the metric NOR EHP: a
+    piece that moves EHP is modelled (L2 fix: removing Harmony Within raised EHP 17% and was still reported as unmodelled)."""
+    if res.delta_rel is not None and res.delta_rel >= threshold:
+        res.verdict = "confirmed"
+    elif res.ehp_delta_rel is not None and res.ehp_delta_rel >= threshold:
+        res.verdict = "confirmed"
+        res.note = f"confirmed on survivability: removal costs {res.ehp_delta_rel:.0%} of EHP (damage metric moves {res.delta_rel:+.1%})" if res.delta_rel is not None else "confirmed on EHP loss"
+    elif abs(base - v) <= ZERO * max(abs(base), 1.0) and has_text and not _ehp_moved(res):
+        res.verdict = "possibly_unmodelled"
+    else:
+        res.verdict = "not_load_bearing"
+        if res.delta_rel is not None and res.delta_rel < 0:
+            res.note = "removing it RAISES the metric"
+        if _ehp_moved(res):
+            res.note = (res.note + "; " if res.note else "") + f"removal changes EHP by {-res.ehp_delta_rel:+.1%} (modelled: below the confirm threshold, or the piece costs defence in this build)"
 
 
 def _support_id(cat: Catalogue, ref: str) -> str | None:
@@ -136,6 +210,7 @@ def _tree_alloc(cat: Catalogue, pool: EnginePool, xml: str, entries: list[dict],
     """Marginal of allocating each node (with its path). Path cost and reachability come from a direct engine
     call per node (one XML load each); only reachable nodes are scored by the pool."""
     own = engine is None
+    own_replaced = [False]     # the caller's engine died and was replaced: do not hand it to the cause triage
     eng = engine or PobEngine()
     out: list[SweepEntry] = []
     todo: list[tuple[SweepEntry, dict]] = []
@@ -153,6 +228,7 @@ def _tree_alloc(cat: Catalogue, pool: EnginePool, xml: str, entries: list[dict],
                 if own:
                     eng.close()
                 own, eng = True, PobEngine()
+                own_replaced[0] = True
                 eng.load_build_xml(xml)
                 r = eng.alloc_passive(e["node"])
             if not r.get("ok"):
@@ -172,6 +248,27 @@ def _tree_alloc(cat: Catalogue, pool: EnginePool, xml: str, entries: list[dict],
     jobs = [Job(xml, mutations=(*_config(options), ("alloc_passive", {"node": e["node"]})), stat_keys=_keys(metric)) for _, e in todo]
     for (row, e), v in zip(todo, _score(pool, jobs, metric)):
         _finish(row, base, v, _has_text(e))
+    zero = [(row, e) for row, e in todo if "possibly_unmodelled" in row.flags]
+    if zero:
+        # a long classification run can hit the engine's memory guard (-9); a dead engine is replaced and the node retried once
+        eng2 = engine if (engine is not None and not own_replaced[0]) else PobEngine()
+        try:
+            for row, e in zero:
+                for attempt in (0, 1):
+                    try:
+                        row.cause, row.cause_detail = classify_zero(eng2, xml, e["node"], allocated=False, options=options)
+                        break
+                    except PobEngineError as ex:
+                        try:
+                            eng2.close()
+                        except Exception:
+                            pass
+                        eng2 = PobEngine()
+                        engine = None   # the caller's engine is dead or replaced; the new one is owned here
+                        if attempt:
+                            row.cause, row.cause_detail = "not_classified", f"engine: {ex}"
+        finally:
+            eng2.close() if eng2 is not engine else None
     return out
 
 
@@ -376,16 +473,18 @@ def ablate(cat: Catalogue, pool: EnginePool, xml: str, key_pieces: Sequence[Mapp
         res.ehp_without = ev
         if ehp_base and ev is not None:
             res.ehp_delta_rel = (ehp_base - ev) / ehp_base
-        if res.delta_rel is not None and res.delta_rel >= threshold:
-            res.verdict = "confirmed"
-        elif res.ehp_delta_rel is not None and res.ehp_delta_rel >= threshold:
-            res.verdict = "confirmed"
-            res.note = f"confirmed on survivability: removal costs {res.ehp_delta_rel:.0%} of EHP (damage metric moves {res.delta_rel:+.1%})" if res.delta_rel is not None else "confirmed on EHP loss"
-        elif abs(base - v) <= ZERO * max(abs(base), 1.0) and has_text:
-            res.verdict = "possibly_unmodelled"
-        else:
-            res.verdict = "not_load_bearing"
-            if res.delta_rel is not None and res.delta_rel < 0:
-                res.note = "removing it RAISES the metric"
+        _verdict(res, base, v, has_text, threshold)
+        if res.verdict == "possibly_unmodelled":
+            if kind in ("keystone", "notable"):
+                ceng = engine or PobEngine()
+                try:
+                    res.cause, res.cause_detail = classify_zero(ceng, xml, cat.resolve(kind, id_).entry["node"], allocated=True, options=options)
+                except Exception as ex:
+                    res.cause, res.cause_detail = "not_classified", f"{type(ex).__name__}: {ex}"
+                finally:
+                    if engine is None:
+                        ceng.close()
+            else:
+                res.cause, res.cause_detail = "not_classified", CAUSES["not_classified"]
         out.append(res)
     return out

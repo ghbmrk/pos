@@ -348,6 +348,79 @@ def _sweep(path: str, kind: str, workers: int, top: int, pieces: list[str] | Non
     return 0
 
 
+def _census(args: list[str]) -> int:
+    """census spec.yaml [--kinds keystone,notable,ascendancy] [--conditions none|all|a,b] [--workers N] [--out DIR]"""
+    import json as _json
+    from pathlib import Path
+
+    from pos_engine.engine import PobEngine
+    from pos_pool.pool import EnginePool
+
+    from . import data
+    from .assemble import assemble, variants
+    from .census import KINDS, census, render
+
+    opt = {"--kinds": ",".join(KINDS), "--conditions": "all", "--workers": "2", "--out": ""}
+    rest = []
+    it = iter(args)
+    for a in it:
+        if a in opt:
+            opt[a] = next(it, opt[a])
+        else:
+            rest.append(a)
+    if len(rest) != 1:
+        print("usage: python -m pos_pipeline census spec.yaml [--kinds keystone,notable,ascendancy] [--conditions none|all|a,b] [--workers N] [--out DIR]")
+        return 2
+    spec = load_spec(rest[0])
+    cat = Catalogue.load(pob_sha=spec.pob_sha)
+    rep = validate(spec, cat)
+    if not rep.ok:
+        _print_issues(rep.issues)
+        return 1
+    names = list(data.conditions()) if opt["--conditions"] == "all" else [n for n in opt["--conditions"].split(",") if n and n != "none"]
+    profiles = {"base": {}}
+    if names:
+        profiles["conditions:" + ("all" if opt["--conditions"] == "all" else "+".join(names))] = data.condition_options(names)
+    with PobEngine() as eng, EnginePool(workers=int(opt["--workers"])) as pool:
+        a = assemble(spec, cat, eng, variants(spec)[0])
+        if not a.ok:
+            _print_issues(a.issues)
+            return 1
+        res = census(cat, pool, a.xml, rep.metric, kinds=opt["--kinds"].split(","), profiles=profiles, engine=eng)
+    print(render(res))
+    if opt["--out"]:
+        out = Path(opt["--out"]); out.mkdir(parents=True, exist_ok=True)
+        (out / "census.json").write_text(_json.dumps(res, indent=1))
+        (out / "census.md").write_text(render(res))
+    return 0
+
+
+def _diagnose(args: list[str]) -> int:
+    """diagnose BUILD.xml [--metric FullDPS] [--bench id[,id]] [--json] | diagnose --calibrate"""
+    import json as _json
+
+    from .diagnose import calibration, diagnose, render
+    if "--calibrate" in args:
+        cal = calibration(refresh=True)
+        for c in cal.values():
+            print(f"{'ok  ' if c.ok else 'FAIL'} {c.id:18s} {c.reason}")
+        return 0 if all(c.ok for c in cal.values()) else 1
+    opt = {"--metric": "FullDPS", "--bench": ""}
+    rest = []
+    it = iter(args)
+    for a in it:
+        if a in opt:
+            opt[a] = next(it, opt[a])
+        elif a != "--json":
+            rest.append(a)
+    if len(rest) != 1:
+        print("usage: python -m pos_pipeline diagnose BUILD.xml [--metric FullDPS] [--bench arbiter_ash,breach_t15] [--json] | diagnose --calibrate")
+        return 2
+    d = diagnose(open(rest[0], encoding="utf-8").read(), opt["--metric"], [b for b in opt["--bench"].split(",") if b])
+    print(_json.dumps(d.to_dict(), indent=1) if "--json" in args else render(d))
+    return 0
+
+
 def main(argv: list[str]) -> int:
     if argv and argv[0] == "slate":
         return _slate(argv[1:])
@@ -369,6 +442,10 @@ def main(argv: list[str]) -> int:
         return _sweep(argv[1], argv[2], int(rest[0]) if rest else 2, int(rest[1]) if len(rest) > 1 else 15, weapon=weapon)
     if len(argv) >= 3 and argv[0] == "ablate":
         return _sweep(argv[1], "", 2, 0, argv[2:])
+    if argv and argv[0] == "census":
+        return _census(argv[1:])
+    if argv and argv[0] == "diagnose":
+        return _diagnose(argv[1:])
     if len(argv) >= 2 and argv[0] == "assemble":
         return _assemble(argv[1], argv[2] if len(argv) > 2 else None)
     if len(argv) >= 2 and argv[0] == "supports":
@@ -380,7 +457,7 @@ def main(argv: list[str]) -> int:
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | slate validate slate.yaml | sweep spec.yaml KIND [workers] [top] [--weapon Base] (KIND keystone|ascendancy|unique:<slot>|support) | ablate spec.yaml kind:id[@slot]... | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
+        print("usage: python -m pos_pipeline validate spec.yaml | slate validate slate.yaml | sweep spec.yaml KIND [workers] [top] [--weapon Base] (KIND keystone|ascendancy|unique:<slot>|support) | ablate spec.yaml kind:id[@slot]... | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | census spec.yaml [--kinds K] [--conditions C] [--out DIR] | diagnose BUILD.xml [--metric M] [--bench ids] [--json] | diagnose --calibrate | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
         return 2
     try:
         spec = load_spec(argv[1])
