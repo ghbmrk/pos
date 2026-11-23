@@ -153,11 +153,43 @@ def enablers(skill_type: str, limit: int = 15) -> dict[str, Any]:
 
 
 @mcp.tool()
+def meta_lessons(pattern: str | None = None) -> dict[str, Any]:
+    """Compounding patterns that carried past PoE1/PoE2 metas (stat stacking, conversion funnels, trigger loops, layered
+    defences, ...): mechanism, why it compounds, limits, era and evidence, PoE2 starting points verified on the pinned data
+    and the probe levers it should move. Past build names are left out on purpose. Cite ids in archetype.patterns."""
+    return core.meta_lessons(pattern)
+
+
+@mcp.tool()
 def explain(kind: str, name: str) -> dict[str, Any]:
     """Full PoE2 game text of one entry (skill | support | unique | keystone | notable | base), resolved exactly by name. `text`
     lines are what a slate claim may quote: copy the quote verbatim from one line. Also returns structure (skill types,
     support require/exclude/add types, unique base and slot). Unresolved names return suggestions."""
     return core.explain(kind, name)
+
+
+@mcp.tool()
+def diagnose(build: str, metric: str = "FullDPS", benchmarks: list[str] | None = None, top: int = 8) -> dict[str, Any]:
+    """What limits this build? `build` = PoB build XML text. Applies ~17 calibrated probe levers (custom modifiers: more damage, crit,
+    speed, skill level, penetration, added damage, life, ES, armour, evasion, resistances) and returns: constraints from the named
+    benchmarks (e.g. ['arbiter_ash','breach_t15']; pressure = required/actual, > 1 violated), the BINDING constraint, levers ranked by
+    shadow price (share of the binding constraint's pressure removed per gear-tier point), and probes that failed (excluded, never
+    shown as zero: PoB did not parse the line, or it failed calibration). `notes` flag levers whose sign reverses or vanishes on this
+    build. About 25 s with two benchmarks. A lever is a measurement, not a recommendation."""
+    return core.diagnose(build, metric, benchmarks, top)
+
+
+@mcp.tool()
+def ceilings(build: str, metric: str = "FullDPS", ids: list[str] | None = None, required: float | None = None,
+             lines: dict[str, str] | None = None) -> dict[str, Any]:
+    """How much could mechanics PoB cannot time be worth to this build? `build` = PoB build XML text. For each registry entry
+    (data/ceilings.yaml: charge income/retention/spenders, Seal frequency, Infusions, Companion and Remnant lines) returns floor (pure
+    PoB, the rank key), ceiling (mechanic ON 100% of the time, from a PoB option or a parseable line) and headroom (ceiling / floor;
+    `compounding` at or above 1.5). `required` = a metric value to reach (e.g. the runner-up's): the text states the uptime needed.
+    `lines` = {id: the piece's stat line} to fill numbers. Status: native (PoB computes it already), derived (per-charge bonus read
+    from PoB skill data, upper bound), inert (nothing in this build reads the state), no_model, no_own_damage, needs_data, dropped.
+    No uptime is assumed and no ranked band is produced."""
+    return core.ceilings(build, metric, ids, required, lines)
 
 
 @mcp.tool()

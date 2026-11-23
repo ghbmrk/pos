@@ -1,0 +1,388 @@
+[
+ {
+  "skill": "Barrage",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "spell",
+  "status": "not_evaluable"
+ },
+ {
+  "skill": "Explosive Spear",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Frenzy": {
+    "base": "Akoyan Spear",
+    "dps_off": 36.94900784,
+    "dps_on": 36.94900784,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Glacial Lance",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Frenzy": {
+    "base": "Akoyan Spear",
+    "dps_off": 80.83429152,
+    "dps_on": 80.83429152,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Ice-Tipped Arrows",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "spell",
+  "status": "evaluated",
+  "by_charge": {
+   "Frenzy": {
+    "base": "Aberrant Sledge",
+    "dps_off": 111.52572377731,
+    "dps_on": 111.52572377731,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Lightning Spear",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Frenzy": {
+    "base": "Akoyan Spear",
+    "dps_off": 68.62911384,
+    "dps_on": 68.62911384,
+    "dps_moves": false,
+    "other_outputs_moved": [
+     "SplitCount",
+     "SplitCountString"
+    ]
+   }
+  }
+ },
+ {
+  "skill": "Rain of Arrows",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Frenzy": {
+    "base": "Adherent Bow",
+    "dps_off": 429.42178125,
+    "dps_on": 429.42178125,
+    "dps_moves": false,
+    "other_outputs_moved": [
+     "ProjectileCount"
+    ]
+   }
+  }
+ },
+ {
+  "skill": "Spiral Volley",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Frenzy": {
+    "base": "Adherent Bow",
+    "dps_off": 47.774155743243,
+    "dps_on": 199.68936964541,
+    "dps_moves": true,
+    "other_outputs_moved": [
+     "AverageBurstDamage",
+     "AverageDamage",
+     "ChainMax",
+     "ChainMaxString",
+     "ChainRemaining",
+     "ChaosStoredCombinedAvg",
+     "CombinedAvg",
+     "CombinedDPS",
+     "FullDPS",
+     "HeavyStunBuildupAvg",
+     "PhysicalStoredCombinedAvg",
+     "TotalDPS"
+    ]
+   }
+  }
+ },
+ {
+  "skill": "Storm Lance",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Frenzy": {
+    "base": "Akoyan Spear",
+    "dps_off": 26.91141636,
+    "dps_on": 26.91141636,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Whirlwind Lance",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Frenzy": {
+    "base": "Akoyan Spear",
+    "dps_off": 39.249016195694,
+    "dps_on": 39.249016195694,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Bonestorm",
+  "charges": [
+   "Power"
+  ],
+  "kind": "spell",
+  "status": "evaluated",
+  "by_charge": {
+   "Power": {
+    "base": "Aberrant Sledge",
+    "dps_off": 141.64857491115,
+    "dps_on": 141.64857491115,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Charged Staff",
+  "charges": [
+   "Power"
+  ],
+  "kind": "spell",
+  "status": "evaluated",
+  "by_charge": {
+   "Power": {
+    "base": "Aegis Quarterstaff",
+    "dps_off": 0,
+    "dps_on": 0,
+    "dps_moves": false,
+    "other_outputs_moved": [
+     "FullDPS"
+    ]
+   }
+  }
+ },
+ {
+  "skill": "Falling Thunder",
+  "charges": [
+   "Power"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Power": {
+    "base": "Aegis Quarterstaff",
+    "dps_off": 96.953892396979,
+    "dps_on": 96.953892396979,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Flicker Strike",
+  "charges": [
+   "Power"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Power": {
+    "base": "Aegis Quarterstaff",
+    "dps_off": 157.18957537911,
+    "dps_on": 157.18957537911,
+    "dps_moves": false,
+    "other_outputs_moved": [
+     "AverageBurstDamage",
+     "AverageBurstHits",
+     "ShowBurst"
+    ]
+   }
+  }
+ },
+ {
+  "skill": "Raise Zombie",
+  "charges": [
+   "Power"
+  ],
+  "kind": "other",
+  "status": "evaluated",
+  "by_charge": {
+   "Power": {
+    "base": "Aberrant Sledge",
+    "dps_off": 0,
+    "dps_on": 0,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Ancestral Cry",
+  "charges": [
+   "Endurance"
+  ],
+  "kind": "other",
+  "status": "evaluated",
+  "by_charge": {
+   "Endurance": {
+    "base": "Aberrant Sledge",
+    "dps_off": 0,
+    "dps_on": 0,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Ancestral Warrior Totem",
+  "charges": [
+   "Endurance"
+  ],
+  "kind": "other",
+  "status": "not_evaluable"
+ },
+ {
+  "skill": "Arctic Howl",
+  "charges": [
+   "Endurance"
+  ],
+  "kind": "other",
+  "status": "not_evaluable"
+ },
+ {
+  "skill": "Flame Breath",
+  "charges": [
+   "Power"
+  ],
+  "kind": "attack",
+  "status": "not_evaluable"
+ },
+ {
+  "skill": "Fortifying Cry",
+  "charges": [
+   "Endurance"
+  ],
+  "kind": "other",
+  "status": "not_evaluable"
+ },
+ {
+  "skill": "Infernal Cry",
+  "charges": [
+   "Endurance"
+  ],
+  "kind": "other",
+  "status": "evaluated",
+  "by_charge": {
+   "Endurance": {
+    "base": "Aberrant Sledge",
+    "dps_off": 0,
+    "dps_on": 0,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Oil Barrage",
+  "charges": [
+   "Power"
+  ],
+  "kind": "attack",
+  "status": "not_evaluable"
+ },
+ {
+  "skill": "Seismic Cry",
+  "charges": [
+   "Endurance"
+  ],
+  "kind": "other",
+  "status": "evaluated",
+  "by_charge": {
+   "Endurance": {
+    "base": "Aberrant Sledge",
+    "dps_off": 8.9441359136374,
+    "dps_on": 8.9441359136374,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ },
+ {
+  "skill": "Spell Totem",
+  "charges": [
+   "Power",
+   "Endurance"
+  ],
+  "kind": "other",
+  "status": "not_evaluable"
+ },
+ {
+  "skill": "Hollow Form",
+  "charges": [
+   "Power"
+  ],
+  "kind": "attack",
+  "status": "not_evaluable"
+ },
+ {
+  "skill": "Pinnacle of Power",
+  "charges": [
+   "Power"
+  ],
+  "kind": "spell",
+  "status": "not_evaluable"
+ },
+ {
+  "skill": "Spear Throw",
+  "charges": [
+   "Frenzy"
+  ],
+  "kind": "attack",
+  "status": "evaluated",
+  "by_charge": {
+   "Frenzy": {
+    "base": "Akoyan Spear",
+    "dps_off": 52.64384359293,
+    "dps_on": 52.64384359293,
+    "dps_moves": false,
+    "other_outputs_moved": []
+   }
+  }
+ }
+]

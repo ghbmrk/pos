@@ -74,7 +74,7 @@ local function collectStats(keys)
 	local out = (build.calcsTab and build.calcsTab.mainOutput) or {}
 	local res = {}
 	local wantsDerived = false
-	local list0 = (type(keys) == "table") and keys or DEFAULT_STATS
+	local list0 = (type(keys) == "table") and keys or (keys == "all" and {} or DEFAULT_STATS)
 	for _, k in ipairs(list0) do
 		if k == "AilmentDPS" or k == "HitAilmentDPS" then wantsDerived = true end
 	end
@@ -83,6 +83,13 @@ local function collectStats(keys)
 		out = setmetatable({AilmentDPS = a, HitAilmentDPS = (tonumber(out.TotalDPS) or 0) + a}, {__index = out})
 	end
 	local list = (type(keys) == "table") and keys or DEFAULT_STATS
+	if keys == "all" then -- every scalar output (cause triage diffs the whole output, not one metric)
+		list = {}
+		for k, v in pairs(out) do
+			local t = type(v)
+			if type(k) == "string" and (t == "number" or t == "boolean") then table.insert(list, k) end
+		end
+	end
 	for _, k in ipairs(list) do
 		local v = out[k]
 		local t = type(v)
@@ -547,12 +554,36 @@ function methods.set_config(p)
 		end
 		appliedRes = ele
 	end
-	if type(p.customMods) == "string" then
-		build.configTab.input.customMods = p.customMods
+	-- Custom mod lines: PoB reads the active config set's customModsList blocks and uses input.customMods only when
+	-- no block has text. A build saved after custom mods were set carries them as a block, so writing input alone
+	-- could never clear or replace them. Write both (options.customMods is accepted like the customMods param).
+	local cm = p.customMods
+	if type(opts.customMods) == "string" then cm = opts.customMods end
+	if type(cm) == "string" then
+		local ct = build.configTab
+		ct.input.customMods = cm
+		local set = ct.configSets and ct.configSets[ct.activeConfigSetId]
+		if set then
+			set.customModsList = { { title = "Default", enabled = true, text = cm } }
+		end
 	end
 	build.configTab:BuildModList()
 	runCallback("OnFrame")
 	local r = { stats = collectStats(p.keys) }
+	-- Parse status of the custom lines: PoB silently drops a line it cannot parse (ConfigTab:BuildModList), so
+	-- the number of mods that came from "Custom" sources is the engine's own answer to "did this line parse".
+	if type(p.customMods) == "string" then
+		local n, names = 0, {}
+		local ml = build.configTab.modList
+		for i = 1, (ml and #ml or 0) do
+			local m = ml[i]
+			if m and tostring(m.source or ""):sub(1, 6) == "Custom" then
+				n = n + 1
+				if #names < 8 then table.insert(names, tostring(m.name)) end
+			end
+		end
+		r.customMods = { count = n, names = names }
+	end
 	if appliedRes ~= nil then
 		r.enemyResist = {
 			fire = build.configTab.input.enemyFireResist,
@@ -1120,6 +1151,27 @@ end
 -- ---------------------------------------------------------------------------
 -- passive tree
 -- ---------------------------------------------------------------------------
+-- Parse/tag view of a node's stat lines for cause triage: per line whether PoB parsed it (node.mods[i].extra is the
+-- unparsed remainder), the mod names it produced and the tags that gate them (Condition/Multiplier/... var).
+local function nodeParse(n)
+	local lines = {}
+	for i, line in ipairs(n.sd or {}) do
+		local m = (n.mods or {})[i]
+		-- a continuation line of a multi-line stat is folded into the first line's parse (mods[i].combined)
+		local entry = { line = line, parsed = m ~= nil and (m.combined == true or (not (m.extra and m.extra ~= "") and m.list ~= nil and #m.list > 0)),
+			extra = m and m.extra or nil, mods = {} }
+		for _, md in ipairs(m and m.list or {}) do
+			local tags = {}
+			for _, t in ipairs(md) do
+				table.insert(tags, { type = t.type, var = t.var or t.varList and table.concat(t.varList, "|") or nil, actor = t.actor })
+			end
+			table.insert(entry.mods, { name = md.name, type = md.type, tags = tags })
+		end
+		table.insert(lines, entry)
+	end
+	return lines
+end
+
 local function nodeSummary(n)
 	return {
 		id = n.id,
@@ -1231,6 +1283,7 @@ function methods.get_passive(p)
 	if not n then return { found = false } end
 	local s = nodeSummary(n)
 	s.found = true
+	if p.parse then s.parse = nodeParse(n) end
 	return s
 end
 

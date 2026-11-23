@@ -1,0 +1,77 @@
+# L5b: uptime ceilings for mechanics PoB cannot calculate (docs/loop.md 2.5 step 3, docs/ceilings.md).
+# Ranking stays on the pure PoB number (floor). An entry gives the number with the mechanic ON 100% of the time (ceiling), from a
+# PoB config option or a parseable custom line. Everything between is an uptime assumption the tool never makes: it reports the
+# break-even uptime instead. Assumption 0 (nothing applied) reproduces the pure number; tests check it.
+#
+# kind:
+#   state_on       PoB can express "the mechanic is on" (options and/or custom_mods); ceiling = metric with it applied.
+#   spender        a charge spender's per-charge skill bonus: derived per skill from PoB's own skill data (see pos_pipeline/ceilings.py);
+#                  native when PoB already moves the metric (modelled_confirmed), else a custom line from the data stat, else no_model.
+#   no_own_damage  the line acts on allies, sustain or structure: no lever on the player's metric. ceiling = floor by construction.
+#   needs_data     the piece needs data or an actor model that is absent until the 1.0 repin (K4). Not evaluated.
+# match: case-insensitive regexes over a piece's stat line. unsourced values are marked; none here is a game number.
+schema_version: 1
+compounding_ratio: 1.5   # ceiling / floor at or above which the mechanic is called compounding (owner principle 2026-11-23). Unsourced: a reading aid, not a gate.
+families:
+  charges:
+    entries:
+      - id: frenzy_charges_max
+        kind: state_on
+        match: ["additional Frenzy Charge", "Frenzy Charges instead of"]
+        options: { useFrenzyCharges: true }
+        note: "Income lines (Frenetic: extra Frenzy Charge; Resonance) raise charge uptime. Ceiling = Frenzy Charges at maximum."
+      - id: power_charges_max
+        kind: state_on
+        match: ["Power Charges instead of"]
+        options: { usePowerCharges: true }
+        note: "Resonance converts income between types. Ceiling = Power Charges at maximum."
+      - id: endurance_charges_max
+        kind: state_on
+        match: ["Endurance Charges instead of"]
+        options: { useEnduranceCharges: true }
+        note: "Resonance converts income between types. Ceiling = Endurance Charges at maximum."
+      - id: charges_kept
+        kind: state_on
+        match: ["not remove Charges", "count as consuming"]
+        options: { usePowerCharges: true, useFrenzyCharges: true, useEnduranceCharges: true }
+        note: "Retention (The Fabled Stag) keeps charges a spender would remove. Ceiling = all three at maximum at every use. PoB already treats consumed charges as present, so for a spender this only moves the other charge-scaled mods."
+      - id: charges_to_allies
+        kind: no_own_damage
+        match: ["gain that Charge instead"]
+        note: "Conduit sends the player's charges to allies. The player's own charge-scaled numbers fall to the no-charge floor; the value lands on the ally (second actor, K4). Evaluate with the actor effects power_charges / frenzy_charges / endurance_charges (data/actor_effects.yaml)."
+      - id: charge_spenders
+        kind: spender
+        match: ["\\bconsume[sd]? .*Charge", "per (Power|Frenzy|Endurance) Charge consumed"]
+        note: "Per-charge bonus of a spender skill. Derived per main skill from PoB's skill data; see `spender` status in the result."
+  seal:
+    entries:
+      - id: seal_frequency
+        kind: state_on
+        match: ["Seal gain frequency"]
+        custom_mods: "Skills supported by Unleash have {n}% increased Seal gain frequency"
+        default_n: 25
+        options: { waitForMaxSeals: true }
+        note: "PoB parses the Unleash wording of this stat (SealGainFrequency) but not 'Sealed Skills have'. Rewritten to the parsed wording; {n} is the first number of the piece's line (default_n, 25 = the Anticipation notable, when no line is given). Ceiling = frequency + waiting for maximum Seals."
+  infusion:
+    entries:
+      - id: infusion_consumed
+        kind: state_on
+        match: ["Infusion"]
+        options: { conditionInfusionConsumedRecently: true }
+        note: "Refracted Infusion ('gain another different Elemental Infusion') raises how often an infusion is held. Ceiling = 'Infusion consumed recently' always true. PoB has no timing model for infusions."
+  companion:
+    entries:
+      - id: second_companion
+        kind: needs_data
+        match: ["two Companions of different types"]
+        note: "Trusted Kinship: the second Companion's own contribution needs the actor model (K4, 1.0)."
+      - id: companion_side
+        kind: no_own_damage
+        match: ["Companion", "Allies in your Presence", "Glory generation", "Minions Revive"]
+        note: "Culling vs Beasts, Glory, revive speed, flask recovery sharing, leech sharing, reservation efficiency: ally sustain or structure. No lever on the player's damage; reservation lines change what else fits (test with a spirit budget, not a damage ceiling)."
+  remnants:
+    entries:
+      - id: remnant_rate
+        kind: no_own_damage
+        match: ["Remnant"]
+        note: "Collection range, extra Remnants, reappearing Remnants scale a per-Remnant effect. PoB computes the per-Remnant recovery (LifeGainPerRemnant) only for skills that generate Remnants and has no creation or collection rate, so no uptime ceiling exists on the player's damage; recovery ceilings need the Remnant creation rate of the skill (unsourced)."

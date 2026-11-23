@@ -333,6 +333,14 @@ def bridges(term_a: str, term_b: str, limit: int = 10) -> dict:
             **{k: [_card(k[:-1], e, 3) for e in v[:limit]] for k, v in r.items()}}
 
 
+def meta_lessons(pattern: str | None = None) -> dict:
+    """Abstract scaling patterns from past metas (data/meta_lessons.yaml), without past-meta names."""
+    from pos_pipeline import meta_lessons as ml
+    if pattern and pattern not in ml.ids():
+        return {"ok": False, "error": f"unknown pattern {pattern!r}", "patterns": ml.ids()}
+    return {"ok": True, "rules": ml.load()["rules"], "patterns": ml.public(pattern)}
+
+
 def explain(kind: str, name: str) -> dict:
     """Full quotable text of one entry, resolved exactly by name (or catalogue id)."""
     from pos_catalogue import query
@@ -434,3 +442,34 @@ def start_sweep(spec: str | dict, kind: str, *, searched: bool = True, top: int 
     extra = (["--workers", str(workers)] if workers else []) + ([] if searched else ["--no-search"]) + (["--weapon", weapon] if weapon else [])
     return _launch("sweep", "spec.yaml", _plain(spec), lambda d: ["-m", "pos_mcp.jobs", "sweep", str(d / "spec.yaml"), kind,
                    "--out", str(d), "--top", str(top), *extra], est, {"kind": kind, **({"weapon": weapon} if weapon else {})})
+
+
+def ceilings(build: str, metric: str = "FullDPS", ids: list[str] | None = None, required: float | None = None,
+             lines: dict[str, str] | None = None) -> dict:
+    """Uptime ceilings (L5b) for mechanics PoB cannot calculate, on a PoB build (XML text)."""
+    from pos_pipeline import ceilings as C
+    xml = build.strip()
+    if not xml.startswith("<"):
+        return {"error": "build must be PoB build XML text (a run's builds are exported as XML)"}
+    try:
+        res = C.evaluate(xml, ids, metric=metric, lines=lines)
+        joint = C.interaction(res, xml, metric=metric)
+    except Exception as ex:
+        return {"error": f"{type(ex).__name__}: {ex}"}
+    return {"results": [r.to_dict() for r in res], "joint": joint, "text": C.render(res, metric, required, joint)}
+
+
+def diagnose(build: str, metric: str = "FullDPS", benchmarks: list[str] | None = None, top: int = 8) -> dict:
+    """Diagnose a PoB build (XML text): binding constraint, levers by shadow price, probes that failed calibration."""
+    from pos_pipeline.diagnose import diagnose as _diag, render
+    xml = build.strip()
+    if not xml.startswith("<"):
+        return {"error": "build must be PoB build XML text (a run's builds are exported as XML)"}
+    try:
+        d = _diag(xml, metric, benchmarks or [])
+    except Exception as ex:
+        return {"error": f"{type(ex).__name__}: {ex}"}
+    out = d.to_dict()
+    out["probes"] = out["probes"][:top]
+    out["text"] = render(d, top)
+    return out

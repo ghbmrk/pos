@@ -25,3 +25,14 @@ effects:
   whirlwind_cold:      { options: { whirlwindBuffCold: true } }
   whirlwind_fire:      { options: { whirlwindBuffFire: true } }
   whirlwind_lightning: { options: { whirlwindBuffLightning: true } }
+  # Squire value channels (owner "go" 2026-11-23, cmsg_01RxGYnd78N9kMbbAJ5pWDhUN7wzu4E7SYKFBWbaaEgsw3; docs/squire-channels.md).
+  # Enemy resistance: an explicit value replaces the boss tier's standard resistance (pob_headless set_config); off = the tier again.
+  enemy_lightning_res: { options: { enemyLightningResist: "{value}" }, params: [value] }
+  enemy_cold_res:      { options: { enemyColdResist: "{value}" }, params: [value] }
+  enemy_fire_res:      { options: { enemyFireResist: "{value}" }, params: [value] }
+  enemy_heavy_stunned: { options: { conditionEnemyHeavyStunned: true } }
+  # customMods = raw mod lines on the player's calc (PoB parses them like item text); lines from several effects add up.
+  ally_increased_damage: { options: { customMods: "{pct}% increased Damage" }, params: [pct] }
+  companion_takes_hit_damage:
+    options: { customMods: "{pct}% of Damage from Hits is taken from your Damageable Companion's Life before you", TotalCompanionLife: "{life}" }
+    params: [pct, life]

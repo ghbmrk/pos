@@ -201,6 +201,17 @@ def test_ideate_prompt_carries_live_vocabulary_and_rules():
     import re
     assert not re.search(r"\{[a-z_0-9]+\}", t)                       # no unfilled placeholders
     assert "(no idea given" in ideate.render("  ")
+    # meta lessons (cmsg_01RxGYnd78N9kMbbAJ5pWDhUX2GMWf6TSLPYKzmKmpb39v): patterns rendered as priors, ids citable
+    assert "Priors from past metas" in t and "`stat_stacking`" in t and "archetype.patterns" in t
+    assert "Righteous Fire" not in t and "Cast On Critical Strike" not in t
+
+
+def test_meta_lessons_tool():
+    r = core.meta_lessons()
+    assert r["ok"] and {p["id"] for p in r["patterns"]} >= {"stat_stacking", "trigger_automation", "layered_mitigation"}
+    assert all("examples" not in e for p in r["patterns"] for e in p["eras"])
+    assert core.meta_lessons("stat_stacking")["patterns"][0]["id"] == "stat_stacking"
+    assert not core.meta_lessons("nope")["ok"]
 
 
 def test_sweep_weapon_and_unarmed_flags_reach_the_job(monkeypatch):

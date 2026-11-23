@@ -197,7 +197,8 @@ class PobEngine:
             params["keys"] = keys
         return self.call("equip_jewel", **params)
 
-    def get_stats(self, keys: list[str] | None = None) -> dict[str, Any]:
+    def get_stats(self, keys: "list[str] | str | None" = None) -> dict[str, Any]:
+        """`keys="all"` returns every scalar output PoB computed (cause triage diffs the whole output)."""
         r = self.call("get_stats", keys=keys)
         # An empty Lua stats table serializes to JSON [] (array), not {}. Normalize to a dict so
         # callers can always treat stats as a mapping — otherwise an uncomputable build (e.g. an
@@ -243,8 +244,9 @@ class PobEngine:
     ) -> dict[str, Any]:
         return self.call("search_passives", query=query, node_type=node_type, limit=limit)
 
-    def get_passive(self, node: str | int) -> dict[str, Any]:
-        return self.call("get_passive", node=node)
+    def get_passive(self, node: str | int, parse: bool = False) -> dict[str, Any]:
+        """Node summary; `parse=True` adds per-line PoB parse status, mod names and gating tags (cause triage)."""
+        return self.call("get_passive", node=node, **({"parse": True} if parse else {}))
 
     def alloc_passive(self, node: str | int) -> dict[str, Any]:
         return self.call("alloc_passive", node=node)

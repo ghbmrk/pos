@@ -25,7 +25,7 @@ ARCH_FIELDS = ("class_asc", "delivery", "damage", "defence", "main_skill", "key_
 _TOP = {"slate", "pob_sha", "prompt", "brief", "candidates"}
 _BRIEF = {"benchmarks", "tiers", "constraints", "floors"}
 _CAND = {"name", "archetype", "spec", "key_pieces", "claims", "source", "bases"}
-_ARCH = {"delivery", "damage", "defence", "engine"}
+_ARCH = {"delivery", "damage", "defence", "engine", "patterns"}   # patterns: meta-lesson ids joined by "+"
 _SOURCE = re.compile(r"^(llm|sweep:[^/\s]+/\S.*)$")
 
 
@@ -304,6 +304,19 @@ def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg
         add("error", "claims", "claims", f"at least {cfg['slate']['claims']['min']} mechanism claim required")
     for j, cl in enumerate(c.claims):
         _check_claim(cl, f"claims[{j}]", cat, cfg, add)
+
+    # meta-lesson patterns (data/meta_lessons.yaml): unknown ids are errors; fewer than the minimum is a warning,
+    # because a label does not prove compounding (the engine measures that)
+    from . import meta_lessons
+    known_p = meta_lessons.ids()
+    named = meta_lessons.parse_ids(c.archetype.get("patterns", ""))
+    for pid in named:
+        if pid not in known_p:
+            add("error", "unknown_pattern", "archetype.patterns", f"unknown meta-lesson pattern {pid!r}", known_p)
+    need = meta_lessons.load()["rules"]["min_patterns_per_engine"]
+    if len(set(named)) < need:
+        add("warning", "engine_not_compounding", "archetype.patterns",
+            f"name the {need}+ compounding patterns this engine combines (meta_lessons); one pattern plus marginal gains rarely competes")
 
     # archetype (derived where possible)
     delivery = _derive_delivery(cfg, skill, sup_entries)
