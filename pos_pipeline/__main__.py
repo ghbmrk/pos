@@ -34,6 +34,77 @@ def _slate(argv: list[str]) -> int:
     return 0 if rep.ok else 1
 
 
+def _play(argv: list[str]) -> int:
+    """`play "PROMPT" --slate slate.yaml [slot=Base ...]`: screen the ideas, improve rounds, deepen finalists, player report (docs/play.md)."""
+    import argparse
+    import os
+    from pathlib import Path
+
+    from . import slate as sl
+    from .gear import SLOTS
+    from .orchestrate import DEFAULT_MAX_MINUTES
+    from .play import PlayRunner, play, play_estimate, render_play_markdown
+
+    ap = argparse.ArgumentParser(prog="python -m pos_pipeline play")
+    ap.add_argument("prompt", help="the player's high-level prompt (recorded in the report; the ideas come from --slate)")
+    ap.add_argument("bases", nargs="*", help="default slot=Base for ideas that give no `bases:` of their own")
+    ap.add_argument("--slate", required=True, help="ideas the LLM client wrote from the prompt (ideation_guide / prompt `ideate`); the server has no embedded LLM")
+    ap.add_argument("--workers", type=int, default=os.cpu_count() or 1)
+    ap.add_argument("--k", type=int, default=3, help="finalists improved and deepened")
+    ap.add_argument("--outer-rounds", type=int, default=2, help="creative improvement rounds (sweep-proposed, sim-verified)")
+    ap.add_argument("--children", type=int, default=1, help="changes proposed per finalist per round")
+    ap.add_argument("--inner-rounds", type=int, default=3, help="L3 numeric loop rounds on each finalist (dead-move skipping on; --direct stays off)")
+    ap.add_argument("--max-minutes", type=float, default=DEFAULT_MAX_MINUTES, help="refuse above this estimate unless --force; also stops the creative rounds")
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--preflight", action="store_true")
+    ap.add_argument("--assumed", action="store_true", help="allow specs with companion.assumed (the labelled Squire what-if)")
+    ap.add_argument("--assume", action="append", default=[], help="a line for the report's ASSUMED banner (stand-ins, assumed actors); repeatable")
+    ap.add_argument("--meta", default=None, help="PoB build XML of a meta build, benchmarked under the same conditions as a comparison row")
+    ap.add_argument("--out", required=True)
+    a = ap.parse_args(argv)
+    bases = dict(x.split("=", 1) for x in a.bases if "=" in x)
+    if "ring" in bases:
+        bases.setdefault("ring_1", bases["ring"]); bases.setdefault("ring_2", bases.pop("ring"))
+    bad = [x for x in bases if x not in SLOTS]
+    if bad:
+        print(f"unknown slot(s): {', '.join(bad)}; known: {', '.join(SLOTS)}"); return 2
+    try:
+        s = sl.load_slate(a.slate)
+    except SpecError as e:
+        print(f"error: {e}"); return 1
+    cat = Catalogue.load(pob_sha=s.pob_sha)
+    rep = sl.validate_slate(s, cat)
+    _print_issues(rep.issues)
+    for r in rep.candidates:
+        if not r.kept:
+            print(f"REJECTED {r.name}"); _print_issues(r.errors)
+    if not rep.ok:
+        print("slate NOT ok; not running"); return 1
+    s.prompt = a.prompt or s.prompt
+    by = {c.name: c for c in s.candidates}
+    kept = [by[r.name] for r in rep.kept]
+    est = play_estimate(kept, s.brief, bases, a.workers, k=a.k, outer_rounds=a.outer_rounds, children=a.children, inner_rounds=a.inner_rounds, max_minutes=a.max_minutes)
+    print(est.summary())
+    if a.preflight:
+        return 1 if est.over_cap else 0
+    if est.over_cap and not a.force:
+        print("refused: estimate above the cap; pass --force or raise --max-minutes"); return 3
+    Path(a.out).mkdir(parents=True, exist_ok=True)
+    runner = PlayRunner(cat, s, bases, workers=a.workers, cache=str(Path(a.out) / "cache.sqlite"), log=print, rounds=a.inner_rounds)
+    runner.allow_assumed = a.assumed
+    r = play(s, rep, runner, k=a.k, outer_rounds=a.outer_rounds, children=a.children, max_minutes=a.max_minutes, out_dir=a.out, estimate_text=est.summary(), log=print)
+    if a.meta:
+        w = next((x for x in r["finalists"] if x.get("core")), None)
+        if w:
+            mb = runner.bench_xml(Path(a.meta).read_text(), next(c for c in kept if c.name == w["name"]))
+            r["meta"] = "Meta build (" + Path(a.meta).name + "): " + "; ".join(f"{b}: " + (str(v.get("ttk_s") or v.get("clear_s") or v.get("error") or v)) for b, v in mb.items())
+    assumed_lines = list(a.assume)
+    (Path(a.out) / "report.md").write_text(render_play_markdown(r, assumed_lines), encoding="utf-8")
+    (Path(a.out) / "play.json").write_text(__import__("json").dumps(r, indent=1, default=str), encoding="utf-8")
+    print((Path(a.out) / "report.md").read_text(encoding="utf-8")[:1500])
+    return 0
+
+
 def _slate_run(argv: list[str]) -> int:
     import argparse
     import os
@@ -468,6 +539,8 @@ def _ceilings(args: list[str]) -> int:
 def main(argv: list[str]) -> int:
     if argv and argv[0] == "ceilings":
         return _ceilings(argv[1:])
+    if argv and argv[0] == "play":
+        return _play(argv[1:])
     if argv and argv[0] == "slate":
         return _slate(argv[1:])
     if argv and argv[0] == "run":

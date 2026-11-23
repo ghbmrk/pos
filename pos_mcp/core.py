@@ -164,7 +164,7 @@ def _plain(doc: str | dict) -> Any:
     return json.loads(json.dumps(doc if isinstance(doc, dict) else yaml.safe_load(doc)))
 
 
-REPORTS = {"run": "report.md", "slate": "slate_report.md", "sweep": "report.md"}
+REPORTS = {"run": "report.md", "slate": "slate_report.md", "sweep": "report.md", "play": "report.md"}
 
 
 def _launch(job: str, input_name: str, doc: Any, argv, estimate: str, extra_meta: dict | None = None) -> dict:
@@ -425,6 +425,37 @@ def start_slate(slate: str | dict, bases: dict[str, str] | None = None, *, worke
     if r.get("ok") and pf["rejected"]:
         r["rejected"] = pf["rejected"]
     return r
+
+
+def start_play(prompt: str, slate: str | dict, bases: dict[str, str] | None = None, *, workers: int | None = None, k: int = 3, outer_rounds: int = 2,
+               children: int = 1, inner_rounds: int = 3, max_minutes: float | None = None, force: bool = False, allow_assumed: bool = False,
+               assume: list[str] | None = None, unarmed_ok: bool = False) -> dict:
+    """L6: the whole loop as one background job: screen the slate's ideas, creative improvement rounds, inner loop on the finalists, player report."""
+    from pos_pipeline.gear import SLOTS
+    from pos_pipeline.orchestrate import DEFAULT_MAX_MINUTES
+    from pos_pipeline.play import play_estimate
+
+    v = validate_slate(slate)
+    if not v["ok"]:
+        return {"ok": False, "validation": v}
+    s = _slate_from(slate)
+    b, err = _bases(bases or {})
+    if err:
+        return {"ok": False, "error": err}
+    kept = {r["name"] for r in v["candidates"] if r["kept"]}
+    cands = [c for c in s.candidates if c.name in kept]
+    no_bases = [c.name for c in cands if not {**b, **c.bases}]
+    if no_bases and not unarmed_ok:
+        return {"ok": False, "error": f"no gear bases for {no_bases}: pass bases (slot -> base) or give the candidate `bases:`; unarmed_ok=true runs them with no searched gear"}
+    cap = DEFAULT_MAX_MINUTES if max_minutes is None else max_minutes
+    est = play_estimate(cands, s.brief, b, workers or os.cpu_count() or 1, k=k, outer_rounds=outer_rounds, children=children, inner_rounds=inner_rounds, max_minutes=cap)
+    if est.over_cap and not force:
+        return {"ok": False, "refused": est.summary(), "hint": "estimate is above the cap; tell the user, then pass force=true or max_minutes, or cut ideas, k, rounds"}
+    extra = (["--workers", str(workers)] if workers else []) + (["--max-minutes", str(max_minutes)] if max_minutes is not None else []) \
+        + (["--force"] if force else []) + (["--assumed"] if allow_assumed else []) + [x for a in (assume or []) for x in ("--assume", a)]
+    return _launch("play", "slate.yaml", _plain(slate), lambda d: ["-m", "pos_pipeline", "play", prompt, "--slate", str(d / "slate.yaml"),
+                   *[f"{k_}={v_}" for k_, v_ in b.items()], "--out", str(d), "--k", str(k), "--outer-rounds", str(outer_rounds), "--children", str(children),
+                   "--inner-rounds", str(inner_rounds), *extra], est.summary(), {"kept": sorted(kept)})
 
 
 SWEEP_KINDS = ("keystone", "ascendancy", "support", "unique:<slot>")

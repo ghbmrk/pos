@@ -23,7 +23,7 @@ from .validate import Issue, _lookup, validate
 
 ARCH_FIELDS = ("class_asc", "delivery", "damage", "defence", "main_skill", "key_pieces")
 _TOP = {"slate", "pob_sha", "prompt", "brief", "candidates"}
-_BRIEF = {"benchmarks", "tiers", "constraints", "floors"}
+_BRIEF = {"benchmarks", "tiers", "constraints", "floors", "assumed_ok"}
 _CAND = {"name", "archetype", "spec", "key_pieces", "claims", "source", "bases"}
 _ARCH = {"delivery", "damage", "defence", "engine", "patterns"}   # patterns: meta-lesson ids joined by "+"
 _SOURCE = re.compile(r"^(llm|sweep:[^/\s]+/\S.*)$")
@@ -225,8 +225,11 @@ def validate_slate(slate: Slate, cat: Catalogue, tiers: TierTable | None = None)
             sadd("error", "duplicate", f"candidates[{i}].name", f"name {c.name!r} already used by candidates[{seen_names[_norm(c.name)]}]")
         seen_names.setdefault(_norm(c.name), i)
 
+    # L6: assumed-Squire specs may be ranked only against each other, and only when the brief opts in (brief.assumed_ok)
+    assumed_ok = bool(slate.brief.get("assumed_ok")) and all(c.spec is not None and c.spec.companion is not None and c.spec.companion.assumed is not None
+                                                             for c in slate.candidates)
     for i, c in enumerate(slate.candidates):
-        rep.candidates.append(_check_candidate(i, c, cat, tiers, cfg))
+        rep.candidates.append(_check_candidate(i, c, cat, tiers, cfg, assumed_ok))
 
     _diversity(slate, rep, cfg)
     return rep
@@ -246,7 +249,7 @@ def _check_brief(brief: dict, tiers: TierTable, sadd) -> None:
         sadd("error", "tier", "brief.tiers", "at least one tier required", tiers.tier_names)
 
 
-def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg: dict) -> CandidateResult:
+def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg: dict, assumed_ok: bool = False) -> CandidateResult:
     res = CandidateResult(c.name)
     p = f"candidates[{i}]"
     add = lambda sev, code, path, msg, sug=(): res.issues.append(Issue(sev, code, f"{p}.{path}", msg, list(sug)))  # noqa: E731
@@ -260,7 +263,7 @@ def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg
     if c.spec is None:
         add("error", "spec_structure", "spec", c.spec_error or "spec failed to parse")
     else:
-        if c.spec.companion is not None and c.spec.companion.assumed is not None:
+        if c.spec.companion is not None and c.spec.companion.assumed is not None and not assumed_ok:
             add("error", "assumed_in_slate", "spec.companion.assumed",
                 "assumed-Squire what-if specs stay out of ranked slates (their numbers rest on assumptions); run them singly with `run --assumed`")
         sr = validate(c.spec, cat, tiers)

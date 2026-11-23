@@ -237,6 +237,35 @@ def run_slate(slate: str | dict[str, Any], bases: dict[str, str] | None = None, 
     return core.start_slate(slate, bases, workers=workers, deepen_k=deepen_k, max_minutes=max_minutes, force=force, unarmed_ok=unarmed_ok)
 
 
+@mcp.tool()
+def play(prompt: str, slate: str | dict[str, Any], bases: dict[str, str] | None = None, workers: int | None = None, k: int = 3,
+         outer_rounds: int = 2, children: int = 1, inner_rounds: int = 3, max_minutes: float | None = None, force: bool = False,
+         allow_assumed: bool = False, assume: list[str] | None = None, unarmed_ok: bool = False) -> dict[str, Any]:
+    """The end-to-end loop as one background job (player prompt -> ideas -> sim -> improvement rounds -> report). `slate` = the ideas you wrote
+    for the prompt (see ideation_guide; validate with validate_slate first). The job screens every kept idea in the sim, then runs up to
+    outer_rounds creative rounds: for each of the top k ideas the engine sweeps keystones and ascendancy notables on that idea's own build and the
+    best `children` pick(s) are added to its spec and re-simulated; a change is kept only if the benchmarks improve (>= 2%, survival not lost).
+    The k finalists then get the full pipeline with inner_rounds of the numeric improvement loop, and the report ranks them with the sim evidence for
+    every change, a check whether the core key pieces compound, and what limits the winner. allow_assumed=true is required for assumed-Squire
+    slates (brief.assumed_ok); pass `assume` lines to label stand-ins in the report banner. Refuses over the cap (default 45 min) unless force,
+    set only after the user has seen the estimate. Poll run_status about once a minute; then get_report. To iterate creatively beyond the sweeps,
+    read the report, write a revised slate and call play again."""
+    return core.start_play(prompt, slate, bases, workers=workers, k=k, outer_rounds=outer_rounds, children=children, inner_rounds=inner_rounds,
+                           max_minutes=max_minutes, force=force, allow_assumed=allow_assumed, assume=assume, unarmed_ok=unarmed_ok)
+
+
+@mcp.prompt(name="play", title="Prompt to build report",
+            description="From a player's high-level prompt to ranked, sim-verified builds: ideate, play, relay the report.")
+def play_prompt(player_prompt: str = "") -> str:
+    return (f"Player prompt: {player_prompt or '(ask the player what they want to build)'}\n\n"
+            "1. Call ideation_guide and follow it to write a slate of distinct, likely-competitive ideas for the prompt (state a compounding core "
+            "for each; label stand-ins and assumed mechanics in `assume`).\n2. validate_slate; fix errors.\n"
+            "3. preflight_slate, then play (tell the player the estimate first; force only after they have seen it).\n"
+            "4. Poll run_status about once a minute; then get_report. Relay the ranking, each kept change with its sim evidence, whether the core compounds "
+            "and what limits the winner. Do not state numbers the report does not contain.\n"
+            "5. If the report shows a refuted idea or a binding constraint, write a revised slate and call play again (at most twice).")
+
+
 def main() -> None:
     mcp.run("stdio")
 
