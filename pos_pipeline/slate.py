@@ -313,10 +313,16 @@ def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg
     for pid in named:
         if pid not in known_p:
             add("error", "unknown_pattern", "archetype.patterns", f"unknown meta-lesson pattern {pid!r}", known_p)
-    need = meta_lessons.load()["rules"]["min_patterns_per_engine"]
-    if len(set(named)) < need:
+    rules = meta_lessons.load()["rules"]
+    sides = {pid: meta_lessons.side_of(pid) for pid in set(named) if pid in known_p}
+    off = [pid for pid, sd in sides.items() if sd in ("offence", "both")]
+    dfn = [pid for pid, sd in sides.items() if sd in ("defence", "both")]
+    if len(off) < rules["min_patterns_per_engine"]:
         add("warning", "engine_not_compounding", "archetype.patterns",
-            f"name the {need}+ compounding patterns this engine combines (meta_lessons); one pattern plus marginal gains rarely competes")
+            f"name the {rules['min_patterns_per_engine']}+ offence patterns this engine combines (meta_lessons); one pattern plus marginal gains rarely competes")
+    if len(dfn) < rules["min_defence_layers"]:
+        add("warning", "defence_not_layered", "archetype.patterns",
+            f"name the {rules['min_defence_layers']}+ independent defence layers this build stacks (meta_lessons, side defence); one deep layer dies to what it does not cover")
 
     # archetype (derived where possible)
     delivery = _derive_delivery(cfg, skill, sup_entries)
