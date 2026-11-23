@@ -35,7 +35,9 @@ hypotheses; the engine and the slate gate decide what is true.
    unless the spec declares the condition: `conditions: [name, ...]` at the top level of the spec, names from the
    `conditions` table (unknown names are rejected with the list). Declare only what the build itself can sustain in the
    benchmark fight, and say in a claim where it comes from; the report prints every declared condition beside the
-   figures as an assumption. Do not declare a condition just to lift a number.
+   figures as an assumption. Do not declare a condition just to lift a number. Conditions that need trash
+   (corpses_nearby, killed_recently) and buildup states (enemy_frozen, enemy_electrocuted, enemy_heavy_stunned)
+   are switched off in the boss fight, so a boss killer cannot rest on them.
 
 ## Step 0. Frame (no tools)
 Write the brief: which benchmarks ({benchmark_list}), which tiers ({tier_list}), hard constraints the user stated, and

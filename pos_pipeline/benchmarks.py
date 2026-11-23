@@ -8,12 +8,12 @@ import hashlib
 import json
 import math
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Sequence
 
 from . import data
 
 # PoB outputs the metrics read (all listed in data/metrics.yaml stat_keys).
-BENCH_KEYS = ("TotalDPS", "FullDPS", "Speed", "AverageHit", "AreaOfEffectRadiusMetres", "ProjectileCount",
+BENCH_KEYS = ("TotalDPS", "FullDPS", "Speed", "AverageHit", "AverageDamage", "AreaOfEffectRadiusMetres", "ProjectileCount",
               "TotalEHP", "TotalNumberOfHits", "EHPSurvivalTime", "PhysicalMaximumHitTaken", "FireMaximumHitTaken",
               "ColdMaximumHitTaken", "LightningMaximumHitTaken", "ChaosMaximumHitTaken")
 DAMAGE_TYPES = ("physical", "fire", "cold", "lightning", "chaos")
@@ -148,6 +148,12 @@ def pack_metrics(bid: str, stats: dict, projectile: bool = False) -> PackResult:
     b = benchmarks()[bid]
     r = PackResult(bid, b["patch"])
     base, hit = _v(b["base_life"]), stats.get("AverageHit")
+    if not hit and stats.get("AverageDamage"):
+        # Attacks: PoB keeps AverageHit per hand (output.MainHand) and combines only AverageDamage (= hit x hit chance)
+        # into the top-level output (CalcOffence combineStat), so attacks read no AverageHit. I13 eval: every attack
+        # main skill had no pack value. Expected damage per use (misses included) stands in.
+        hit = stats["AverageDamage"]
+        r.flags.append("attack: hits-to-kill from AverageDamage (expected damage per attack, misses included)")
     mons = b["monsters"]
     total = sum(_v(m["count"]) or 0 for m in mons)
     for m in mons:
@@ -178,8 +184,10 @@ def pack_metrics(bid: str, stats: dict, projectile: bool = False) -> PackResult:
     return r
 
 
-def evaluate(pool, xml: str, bid: str, dps_metric: str = "TotalDPS", projectile: bool = False) -> BossResult | PackResult:
-    """One engine evaluation under the benchmark's PoB options (cache key includes them via the mutation)."""
+def evaluate(pool, xml: str, bid: str, dps_metric: str = "TotalDPS", projectile: bool = False,
+             conditions: Sequence[str] = ()) -> BossResult | PackResult:
+    """One engine evaluation under the benchmark's PoB options (cache key includes them via the mutation).
+    Declared `conditions` that cannot hold in this kind of fight (`fights` in config_profiles.yaml) are switched off."""
     b = benchmarks()[bid]
     errors, _ = validate_benchmark(bid)
     if errors:
@@ -187,7 +195,12 @@ def evaluate(pool, xml: str, bid: str, dps_metric: str = "TotalDPS", projectile:
     from pos_pool.pool import Job
 
     keys = tuple(sorted(set(BENCH_KEYS) | {dps_metric}))
-    [res] = pool.map([Job(xml, mutations=(("set_config", {"options": pob_options(b)}),), stat_keys=keys, tag=bid)])
+    from . import data as _data
+    off, dropped = _data.conditions_not_in_fight(conditions, b["kind"])
+    [res] = pool.map([Job(xml, mutations=(("set_config", {"options": {**off, **pob_options(b)}}),), stat_keys=keys, tag=bid)])
     if not res.ok:
         raise RuntimeError(f"benchmark {bid}: engine failed: {res.error}")
-    return boss_metrics(bid, res.stats, dps_metric) if b["kind"] == "boss" else pack_metrics(bid, res.stats, projectile)
+    r = boss_metrics(bid, res.stats, dps_metric) if b["kind"] == "boss" else pack_metrics(bid, res.stats, projectile)
+    if dropped:
+        r.flags.append(f"declared conditions not credited in a {b['kind']} fight: " + ", ".join(dropped))
+    return r

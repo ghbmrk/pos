@@ -144,3 +144,11 @@ def test_engine_round_trip(pool_and_xml):
     [res] = pool.map([__import__("pos_pool.pool", fromlist=["Job"]).Job(
         xml, mutations=(("set_config", {"options": {"enemyIsBoss": "None"}}),), stat_keys=B.BENCH_KEYS)])
     assert res.stats.get("PhysicalMaximumHitTaken") and res.stats.get("AverageHit")
+
+
+def test_pack_attack_without_average_hit_uses_average_damage():
+    """I13: PoB leaves AverageHit per hand for attacks; AverageDamage stands in so attacks get a pack value."""
+    hit = B.pack_metrics("breach_t15", {"AverageHit": 8_000, "AreaOfEffectRadiusMetres": 3.0, "Speed": 2.0})
+    atk = B.pack_metrics("breach_t15", {"AverageDamage": 8_000, "AreaOfEffectRadiusMetres": 3.0, "Speed": 2.0})
+    assert atk.hits_to_kill == hit.hits_to_kill and atk.clear_s == hit.clear_s
+    assert any("AverageDamage" in f for f in atk.flags) and not any("AverageDamage" in f for f in hit.flags)

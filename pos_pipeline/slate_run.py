@@ -355,6 +355,9 @@ class EngineRunner:
         bms = _bms()
         bid = next((b for b in self.slate.brief.get("benchmarks", []) if bms[b]["kind"] == "boss"), (self.slate.brief.get("benchmarks") or [None])[0])
         options = pob_options(bms[bid]) if bid else None
+        if bid and c.spec is not None:   # ablate under the fight's own conditions: off-fight ones are not credited (I13)
+            from .data import conditions_not_in_fight
+            options = {**conditions_not_in_fight(c.spec.conditions, bms[bid]["kind"])[0], **options}
         pieces = [{"kind": p["kind"], "id": p["id"]} for p in c.key_pieces if p["kind"] in PIECE_KINDS]
         with PobEngine() as eng, EnginePool(workers=self.workers, cache=self.cache) as pool:
             searcher = GearSearcher(self.cat, pool, eng, metric=metric, floors=floors)

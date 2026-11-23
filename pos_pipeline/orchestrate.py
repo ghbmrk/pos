@@ -402,7 +402,8 @@ def engine_stages(spec, cat, rep, bases: Mapping[str, str], *, workers: int, cac
             def bench(xml, bid, variant):
                 from .benchmarks import evaluate
                 sk = cat.get("skill", skill_of(variant))
-                return evaluate(pool, xml, bid, rep.metric, projectile="Projectile" in (sk.get("skill_types") or []))
+                return evaluate(pool, xml, bid, rep.metric, projectile="Projectile" in (sk.get("skill_types") or []),
+                                conditions=spec.conditions)
 
             def stats(xml, variant):
                 eng.load_build_xml(xml)

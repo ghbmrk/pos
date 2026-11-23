@@ -88,13 +88,21 @@ def is_triggered(entry: dict) -> bool:
     return "Trigger" in [t.strip() for t in (entry.get("tags") or "").split(",")]
 
 
+def has_unmodelled_cost(entry: dict) -> bool:
+    """True for supports whose cost PoB does not model: a Glory requirement (Zerphi's Infamy; PoB-PoE2 at 601768b has
+    no Glory). The engine counts their damage and not the cost, so like triggered supports they look free (I13 eval:
+    the ablation's best stand-in for 5 key supports)."""
+    return "Glory requirement" in (entry.get("description") or "")
+
+
 def eligible(cat: Catalogue, skill: dict, fixed: Sequence[dict], allow_triggered: Collection[str] | None = None) -> list[dict]:
     """Supports that may join `fixed` on `skill` (fixed ones excluded). Triggered-skill supports are left out
-    unless their id is in `allow_triggered` (the config profile sets their trigger condition); `None` = no gate."""
+    unless their id is in `allow_triggered` (the config profile sets their trigger condition), and so are supports with
+    an unmodelled cost (`has_unmodelled_cost`); `None` = no gate. A spec can still fix either kind explicitly."""
     fixed_ids = {e["id"] for e in fixed}
     return [s for s in cat.entries("support")
             if s["id"] not in fixed_ids and compatible(skill, [*fixed, s])
-            and (allow_triggered is None or not is_triggered(s) or s["id"] in allow_triggered)]
+            and (allow_triggered is None or ((not is_triggered(s) or s["id"] in allow_triggered) and not has_unmodelled_cost(s)))]
 
 
 def _job(cat: Catalogue, skill: dict, ids: Sequence[str], keys: tuple[str, ...], xml: str) -> Job:
