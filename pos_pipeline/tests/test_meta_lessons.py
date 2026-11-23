@@ -51,3 +51,12 @@ def test_validate_catches_a_poe1_anchor_and_unknown_lever(monkeypatch):
     monkeypatch.setattr(ml, "patterns", lambda: bad)
     probs = ml.validate()
     assert any("Elemental Overload" in p for p in probs) and any("'nope'" in p for p in probs)
+
+
+def test_defence_side_is_covered_and_rendered_in_its_own_block():
+    defence = [p for p in ml.patterns() if p["side"] == "defence"]
+    assert len(defence) >= 6
+    r = ml.render()
+    assert r.index("Defence (layers):") > r.index("Offence (engine):")
+    tail = r[r.index("Defence (layers):"):]
+    assert all(f"`{p['id']}`" in tail for p in defence)

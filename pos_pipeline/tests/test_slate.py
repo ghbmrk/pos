@@ -334,7 +334,13 @@ def test_archetype_patterns_unknown_is_error_and_too_few_is_warning(cat):
     c = run(cat, one).candidates[0]
     assert c.kept and "engine_not_compounding" in {i.code for i in c.issues if i.severity == "warning"}
 
-    def two(d):
+    def offence_only(d):
         d["candidates"][0]["archetype"] = {"patterns": "conversion_funnel + resistance_removal"}
-    c = run(cat, two).candidates[0]
-    assert c.kept and not {i.code for i in c.issues} & {"unknown_pattern", "engine_not_compounding"}
+    c = run(cat, offence_only).candidates[0]
+    w = {i.code for i in c.issues}
+    assert c.kept and not w & {"unknown_pattern", "engine_not_compounding"} and "defence_not_layered" in w
+
+    def layered(d):   # stat_stacking counts on both sides
+        d["candidates"][0]["archetype"] = {"patterns": "stat_stacking+conversion_funnel+layered_mitigation"}
+    c = run(cat, layered).candidates[0]
+    assert c.kept and not {i.code for i in c.issues} & {"unknown_pattern", "engine_not_compounding", "defence_not_layered"}

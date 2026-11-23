@@ -9,12 +9,22 @@ interaction must compound; marginal gains are not enough.
 
 | Piece | Role |
 |---|---|
-| `data/meta_lessons.yaml` | 17 abstract patterns: mechanism, why it compounds, limits, eras + evidence, PoE2 anchors, probe levers, PoB coverage |
+| `data/meta_lessons.yaml` | 22 abstract patterns, each tagged `side` offence / defence / both: mechanism, why it compounds, limits, eras + evidence, PoE2 anchors, probe levers, PoB coverage |
 | `pos_pipeline/meta_lessons.py` | `render()` (prompt block), `public()` (no example names), `validate()` |
 | `pos_mcp/ideate.py` | new Step 1b "Priors from past metas": patterns as generators; engine = 2+ patterns that feed each other |
-| `pos_pipeline/slate.py` | `archetype.patterns: "id+id"`; unknown id = error `unknown_pattern`; fewer than 2 = warning `engine_not_compounding` |
+| `pos_pipeline/slate.py` | `archetype.patterns: "id+id+..."`; unknown id = error `unknown_pattern`; fewer than 2 offence patterns = warning `engine_not_compounding`; fewer than 2 defence layers = warning `defence_not_layered` |
 | MCP `meta_lessons(pattern)` | full entries (eras, evidence, anchors, levers), never the example names |
 | `tools/meta_snapshot.py` | dated poe.ninja build-index snapshot into `data/meta/` (evidence) |
+
+## Defensive layering (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUJwf4H96Eiv5VKs9dH3qwiY)
+
+The objective is the highest DPS that survives all endgame content without death, so defence gets the same treatment
+as offence: past metas that survived the hardest bosses stacked several independent layers, and builds with one deep
+layer died to the damage type or mechanic it did not cover. Defence patterns: `layered_mitigation`,
+`recovery_from_offence`, `avoidance_layer`, `max_resistance_push`, `damage_type_shift`, `control_immunity`,
+`burst_recovery`; `stat_stacking`, `defence_as_offence` and `rule_changer` count on both sides. The prompt renders them
+in their own block and asks for 2+ layers per candidate. `control_immunity` is `not_modelled`: PoB has no metric for
+time lost to stun or freeze, so ablation will read it near zero; judge it on boss mechanics.
 
 ## Patterns, not names
 
