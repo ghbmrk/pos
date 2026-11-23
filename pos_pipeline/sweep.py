@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping, Sequence
 
 from pos_catalogue import Catalogue
-from pos_engine.engine import PobEngine
+from pos_engine.engine import PobEngine, PobEngineError
 from pos_pool.pool import EnginePool, Job
 
 from .gear import BASE_TYPE_KIND, SLOTS, kind_of
@@ -143,8 +143,16 @@ def _tree_alloc(cat: Catalogue, pool: EnginePool, xml: str, entries: list[dict],
         for e in entries:
             row = SweepEntry(kind, str(e["node"]), e["name"])
             out.append(row)
-            eng.load_build_xml(xml)
-            r = eng.alloc_passive(e["node"])
+            try:
+                eng.load_build_xml(xml)
+                r = eng.alloc_passive(e["node"])
+            except PobEngineError:
+                if not own:
+                    raise
+                eng.close()          # runaway engine killed by the memory guard: retry once on a fresh process
+                eng = PobEngine()
+                eng.load_build_xml(xml)
+                r = eng.alloc_passive(e["node"])
             if not r.get("ok"):
                 row.flags.append("unreachable")
                 continue
