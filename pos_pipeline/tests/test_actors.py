@@ -156,8 +156,8 @@ def test_registry_well_formed():
             for e in lst:
                 assert e["effect"] in eff and e.get("source"), f"{k}/{sid}: effect must exist and be sourced"
     for k, e in eff.items():
-        placeholders = {v[1:-1] for v in e["options"].values() if isinstance(v, str) and v.startswith("{")}
-        assert placeholders == set(e.get("params") or []), k
+        used = set().union(*(actors.placeholders(v) for v in e["options"].values()))
+        assert used == set(e.get("params") or []), k
 
 
 # ---- against the pinned PoB --------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ def test_effect_option_keys_exist_in_pinned_pob():
         pytest.skip(f"engine unavailable: {ex}")
     with eng:
         eng.new_build()
-        keys = {k for e in data.actor_effects().values() for k in e["options"]}
+        keys = {k for e in data.actor_effects().values() for k in e["options"]} - {actors.CUSTOM_MODS}   # a config input, not an option
         found = set()
         for k in keys:
             r = eng.list_config_options(query=k, limit=200)
@@ -216,6 +216,19 @@ def test_reset_options_goes_back_to_profile_or_off():
     assert actors.reset_options({"bannerPlanted": True}, e) == {"usePowerCharges": False, "overridePowerCharges": 0, "bannerPlanted": True}
 
 
+def test_text_templates_custom_mods_and_enemy_res_reset():
+    a = actors.make_effect("ally_increased_damage", {"pct": 50})
+    s = actors.make_effect("companion_takes_hit_damage", {"pct": 15, "life": 4050})
+    assert a.options == {"customMods": "50% increased Damage"} and s.options["TotalCompanionLife"] == 4050
+    m = actors.merge_options({}, [a, s, a])
+    assert m["customMods"].split("\n") == ["50% increased Damage", "15% of Damage from Hits is taken from your Damageable Companion's Life before you"]
+    r = actors.make_effect("enemy_lightning_res", {"value": -45})
+    assert r.options == {"enemyLightningResist": -45}
+    assert actors.reset_options({"enemyIsBoss": "Boss"}, [r, a]) == {"enemyIsBoss": "Boss", "customMods": ""}
+    assert actors.reset_options({}, [r]) == {"enemyIsBoss": "Pinnacle"}
+    assert actors.reset_options({"enemyLightningResist": 10}, [r]) == {"enemyLightningResist": 10}
+
+
 def test_model_for_pending_stub_and_available(fake_registry):
     assert isinstance(actors.model_for("squire", player_metric=_metric), actors.SeparateBuildModel)
     with pytest.raises(ValueError):
@@ -254,3 +267,37 @@ def test_run_wires_actor_stage_and_report(fake_registry, tmp_path):
     with pytest.raises(actors.ActorUnavailable):
         run(s, Stages(st.assemble, st.supports, st.apply_supports, st.trees, st.gear),
             metric="FullDPS", slots=1, workers=1, skill_id="x")
+
+
+def test_custom_mods_replace_and_clear_on_a_saved_build():
+    """A build saved while custom mods were set carries them as a PoB custom-mod block; set_config must replace and
+    clear that block, or an effect's 'off' state silently keeps it (found in the channel runs, 2026-11-23)."""
+    eng_mod = pytest.importorskip("pos_engine.engine")
+    from pos_catalogue import Catalogue
+    from pos_pipeline.assemble import assemble
+    from pos_pipeline.gear import GearSearcher
+    from pos_pipeline.spec import load_spec
+    from pathlib import Path
+    sp = load_spec(Path(__file__).resolve().parents[2] / "examples" / "squire_assumed_ground.yaml")
+    try:
+        eng = eng_mod.PobEngine()
+    except Exception as ex:  # noqa: BLE001
+        pytest.skip(f"engine unavailable: {ex}")
+    with eng:
+        c = Catalogue.load(pob_sha=sp.pob_sha)
+        a = assemble(sp, c, eng, {})
+        eng.load_build_xml(a.xml)
+        eng.add_item(GearSearcher(c, None, eng, metric="TotalDPS").raw("Akoyan Spear", []), slot="Weapon 1")
+
+        def dps(xml, opts):
+            eng.load_build_xml(xml)
+            eng.set_config(options=opts)
+            return float(eng.get_stats(["TotalDPS"])["stats"]["TotalDPS"])
+
+        plain = eng.get_xml()
+        eng.set_config(options={"customMods": "50% increased Damage"})
+        baked = eng.get_xml()
+        off, on = dps(plain, {"customMods": ""}), dps(plain, {"customMods": "50% increased Damage"})
+        assert on > off
+        assert dps(baked, {"customMods": ""}) == pytest.approx(off)
+        assert dps(baked, {"customMods": "50% increased Damage"}) == pytest.approx(on)

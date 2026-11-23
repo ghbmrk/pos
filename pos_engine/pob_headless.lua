@@ -554,8 +554,18 @@ function methods.set_config(p)
 		end
 		appliedRes = ele
 	end
-	if type(p.customMods) == "string" then
-		build.configTab.input.customMods = p.customMods
+	-- Custom mod lines: PoB reads the active config set's customModsList blocks and uses input.customMods only when
+	-- no block has text. A build saved after custom mods were set carries them as a block, so writing input alone
+	-- could never clear or replace them. Write both (options.customMods is accepted like the customMods param).
+	local cm = p.customMods
+	if type(opts.customMods) == "string" then cm = opts.customMods end
+	if type(cm) == "string" then
+		local ct = build.configTab
+		ct.input.customMods = cm
+		local set = ct.configSets and ct.configSets[ct.activeConfigSetId]
+		if set then
+			set.customModsList = { { title = "Default", enabled = true, text = cm } }
+		end
 	end
 	build.configTab:BuildModList()
 	runCallback("OnFrame")

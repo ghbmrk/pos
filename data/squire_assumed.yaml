@@ -14,7 +14,8 @@ actor:                 # overlaid on actors.yaml `squire` while assumed; `requir
   gear_slots: [weapon, body_armour, helmet, gloves, boots]   # skill count (exactly one) comes from data/actors.yaml
   budget_share: 0.25
 assumptions:
-  - { id: slots,      text: "Squire wears weapon, body armour, helmet, gloves and boots; no jewellery or belt", check: C1 }
+  - { id: slots,      text: "Squire wears weapon, body armour, helmet, gloves and boots; no jewellery or belt. Owner screenshot 2026-11-23 (cmsg_01RxGYnd78N9kMbbAJ5pWDhU2un2QXCcvoPiQQGN9c8Wbz) shows exactly these plus an off-hand (shield), which the search does not cover", check: C1 }
+  - { id: presence,   text: "Squire has a Presence, so its 'in your Presence' item lines reach enemies and allies near it (owner assumption 2026-11-23, cmsg_01RxGYnd78N9kMbbAJ5pWDhUTmG11aA4f2gf37zhRB1jZD)", check: C3 }
   - { id: one_skill,  text: "Squire has one skill group, one skill plus its supports (owner fact 2026-11-23, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY; demo showed two); a catalogue skill stands in for it", check: C2 }
   - { id: effects,    text: "Cross-actor effects come only from the scenario below, at the stated uptimes; they do not depend on the Squire's skill or gear", check: C6 }
   - { id: share,      text: "Squire slots get 25% of the tier budget before reallocation; the search can move points either way", check: C1 }
@@ -27,7 +28,8 @@ standins:
   - { for: "Squire's real skill list (unknown: slots, rules, AI)", use: "any one catalogue skill as the Squire's damage source; GGG's demo kit (Blood Hunt, Bloodhound's Mark, Elemental Sundering) IS in pinned data (BloodHuntPlayer, BloodhoundsMarkPlayer, ElementalSunderingPlayer) and can be used", why: "which skills the Squire may take is unsourced (C2); note one Mark per target by default, so a Squire Mark and a player Mark probably compete (docs/theorycraft-squire.md 2.11)" }
   - { for: "Elemental Discharge on Cyclone (owner build 2)", use: "none; fails as written (Spell-only support). Scenario charge_provider = build 2c, the literal charge version", why: "docs/theorycraft-squire.md section 4" }
 # probe: moves = test_squire_assumed.py checks the effect changes a plain Whirling Slash probe build's DPS (PoB gate check, theorycraft section 6);
-#        needs_consumer = changes nothing unless the player build has charge-scaling mods (probe: no change).
+#        needs_consumer = changes nothing on that probe unless the player build has a consumer (charge-scaling mods,
+#        elemental damage for a resistance effect, Heavy Stun payoffs) or the metric is not DPS (damage sharing moves EHP).
 # Scenarios: what the Squire is assumed to do for the player. Every uptime is ASSUMED. `uptime` in the spec overrides all of them.
 scenarios:
   debuff_bot:
@@ -46,3 +48,39 @@ scenarios:
     effects:
       - { effect: frenzy_charges, probe: needs_consumer, params: { count: 3 }, uptime: 0.6, source: "ASSUMED: Squire charges reach the player (theorycraft 2.5 says they may not)" }
       - { effect: power_charges, probe: needs_consumer,  params: { count: 3 }, uptime: 0.6, source: "ASSUMED: as above" }
+
+  # ---- Value channels (owner "go" 2026-11-23, cmsg_01RxGYnd78N9kMbbAJ5pWDhUN7wzu4E7SYKFBWbaaEgsw3; docs/squire-channels.md).
+  # Item lines are quoted from pinned data (601768b); the Squire wearing them, its Presence and every uptime are ASSUMED.
+  # Presence scenarios fix the Squire's body armour and helmet to the named uniques, so their specs search only the
+  # Squire's weapon, gloves and boots (examples/squire_channels/).
+  own_damage:
+    idea: "channel 1: the Squire is a second damage source and nothing else; the joint search splits the budget between the two actors"
+    effects: []
+  res_lightning:
+    idea: "channel 2: Squire wears Doryani's Prototype ('Enemies in your Presence have Lightning Resistance equal to yours') and Glimpse of Chaos ('+(-30-30)% to Lightning Resistance', best roll -30); no jewellery slots, so no other negative resistance"
+    effects:
+      - { effect: enemy_lightning_res, params: { value: -30 }, probe: needs_consumer, uptime: 1.0, source: "ASSUMED: Squire's own lightning resistance = -30 (Glimpse of Chaos best roll) +0 base (unknown); target within the Squire's Presence all fight" }
+  res_all_zero:
+    idea: "channel 2: Squire wears The Coming Calamity ('Enemies in your Presence have no Elemental Resistances')"
+    effects:
+      - { effect: enemy_lightning_res, params: { value: 0 }, probe: needs_consumer, uptime: 1.0, source: "ASSUMED: target within the Squire's Presence all fight" }
+      - { effect: enemy_cold_res, params: { value: 0 }, probe: needs_consumer, uptime: 1.0, source: "ASSUMED: as above" }
+      - { effect: enemy_fire_res, params: { value: 0 }, probe: needs_consumer, uptime: 1.0, source: "ASSUMED: as above" }
+  ally_buffer:
+    idea: "channel 3: Squire wears Leer Cast ('Allies in your Presence deal 50% increased Damage')"
+    effects:
+      - { effect: ally_increased_damage, params: { pct: 50 }, probe: moves, uptime: 1.0, source: "ASSUMED: player stays in the Squire's Presence all fight" }
+  stun_enabler:
+    idea: "channel 4: the Squire's one skill builds Heavy Stun on the target; the player's Heavy Stun payoffs (e.g. Trephina 'Always deals Critical Hits against Heavy Stunned Enemies') cash it in"
+    effects:
+      - { effect: enemy_heavy_stunned, probe: needs_consumer, uptime: 0.3, source: "ASSUMED: uptime; Heavy Stun windows on a pinnacle boss are short (data/config_profiles.yaml I13 review)" }
+  damage_sponge:
+    idea: "channel 5: Starkonja's Head on the player ('15% of Damage from Hits is taken from your Damageable Companion's Life before you') with the Squire as that companion"
+    effects:
+      - { effect: companion_takes_hit_damage, params: { pct: 15, life: 4050 }, probe: needs_consumer, uptime: 1.0, source: "ASSUMED: the Squire counts as a damageable companion; life 4,050 = level 58 Squire in the owner's screenshot (cmsg_01RxGYnd78N9kMbbAJ5pWDhU2un2QXCcvoPiQQGN9c8Wbz); the helmet slot it costs the player is NOT charged by the search" }
+  presence_stack:
+    idea: "channels 2+3+skill combined: Squire in Doryani's Prototype and Leer Cast, its one skill shocking the target"
+    effects:
+      - { effect: enemy_lightning_res, params: { value: 0 }, probe: needs_consumer, uptime: 1.0, source: "ASSUMED: Squire's own lightning resistance 0 (base unknown; Leer Cast takes the helmet, so no Glimpse of Chaos); Doryani's Prototype sets the target to it" }
+      - { effect: ally_increased_damage, params: { pct: 50 }, probe: moves, uptime: 1.0, source: "ASSUMED: as ally_buffer (Leer Cast)" }
+      - { effect: enemy_shocked, probe: moves, uptime: 0.5, source: "ASSUMED: uptime; the Squire's skill shocks" }

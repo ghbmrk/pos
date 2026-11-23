@@ -5,6 +5,7 @@ every effect maps to PoB config keys listed in data/actor_effects.yaml. A `pendi
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping, Protocol, Sequence
 
@@ -81,10 +82,17 @@ def make_effect(eid: str, params: Mapping[str, Any] | None = None, uptime: float
         raise ValueError(f"effect {eid!r}: uptime {uptime} outside (0, 1]")
     opts: dict[str, Any] = {}
     for k, v in spec["options"].items():
-        if isinstance(v, str) and v.startswith("{") and v.endswith("}"):
-            v = (params or {})[v[1:-1]]
+        if isinstance(v, str) and re.fullmatch(r"\{\w+\}", v):
+            v = (params or {})[v[1:-1]]                          # whole placeholder keeps the param's type
+        elif isinstance(v, str):
+            v = re.sub(r"\{(\w+)\}", lambda m: str((params or {})[m.group(1)]), v)   # text template (custom mod lines)
         opts[k] = v
     return Effect(eid, opts, uptime, source)
+
+
+def placeholders(value: Any) -> set[str]:
+    """Param names an effect option value uses (`{name}` anywhere in a string)."""
+    return set(re.findall(r"\{(\w+)\}", value)) if isinstance(value, str) else set()
 
 
 def effects_for(comp: Companion, skill_ids: Sequence[str]) -> list[Effect]:
@@ -112,6 +120,10 @@ def merge_options(base: Mapping[str, Any] | None, effects: Sequence[Effect], *, 
         if include is not None and e.id not in include:
             continue
         for k, v in e.options.items():
+            if k == CUSTOM_MODS and k in out:                     # custom mod lines add up; they never conflict
+                lines = [x for x in str(out[k]).split("\n") if x]
+                out[k] = "\n".join(lines + [x for x in str(v).split("\n") if x and x not in lines])
+                continue
             if k in out and out[k] != v:
                 raise EffectConflict(f"{e.id} sets {k}={v!r} but {origin[k]} set {out[k]!r}")
             out[k], origin[k] = v, e.id
@@ -133,6 +145,7 @@ class Combined:
     effects: list[Effect] = field(default_factory=list)
     blended: bool = False
     assumed: str | None = None        # K5: scenario id when the numbers rest on the assumed Squire profile
+    survival: dict[str, float] | None = None   # player's survival stats with every effect on vs off (filled by the orchestrator)
 
     @property
     def total(self) -> float:
@@ -191,14 +204,27 @@ class SeparateBuildModel:
         return Combined(main, comp, without, list(effects), blended=bool(part), assumed=self.assumed)
 
 
+CUSTOM_MODS = "customMods"   # PoB config input holding raw mod lines (not a ConfigOptions var; set like one by the engine)
+# Enemy resistance inputs: with no explicit value the engine applies the boss tier's standard resistance when
+# `enemyIsBoss` is set (pob_headless.lua set_config), so "off" means re-sending the tier, not writing 0.
+ENEMY_RES = ("enemyLightningResist", "enemyColdResist", "enemyFireResist", "enemyChaosResist")
+POB_DEFAULT_BOSS = "Pinnacle"   # PoB's enemyIsBoss default index (data/config_profiles.yaml, pob_default)
+
+
 def reset_options(base: Mapping[str, Any] | None, effects: Sequence[Effect]) -> dict[str, Any]:
-    """Off value for every option the effects touch: the config profile's value, else False (bool) / 0 (number).
-    Lets a persistent engine config go back to 'effect off' between evaluations."""
+    """Off value for every option the effects touch: the config profile's value, else False (bool) / "" (text) / 0
+    (number); enemy resistances go back to the profile's boss tier. Lets a persistent engine config go back to
+    'effect off' between evaluations."""
+    base = base or {}
     out: dict[str, Any] = {}
     for e in effects:
         for k, v in e.options.items():
-            out[k] = (base or {}).get(k, False if isinstance(v, bool) else 0)
-    return out
+            if k in ENEMY_RES and k not in base:
+                out[k] = None
+                out["enemyIsBoss"] = base.get("enemyIsBoss", POB_DEFAULT_BOSS)
+                continue
+            out[k] = base.get(k, False if isinstance(v, bool) else "" if isinstance(v, str) else 0)
+    return {k: v for k, v in out.items() if v is not None}
 
 
 def model_for(kind: str, *, player_metric: Callable[[str, Mapping[str, Any]], float] | None = None,

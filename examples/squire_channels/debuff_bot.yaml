@@ -1,0 +1,15 @@
+# ASSUMED Squire what-if, value channel "debuff_bot" (docs/squire-channels.md, data/squire_assumed.yaml). Stand-ins: Whirling
+# Slash for Cyclone, a Huntress for the Knight, Whirling Slash as the Squire's one skill. The Squire's gear search covers
+# weapon, gloves and boots only (Presence scenarios fix its body armour and helmet to the named uniques). Run with
+# tools/squire_channels.sh.
+pob_sha: "601768b"
+class: Huntress
+level: 90
+main_skill: { gem: Whirling Slash }
+tiers: [mid]
+benchmarks: [arbiter_ash]
+companion:
+  kind: squire
+  assumed: { scenario: debuff_bot }
+  skills: [ { gem: Whirling Slash } ]
+  gear: { weapon: "Akoyan Spear", gloves: "Vaal Wraps", boots: "Wrapped Sandals" }
