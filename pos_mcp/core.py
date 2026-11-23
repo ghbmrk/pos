@@ -436,6 +436,21 @@ def start_sweep(spec: str | dict, kind: str, *, searched: bool = True, top: int 
                    "--out", str(d), "--top", str(top), *extra], est, {"kind": kind, **({"weapon": weapon} if weapon else {})})
 
 
+def ceilings(build: str, metric: str = "FullDPS", ids: list[str] | None = None, required: float | None = None,
+             lines: dict[str, str] | None = None) -> dict:
+    """Uptime ceilings (L5b) for mechanics PoB cannot calculate, on a PoB build (XML text)."""
+    from pos_pipeline import ceilings as C
+    xml = build.strip()
+    if not xml.startswith("<"):
+        return {"error": "build must be PoB build XML text (a run's builds are exported as XML)"}
+    try:
+        res = C.evaluate(xml, ids, metric=metric, lines=lines)
+        joint = C.interaction(res, xml, metric=metric)
+    except Exception as ex:
+        return {"error": f"{type(ex).__name__}: {ex}"}
+    return {"results": [r.to_dict() for r in res], "joint": joint, "text": C.render(res, metric, required, joint)}
+
+
 def diagnose(build: str, metric: str = "FullDPS", benchmarks: list[str] | None = None, top: int = 8) -> dict:
     """Diagnose a PoB build (XML text): binding constraint, levers by shadow price, probes that failed calibration."""
     from pos_pipeline.diagnose import diagnose as _diag, render
