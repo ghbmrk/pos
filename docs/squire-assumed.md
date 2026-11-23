@@ -8,7 +8,8 @@ loud failure for ordinary specs is unchanged. The assumed profile is a separate 
 
 ## Opt-in (two switches, both required)
 
-1. The spec says so: `companion: { kind: squire, assumed: { scenario: <id>, uptime: <0-1, optional> }, skills: [...], gear: {...} }`.
+1. The spec says so: `companion: { kind: squire, assumed: { scenario: <id>, uptime: <0-1, optional> }, skills: [<one group>], gear: {...} }`.
+   The Squire takes exactly one skill group, one skill plus its supports (owner, 2026-11-23; `data/actors.yaml`).
 2. The run says so: CLI `--assumed`, MCP `run(..., allow_assumed=true)`. Without it the run is refused before any work
    (`AssumedNotAllowed`); preflight needs neither.
 
@@ -20,9 +21,10 @@ python -m pos_pipeline run examples/squire_assumed_ground.yaml weapon='Akoyan Sp
 ## What the profile assumes (`data/squire_assumed.yaml`)
 
 Every item is listed in the file and printed in every report: gear slots (weapon, body armour, helmet, gloves, boots),
-one damage skill, effects from a named scenario at assumed uptimes, 25% of the tier budget before reallocation, a Squire
-that is a copy of the player's class and level with its own gear and no passives, no Exposure (PoB counts it only when the
-player can inflict it, docs/theorycraft-squire.md section 6). Each assumption names the 1.0 check (C1-C12) that replaces it.
+one skill group (now the owner's stated rule, not an assumption), effects from a named scenario at assumed uptimes, 25%
+of the tier budget before reallocation, a Squire that is a copy of the player's class and level with its own gear and no
+passives, no Exposure (PoB counts it only when the player can inflict it, docs/theorycraft-squire.md section 6). Each
+assumption names the 1.0 check (C1-C12) that replaces it.
 
 | Scenario | Idea (theorycraft rank) | Effects (config options on the player's calc) |
 |---|---|---|
@@ -31,7 +33,7 @@ player can inflict it, docs/theorycraft-squire.md section 6). Each assumption na
 | `charge_provider` | 9, owner build 2c | Frenzy and Power charges x3 at 0.6 |
 
 Stand-ins, said in every report: Whirling Slash for Cyclone (it has the same `InteractsWithElementalGround` type and the
-pickup config keys), any class for Duelist/Knight, any catalogue skill for the Squire's skills. Owner build 2 as written
+pickup config keys), any class for Duelist/Knight, any catalogue skill for the Squire's one skill. Owner build 2 as written
 (Elemental Discharge on Cyclone) cannot run: the support is Spell-only. `charge_provider` is its literal charge version.
 Not covered: Presence projector (needs item text on the Squire), damage sponge (Squire survivability), Mark/consume skills.
 

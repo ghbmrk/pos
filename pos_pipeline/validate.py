@@ -241,9 +241,7 @@ def _check_companion(spec, cat, cls, resolve, add) -> None:
     if req.get("ascendancy") and ascs != {req["ascendancy"]}:
         add("error", "actor_requires", "companion.kind",
             f"{comp.kind} requires ascendancy {req['ascendancy']} in every variant, spec has {sorted(ascs) or 'none'}")
-    mx = a.get("max_skills")
-    if mx is not None and len(comp.skills) > mx:
-        add("error", "companion_skills", "companion.skills", f"{comp.kind} takes at most {mx} skills, spec lists {len(comp.skills)}")
+    _check_skill_count(comp, a, add)
     slots = a.get("gear_slots")
     for slot in comp.gear:
         if slots is not None and slot not in slots:
@@ -258,6 +256,17 @@ def _check_companion(spec, cat, cls, resolve, add) -> None:
         skill = resolve("skill", sk.gem, f"{p}.gem")
         sub = _CompanionGroup(sk.supports)
         _check_supports(sub, cat, skill, _prefixed(resolve, p), _prefixed_add(add, p))
+
+
+def _check_skill_count(comp, a, add) -> None:
+    """The actor's skill-group count: `min_skills`/`max_skills` in data/actors.yaml (Squire: exactly one, owner 2026-11-23)."""
+    mn, mx, n = a.get("min_skills"), a.get("max_skills"), len(comp.skills)
+    if (mn is None or n >= mn) and (mx is None or n <= mx):
+        return
+    want = (f"exactly {mx}" if mn == mx else f"at least {mn}" if mx is None else f"at most {mx}" if mn is None
+            else f"{mn} to {mx}")
+    src = f" ({a['skills_source']})" if a.get("skills_source") else ""
+    add("error", "companion_skills", "companion.skills", f"{comp.kind}: skill groups must be {want}, spec lists {n}{src}")
 
 
 class _CompanionGroup:

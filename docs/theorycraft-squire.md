@@ -1,15 +1,19 @@
 # Theorycraft: what the Knight's Squire unlocks
 
-Status: theorycraft for PoE2 1.0 (launch 2026-12-11), written 2026-11-22; sections 2.9 and 2.10 (and the S ideas,
+Status: theorycraft for PoE2 1.0 (launch 2026-12-11), written 2026-11-22; sections 2.9 to 2.11 (and the S ideas,
 C13 to C16 and the reverse-channel gap) added 2026-11-23 from owner follow-ups. No engine numbers and no invented
-values: every game number below is quoted from a source or from the pinned catalogue.
+values: every game number below is quoted from a source, the pinned catalogue or PoB data at the same commit.
 
 - Owner asks: target builds cmsg_01RxGYnd78N9kMbbAJ5pWDhU91siC64a4kvoveU2FoJ95E; this exploration
   cmsg_01RxGYnd78N9kMbbAJ5pWDhUXBdt1E1AEWrTthjU1sog6S; follow-ups cmsg_01RxGYnd78N9kMbbAJ5pWDhURuQsbp1xd2mVwRb6SLfg4Q,
-  cmsg_01RxGYnd78N9kMbbAJ5pWDhUAC5GVTWyocZczA6Z6yoUGo, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBUVT6jMPQX21ZJzPPgWj5Z.
+  cmsg_01RxGYnd78N9kMbbAJ5pWDhUAC5GVTWyocZczA6Z6yoUGo, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBUVT6jMPQX21ZJzPPgWj5Z,
+  cmsg_01RxGYnd78N9kMbbAJ5pWDhULDDyGePmZhKfckt39s6SiR, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY.
 - Baseline (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUKXYJyC5hSBnTQELRB8Csqz): content confirmed for 1.0 plus current game data.
 - Cyclone is a confirmed 1.0 Duelist skill (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhURa2nYrS6YKpHK3nHuv9Fkf; sources F9 to F11).
   It is missing from the pinned data only because the Duelist is not in it yet.
+- The Squire gets one skill plus its supports (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY, 2026-11-23).
+  This conflicts with F6, where the demo Squire used two skills, so C2 re-checks it at 1.0. Section 2.11 and the
+  one-skill note in section 3 follow the owner's statement.
 
 Labels used on every claim:
 
@@ -50,7 +54,15 @@ quote below is therefore a candidate, not a promise.
    own setup (Exploit Weakness, Immolate, Flame Pillar, Haemocrystals, Battershout, Undermine), and Brink builds Heavy
    Stun but "cannot themselves Heavy Stun" **[data]**. A Squire that only sets up lets every player hit be a payoff
    **[inference]**. Giant's Blood lets the player hold two two-handed maces while the Squire holds a third, and Chober
-   Chaber makes minion damage scale both actors (2.9). Ideas S1 to S5 in section 3.
+   Chaber makes minion damage scale both actors (2.9). Ideas S1 to S6 in section 3.
+7. **From first principles, the Squire's weapon picks the maximum (2.11).** Persistent states (Shock, Exposure, Ignite
+   for Immolate) pay on every hit, so they go on Cyclone. Consumed states pay once per application, so they go on a
+   slow, heavy hit, and Exploit Weakness turns out to consume **[data]**. With one Squire skill (owner), a Mark would
+   stop the Squire hitting, so the Mark moves to the player **[inference]**. A mace Squire with Brain Rattler
+   electrocutes to activate the player's Voltaic Mark (the elemental version: more multipliers, hinges on C16). A spear
+   Squire's Blood Hunt detonates the player's bleeds while the player's Bloodhound's Mark builds Heavy Stun (the blood
+   version: GGG's demo chain, fewer unknowns). Giant's Blood costs either version's mace finisher 30% (dual wielding)
+   **[data]**.
 
 ## 1. What is confirmed for 1.0
 
@@ -157,6 +169,7 @@ GGG's demo shows the player applying bleed and the Squire consuming it:
   Bleeding" **[data]**.
 - The Squire's Bloodhound's Mark: "The Mark will Activate, Consuming itself to Trigger Blood Explosion, when they are
   Heavy Stunned, or when they are killed if they suffered enough Blood Loss" **[data]**.
+- That is two Squire skills. With the owner's one-skill rule, one of them moves to the player (2.11, blood version).
 
 An elemental twin of that demo **[inference]**:
 - The player's Cyclone picks up elemental ground and applies the matching ailment.
@@ -302,6 +315,8 @@ generate (2-5) Glory every 2 seconds"; Amor Mandragora, "Enemies in your Presenc
 - Squire: Tidebreaker, with Brink on its strike (2.10).
 - The Squire keeps enemies close to Heavy Stun and the player's hits finish them. Trephina's hits crit on Heavy Stunned
   targets, and every minion damage line scales both actors.
+- Two maces count as dual wielding, so mace finishers such as Boneshatter lose 30% here (2.11). This set cashes Heavy
+  Stuns through Trephina's crits instead.
 - Cyclone's weapon requirement (C4) can still veto maces for the player.
 
 **Ruled out.** Two lines in data hand a weapon's damage to another actor, and both are other classes' ascendancy nodes
@@ -317,16 +332,17 @@ triggers payoffs much faster than one actor doing both, and it can be pushed to 
 each payoff waits for a fresh setup. Two actors run the steps in parallel, so a cycle takes as long as the slower step,
 not both added together. The payoff actor also spends its whole rotation on payoff.
 
-**Payoffs that cannot feed themselves.** Each of these supports forbids the setup it needs **[data]**:
+**Payoffs that cannot feed themselves.** Each of these supports forbids the setup it needs **[data]**. The last
+column matters for rates (2.11, rule 1): a consumed state pays once per application.
 
-| Payoff support | Text | State the Squire supplies |
-|---|---|---|
-| Exploit Weakness | "deal more Damage against enemies with Broken Armour but preventing them from Breaking Armour themselves" | Broken Armour: Armour Breaker, Armour Break supports, Corrosion ("causing Poison it applies to also Break enemy Armour") |
-| Immolate | "granting them extra Fire damage against Ignited enemies but making them unable to Ignite enemies themselves" | Ignite: The Sentry, any fire hit |
-| Flame Pillar | "Consume Ignite on Hit to create pillars of flame, but cannot themselves inflict Ignite" | Ignite |
-| Haemocrystals | "Consume Bleeding on Hit to create explosive blood-filled crystals, but cannot themselves inflict Bleeding" | Bleeding: The Blood Thorn; Rusted Spikes ("When Supported Skills Pin an Enemy, they also Aggravate Bleeding") |
-| Battershout (warcries) | "Consume Fully Broken Armour to trigger Physical Damage explosions on Enemies within their range but cannot themselves Break Armour" | Fully Broken Armour |
-| Undermine | "Consume Maim on hit, Breaking a percentage of the Maimed target's Armour in doing so. Supported Skills cannot themselves inflict Maim" | Maim: Hoghunt |
+| Payoff support | Text | State the Squire supplies | Consumes it? |
+|---|---|---|---|
+| Exploit Weakness | "deal more Damage against enemies with Broken Armour but preventing them from Breaking Armour themselves" | Broken Armour: Armour Breaker, Armour Break supports, Corrosion ("causing Poison it applies to also Break enemy Armour") | yes: PoB gives it the `ConsumesFullyBrokenArmour` type, and its 40% more is a consume stat |
+| Immolate | "granting them extra Fire damage against Ignited enemies but making them unable to Ignite enemies themselves" | Ignite: The Sentry, any fire hit | no |
+| Flame Pillar | "Consume Ignite on Hit to create pillars of flame, but cannot themselves inflict Ignite" | Ignite | yes |
+| Haemocrystals | "Consume Bleeding on Hit to create explosive blood-filled crystals, but cannot themselves inflict Bleeding" | Bleeding: The Blood Thorn; Rusted Spikes ("When Supported Skills Pin an Enemy, they also Aggravate Bleeding") | yes |
+| Battershout (warcries) | "Consume Fully Broken Armour to trigger Physical Damage explosions on Enemies within their range but cannot themselves Break Armour" | Fully Broken Armour | yes |
+| Undermine | "Consume Maim on hit, Breaking a percentage of the Maimed target's Armour in doing so. Supported Skills cannot themselves inflict Maim" | Maim: Hoghunt | yes |
 
 The mirror image is setters that cannot finish **[data]**:
 - Brink I: "Supported Skills build up Heavy Stun more quickly, but cannot themselves Heavy Stun".
@@ -341,11 +357,13 @@ yourself" (or "you use or Trigger yourself"), and Flame Pillar "does not modify 
 the Squire takes supports (C2), it can carry the setters and the payoffs stay on the player. That is the reverse of GGG's
 demo (2.3).
 
-**Which way round.** Put the payoff on the actor whose stats it reads **[inference]**:
-- Most payoffs above scale with the payoff actor's own hit ("more Damage", "extra Fire damage"). That favours the player,
-  who has the larger damage budget.
-- Some read the consumed state. Herald of Blood's explosion "is partially based on their accumulated Blood Loss"
-  **[data]**, which also rewards the setter's investment.
+**Which way round.** Put the payoff on the actor whose stats it reads (2.11, rules 1 and 2) **[inference]**:
+- Payoffs that scale with the payoff actor's own hit ("more Damage", "extra Fire damage") favour the player, who has the
+  larger damage budget.
+- Payoffs that read the consumed state favour the opposite split. Haemocrystals deals damage "based on a percentage of
+  the expected Damage of the Consumed Bleeding"; Flame Pillar deals 25% of the remaining Ignite; Herald of Blood's
+  explosion "is partially based on their accumulated Blood Loss" **[data]**. Fed by the Squire's weaker ailment they pay
+  less. They pay most when the player applies the state and a slow hit consumes it, as in GGG's demo (2.3).
 
 **Heavy Stun thresholds** **[data]**:
 - Boneshatter "will cause a Heavy Stun on enemies that are Primed for Stun. Upon causing a Heavy Stun it will also
@@ -366,25 +384,156 @@ Stuns **[inference]**. Whether both actors fill one meter, and whose Heavy Stun 
   "When the Marked target is Frozen", and Bloodhound's Mark "when they are Heavy Stunned".
 - Charged Mark: an activation "creates Shocked Ground at the target's location", which Cyclone can pick up (build 1).
 - Rate caps: these Marks carry the `Cooldown` type, and Called Shots re-marks "at most once every few seconds"
+  **[data]**. PoB lists a 0.5 s cooldown for Voltaic, Freezing and Bloodhound's Mark and 6 s for Sniper's Mark
   **[data]**. A mark relay runs at the Mark's pace, not the setter's.
+- A target holds one Mark by default, which on a boss makes the player's and the Squire's Marks compete (2.11, rule 5).
 
 **Kill relay** **[inference]**: with Gravebind on the player (2.5), the Squire's kills of bleeding enemies count as the
 player's. They should then also fire the player's Herald of Blood: "killing an enemy with Blood Loss will cause a bloody
 explosion" **[data]** (C16).
 
 **The extreme version** **[speculation]**, assuming every check above goes the right way:
-- Squire, setters only: Tidebreaker (or Nazir's Judgement) and a strike supported by Brink; Armour Breaker for Broken
-  Armour. Its weapon decides which ailment it adds (The Blood Thorn for Bleeding, The Sentry for Ignite).
-- Player, payoffs only: Cyclone with Exploit Weakness, Impact Shockwave (if Cyclone qualifies) and the ailment payoff
-  that matches the Squire's weapon (Haemocrystals or Immolate). Trephina in one hand; Hammer of the Gods spends the Glory.
+- Squire, setters only: Tidebreaker (or Nazir's Judgement) and one strike, Armour Breaker, supported by Brink (one
+  skill plus supports). Its weapon decides which ailment it adds (The Sentry for Ignite, which Immolate pays on).
+- Player, payoffs only: Cyclone with Immolate and Impact Shockwave (if Cyclone qualifies). Exploit Weakness consumes
+  Fully Broken Armour, so it belongs on a separate heavy hit, not on Cyclone (corrected 2026-11-23, see 2.11).
+  Trephina in one hand; Hammer of the Gods spends the Glory, at 30% less if the player dual wields (2.11).
 - What caps it **[inference]**:
   - Every consumed state must be re-applied, so the payoff rate cannot exceed the Squire's application rate.
   - Mark cooldowns.
   - Recovery after a Heavy Stun (not in data).
   - The Squire's targeting (C6).
-  - One weapon and a few skills on the Squire cover two or three states, not all of them.
-  - Haemocrystals on Cyclone also stops Cyclone's own bleeding (F10, "waves of blood that Bleed"), so the Squire must
-    supply all of it.
+  - One weapon and one skill with its supports cover a handful of states, not all of them.
+  - Haemocrystals on Cyclone would stop Cyclone's own bleeding (F10, "waves of blood that Bleed") and leave only the
+    Squire's weaker bleed to consume. That is the wrong way round (2.11, rule 2).
+
+### 2.11 Maximum prime and payoff, from first principles
+
+Owner follow-up (cmsg_01RxGYnd78N9kMbbAJ5pWDhULDDyGePmZhKfckt39s6SiR): the Squire can hold a different weapon from the
+player, and so use different skills, without either actor swapping. What is the maximum prime and payoff synergy?
+
+**Scope.** Sources say the Squire "takes any melee weapon" (F3), not any weapon. Within melee the point holds: the
+Squire's weapon serves the setup and the player's serves the payoff, with no swap **[inference]**. Bows, crossbows and
+spells on the Squire are unconfirmed (C13). They would add consumers such as Fragmentation Rounds, Glacial Cascade and
+Lightning Conduit to the lists below.
+
+**Magnitudes** in PoB data at the pinned commit **[data]**. They are preview values; the support rebalance can change
+them (F14).
+
+| State or payoff | Effect | Consumes the state? |
+|---|---|---|
+| Shock | 20% increased damage taken; 8 s base duration | no |
+| Intimidate | 10% increased damage taken | no |
+| Exposure | −20% to one elemental resistance | no |
+| Crushed | 15% reduced physical damage reduction | no |
+| Immolate, against Ignited enemies | 30% of damage gained as extra fire | no |
+| Sunder, against Fully Broken Armour | applies Sundered Armour, "making it take additional increased Physical damage" | no |
+| Voltaic Mark, Freezing Mark | when Electrocuted or Frozen, the marker gains 30% of damage as extra lightning or cold; 10 s secondary duration; 0.5 s cooldown | the Mark |
+| Bloodhound's Mark | 300% of physical damage over time taken as Heavy Stun buildup | the Mark, on Heavy Stun |
+| Exploit Weakness | 40% more damage against Fully Broken Armour | yes |
+| Biting Frost I and II | 40% more damage against Frozen enemies | yes (Freeze) |
+| Blood Hunt | explosion deals 25% of the Blood Loss as life loss | yes (Bleeding) |
+| Flame Pillar | pillars deal 25% of the remaining Ignite damage | yes (Ignite) |
+| Haemocrystals | "based on a percentage of the expected Damage of the Consumed Bleeding" | yes (Bleeding) |
+| Undermine | breaks 35% of the Maimed target's armour | yes (Maim) |
+| Brink I, Brink II | 30%, 50% more stun buildup; "cannot themselves Heavy Stun" | no |
+| Boneshatter | its own hits build no stun (−100% stun multiplier); it Heavy Stuns Primed enemies | no |
+
+Files: `Data/Misc.lua` lines 76 and 94 and `CalcPerform.lua` line 3311 (Shock); `CalcSetup.lua` line 75 (Intimidate);
+`ConfigOptions.lua` lines 1884 to 1899 (Exposure, Crushed); `Data/Skills/*.lua` (gems). Quoted texts are gem
+descriptions.
+
+**Five rules** **[inference]**:
+1. **Persistent or consumed.** A persistent state pays on every hit while it lasts, so its value is the payoff actor's
+   hit rate times uptime. A consumed state pays once per application. On one target, hits beyond the application rate
+   gain nothing, and a fast skill's first hit eats the state. So persistent payoffs go on the fast hitter (Cyclone) and
+   consuming ones on a slow, heavy hit. On packs this matters less, because each enemy carries its own state.
+2. **Apply with the fast actor, consume with the slow one.** A consumer that reads the state (Blood Hunt, Flame Pillar,
+   Haemocrystals, Herald of Blood) is sized by the applier's investment. A fast applier also re-applies before the next
+   consume. With Cyclone, the player is the fast applier and the Squire's slow hit is the consumer, which is GGG's demo
+   direction (2.3). A consumer that multiplies the hitter's own hit (Exploit Weakness, Biting Frost) is the opposite
+   case: the Squire applies and the player's heavy hit consumes.
+3. **Never consume a multiplier the other actor is using.** Siphoning Strike and Primal Strikes consume Shock.
+   Elemental Sundering consumes Freeze, Shock and Ignite, so it also ends Immolate's condition. Blood Hunt consumes the
+   Bleeding that Bloodhound's Mark turns into stun, which costs little only while Cyclone re-applies it.
+4. **Open a new bucket before deepening one.** In PoB, Shock and Intimidate are both increased damage taken
+   (`CalcPerform.lua` line 3311, `CalcSetup.lua` line 75), so together they give 30%, not the 32% that multiplying
+   would give **[data]**. Resistance (Exposure), physical damage reduction (Crushed), damage gained as extra
+   (Immolate, Mark buffs) and more multipliers (Exploit Weakness) are separate steps, so they multiply. Each Squire slot
+   should open a bucket the player does not already fill.
+5. **One Mark per target.** "Each target can be affected by a maximum of one Mark by default" **[guide]** (mobalytics,
+   updated 2026-02-09). PoB agrees: one Mark slot (`CalcSetup.lua` line 995), filled from the player's, minions' and
+   allies' Marks together (`CalcPerform.lua` lines 3026 to 3048) **[data]**. No line in current data adds a slot,
+   though PoB already parses "you can apply an additional mark" (`ModParser.lua` line 4358). So on a boss the player's
+   Mark and the Squire's Mark probably compete (C16). In packs, each Mark can sit on its own target. With one Squire
+   skill, the Mark belongs on the player anyway (below).
+
+**The game already splits the roles.** PoB data gives each of these payoffs a `cannot_` or `never_` stat for the state
+it uses **[data]**:
+- Bleeding: Blood Hunt, Haemocrystals. Ignite: Immolate, Flame Pillar. Maim: Undermine.
+- Shock: Siphoning Strike, Primal Strikes. Freeze: Biting Frost I and II. Freeze, Shock and Ignite: Elemental Sundering.
+- Broken Armour: Exploit Weakness, Battershout, Runeforged Blades, Leap Slam, Sunder.
+- Heavy Stun: Boneshatter (by a −100% stun multiplier rather than a `cannot_` stat). Daze: Vaulting Impact
+  (`cannot_daze`).
+- Spells and crossbows outside the Squire's confirmed weapons: Lightning Conduit, Glacial Cascade, Icestorm,
+  Elemental Discharge, Fragmentation Rounds, High Velocity Rounds.
+- Primers on the other side: Brink and Pin (2.10).
+
+**One Squire skill** (owner, 2026-11-23) **[inference]**:
+- The Squire's setup budget is its weapon's own lines, which cost no skill, plus its one skill's built-in effect and
+  that skill's supports. With supports allowed, support-made states (Brink, Lightning Exposure, Armour Break) are as
+  available as skill-made ones.
+- A Mark as that one skill would make the Squire a pure marker. Mark skills deal no damage themselves (PoB
+  `base_deal_no_damage`) **[data]**, so the weapon's on-hit lines would never fire. The player has spare skill slots,
+  so the Mark moves to the player in both versions below, and rule 5 no longer sets the two actors against each other.
+- Supports can add setup to a consumer (Armour Break on Blood Hunt), so the one skill can still do both jobs.
+
+**Two maxima for a Cyclone player** **[speculation]**. In both, the player owns the Mark and the Squire's weapon picks
+the version.
+
+*Elemental version (S6): a mace Squire.*
+- Squire: Brain Rattler, which "Adds 1 to (110-115) Lightning Damage" and reads "All damage with this Weapon causes
+  Electrocution buildup" **[data]**. Its one skill is a strike such as Armour Breaker, supported by Lightning Exposure
+  ("inflict Exposure when inflicting Shock"), Brink and Armour Break. That one skill supplies Electrocution, Shock,
+  Lightning Exposure, Broken Armour and Heavy Stun buildup.
+- Player: Cyclone, and Voltaic Mark supported by Charged Mark. The Squire's Electrocution activates the Mark (C16). The
+  player gains 30% of damage as extra lightning, and Charged Mark "creates Shocked Ground at the target's location".
+- That ground is the player's own, so Cyclone's pickup and Stormwalker do not depend on C5 (build 1). Enemies standing
+  in it may also be Shocked (2.1).
+- The Mark is consumed on activation, so the player re-marks. Eternal Mark keeps it through the first activation.
+- Player's finisher: Boneshatter with Exploit Weakness, on targets the Squire has Primed (Brink) and fully broken.
+
+*Blood version: a spear Squire (GGG's demo kit, with the Mark moved to the player).*
+- Player: Vaal Standard leaves "blood ground that Cyclone pulls in" (F8), and Cyclone's waves Bleed (F10). The player
+  is the fast applier.
+- Player's Mark: Bloodhound's Mark turns that Blood Loss into Heavy Stun buildup at 300%. Mark for Death on it reads
+  "Enemies affected by Supported Marks will have their Armour Broken by Physical Damage they take". Both sit on the
+  player's own gems, so they need nothing from the Squire.
+- Squire: Blood Hunt, supported by Brink and Armour Break. It consumes the player's bleeding for an explosion sized by
+  the player's Blood Loss (rule 2), the chain GGG demoed (2.3).
+- Player's finisher once the target is Primed: Boneshatter causes the Heavy Stun and its Shockwave, and the Heavy Stun
+  activates Bloodhound's Mark. Exploit Weakness on Boneshatter consumes Fully Broken Armour for 40% more, and
+  Trephina's hits crit against the Heavy Stunned target.
+
+**The decision boundary** **[inference]**:
+- The blood version has fewer unknowns. Each link is either demoed (the Squire's Blood Hunt on the player's bleeds) or
+  the player's own skill, and its stun comes from the player's Mark, so C15 matters little.
+- The elemental version opens more buckets on every Cyclone hit: extra lightning (its buff takes all damage as the
+  base, not only elemental), Shock, Exposure and Cyclone's ground. That gives it the higher ceiling, but it hinges on
+  C16: the Squire's Electrocution must activate the player's Mark, and do it again soon after each activation.
+- In packs the player can put two different Marks on two enemies, but the Squire's one weapon still serves only one
+  version.
+
+**Giant's Blood clashes with heavy mace skills** **[data]**. PoB counts any two weapons as dual wielding
+(`CalcPerform.lua` lines 355 to 356). Boneshatter, Hammer of the Gods, Sunder, Leap Slam, Earthquake, Forge Hammer,
+Perfect Strike, Rolling Slam and Stampede deal 30% less damage while dual wielding. Earthshatter and Volcanic Fissure
+attack 30% slower, and Armour Breaker attacks 40% faster. So with Giant's Blood, either version should cash Heavy
+Stuns through Trephina's crits instead of these skills. The elemental version loses less, because its core is the
+persistent layer on Cyclone **[inference]**.
+
+**What decides it at 1.0:** C16 for the elemental version (does the Squire's Electrocution activate the player's
+Mark?). C2 confirms the one-skill rule and which supports work on the Squire's skill, including any "you use yourself"
+limits. C15 decides only how much the Squire's Brink adds.
 
 ## 3. Ranked ideas
 
@@ -398,7 +547,7 @@ times payoff, ties to fewer unknowns.
 
 | Rank | Idea | Chain | Plausibility | Payoff | Squire slots | 1.0 info that confirms it / kills it |
 |---|---|---|---|---|---|---|
-| 1 | **Debuff bot** | The Squire's weapon skill (plus supports) puts Shock, Exposure, Armour Break, Intimidate or Heavy Stun on the player's targets (2.2) | High for debuffs built into skills (Primal Strikes, Armour Breaker, lightning hits); Medium for support-applied | High | weapon, gems (ring for Blackheart) | Confirms: the Squire takes supports and attacks the player's target. Kills: supports barred and no usable debuff-skill |
+| 1 | **Debuff bot** | The Squire's weapon skill (plus supports) puts Shock, Exposure, Armour Break, Intimidate or Heavy Stun on the player's targets (2.2) | High: supports are allowed (owner, 2026-11-23), so support-applied debuffs count as well as skill-built ones (Primal Strikes, Armour Breaker, lightning hits) | High | weapon, one skill and its supports (ring for Blackheart) | Confirms: the Squire attacks the player's target. Kills: no usable debuff skill |
 | 2 | **Squire as consumer** (build 2a) | The player applies bleed or elemental ailments; Blood Hunt, Bloodhound's Mark or Elemental Sundering on the Squire detonates them (2.3) | High (bleed, demoed); Medium (elemental twin) | Medium-High, and adds a second damage source with its own weapon budget | weapon | Confirms: demo as shown; Elemental Sundering usable by the Squire. Kills: consume skills only take the user's own ailments |
 | 3 | **Ground painter for Cyclone** (build 1) | Squire-made Shocked, Chilled or Ignited ground; Cyclone picks it up for element and ailment; -walker notables (2.1) | Medium | High | boots, or weapon and gems | Confirms: Squire ground is picked up and counts as allied. Kills: pickup only from the player's own ground. Sims can also kill it, if The Taming matches it (section 4) |
 | 4 | **Damage sponge** | Damage moves to a damageable Squire; its armour and life gear protects the player (2.7) | Medium | Medium-High (boss survival) | armour pieces | Confirms: the Squire is damageable and Loyalty supports Summon Squire. Kills: an immortal or untargetable Squire |
@@ -408,6 +557,11 @@ times payoff, ties to fewer unknowns.
 | 8 | **Parry outsourcing** | A Squire with a buckler parries; enemies are Parried; the player's Cyclone hits them, and Bloodied Blade on Parried enters Blood Stance | Low | High | buckler | Confirms: the AI parries and the Squire takes a buckler |
 | 9 | **Frenzy pipeline** (build 2c, as asked) | The Squire gains Frenzy; Lochtonial Caress shares it; Echoing Strikes or Sand Scour spends it (2.5) | Low | High | gloves | Confirms: the Squire holds charges, has gloves and a Presence; Echoing Strikes text |
 | 10 | **Banner loop** | Banners buff both actors (confirmed, F7); the Squire also speeds Glory and Valour | Low for the Squire-specific part | Medium | none | Confirms: the Squire builds the player's Glory or plants banners |
+
+**One Squire skill** (owner, 2026-11-23) **[inference]**. Ranks 1 to 3, 5 and S1 to S6 fit a weapon plus one skill
+and its supports. Ranks 8 (Parry), 9 (Combat Frenzy or another charge skill) and 10 (banners) would spend the only skill
+on something that does not hit, so they drop further. A Squire Mark, like the demo's Bloodhound's Mark, also leaves the
+Squire unable to hit; the Mark belongs on the player (2.11).
 
 The Presence projector ranks sixth on expected value but has the largest upside. That is why its check (C3) sits
 near the top of section 5: the check order follows decision value, not rank.
@@ -421,11 +575,12 @@ renumbering them.
 
 | ID | Idea | Plausibility | Payoff | Sits | 1.0 info that confirms it / kills it |
 |---|---|---|---|---|---|
-| S1 | **Split payoff**: Squire setters, player payoffs that cannot feed themselves (2.10) | High for skill-made states (Armour Breaker); Medium for support-made (Brink) | High: rank 1's debuffs become multipliers on every player hit | with rank 1 | Confirms: C2, C6. Kills: no supports and no state-making skill on the Squire |
+| S1 | **Split payoff**: Squire setters, player payoffs that cannot feed themselves (2.10) | High: one skill plus supports (owner) covers skill-made (Armour Breaker) and support-made (Brink) states | High: rank 1's debuffs become multipliers on every player hit | with rank 1 | Confirms: C6. Kills: no state-making skill or support works on the Squire |
 | S2 | **Heavy Stun relay**: the Squire primes (Brink, Tidebreaker, Daze); the player finishes (Boneshatter, Impact Shockwave, Trephina, Hammer of the Gods) (2.9, 2.10) | Medium | High on bosses, if Heavy Stun repeats | after rank 3 | Confirms: C13, C15. Kills: separate stun meters per actor, or two-handed maces barred |
 | S3 | **Shared scaling**: Chober Chaber through Giant's Blood; Inspiring Ally (2.8, 2.9) | High for the player side (PoB models it) | Medium | after rank 4 | Confirms: C14. The Squire side needs the reverse channel (section 6) to show up in sims |
 | S4 | **Pack explosions**: Quecholli on the Squire (2.9) | Medium | Medium (packs only) | after rank 5 | Confirms: C13 |
-| S5 | **Mark relay for charges**: the player's Sniper's Mark, activated by the Squire's guaranteed crits (2.10) | Medium-Low | Medium (Frenzy capped by the Mark's cooldown) | after rank 8, ahead of rank 9 | Confirms: C16. Kills: Marks activated only by the marker's own hits |
+| S5 | **Mark relay for charges**: the player's Sniper's Mark, activated by the Squire's guaranteed crits (2.10) | Medium-Low | Medium (Frenzy capped by the Mark's 6 s cooldown) | after rank 8, ahead of rank 9 | Confirms: C16. Kills: Marks activated only by the marker's own hits |
+| S6 | **Mark buff relay** (elemental version of 2.11): the player's Voltaic Mark with Charged Mark, activated by the Squire's Electrocution (Brain Rattler) | Medium | High on bosses: 30% of damage as extra lightning on every Cyclone hit while the buff lasts, plus Shocked Ground from the player's own Mark | after rank 3, with S2 | Confirms: C16, C13. Kills: Marks activated only by the marker's own hits, or the Squire's Mark holding the target's only slot |
 
 ## 4. The owner's builds, rethought
 
@@ -436,9 +591,11 @@ renumbering them.
 **Concept package** (names only, no numbers):
 - *Player:* Knight Duelist with Cyclone; Vaal Standard and/or War Banner; Stormwalker, Frostwalker or Flamewalker;
   Catalysing Elements if Cyclone qualifies; Echoing Strikes if Frenzy is available.
-- *Squire:* a sword with Blade Conduit, or a spear with Fangs of Frost on targets the player Parried. Wake of
-  Destruction or Birth of Fury boots. A Mark supported by Charged Mark. Lightning Exposure on its lightning hits, which
-  also stacks rank 1 onto the same Squire.
+- *Squire* (one skill): a sword with Blade Conduit, or a spear with Fangs of Frost on targets the player Parried.
+  Wake of Destruction or Birth of Fury boots make ground without using the skill. Lightning Exposure as a support on
+  that skill stacks rank 1 onto the same Squire.
+- *Variant with fewer unknowns (S6, 2.11):* Charged Mark on the player's own Voltaic Mark, activated by the Squire's
+  Electrocution. The Shocked Ground is then the player's, so C5 drops out and C16 takes its place.
 
 **Sims to run at 1.0 (K5).** Compare these four:
 - (a) no Squire;
@@ -474,8 +631,10 @@ Check at 1.0: Elemental Discharge's text after the support rebalance (F14). It c
 - Rank 1 (debuffs at no action cost) is the reliable core.
 - Rank 6 (Presence projector) is the upside.
 - Rank 4 (damage sponge) covers boss survival.
-- Split setup and payoff (S1, S2) is the strongest use of the separate skill activation: the Squire's skills become the
+- Split setup and payoff (S1, S2) is the strongest use of the separate skill activation: the Squire's skill becomes the
   player's setup, so the player's own skills can be all payoff.
+- Section 2.11 gives the rules for that split and the two maxima (elemental and blood). With one Squire skill, the
+  Squire's weapon chooses between them.
 
 ## 5. 1.0 checks for K4
 
@@ -485,24 +644,25 @@ equipment screen or a short in-game test on launch day.
 | # | Check | How | Decides ranks |
 |---|---|---|---|
 | C1 | Squire equipment slots: which armour pieces, and whether it has jewellery | equipment screen | 3, 4, 5, 6, 8, 9 |
-| C2 | Squire skill rules: how many skills; which types (Marks are likely, per the demo; spells, warcries, banners, persistent buffs?); whether support gems are allowed | gem screen | 1, 2, 3, 7, 10 |
+| C2 | Squire skill rules: one skill plus its supports per the owner (2026-11-23), against two skills in the demo (F6), so confirm the count; which types (Marks, spells, warcries, banners, persistent buffs?); which supports work, including "you use yourself" limits | gem screen | 1, 2, 3, 7, 10, 2.11 |
 | C3 | Does "your Presence" work on items the Squire wears? | put Leer Cast on the Squire and read the player's damage on the character sheet; or read stat descriptions in data | 6, 9 |
 | C4 | Cyclone gem: its types (`Wind`, `Storm`, `InteractsWithElementalGround`?); whether pickup consumes the ground; whether several elements stack (F11 says they combine); its weapon requirement | gem data after re-pin | 3, 7, and the The Taming baseline |
 | C5 | Does ground the Squire makes count as allied for Cyclone pickup, the -walker notables and Catalysing Elements? | in-game test with Wake of Destruction on the Squire | 3, 7 |
-| C6 | Squire AI: when it uses Marks and ground skills, whether it attacks the player's target, any command skill | observe in-game | uptime for 1, 2, 3 |
+| C6 | Squire AI: when it uses its skill, whether it attacks the player's target, any command skill | observe in-game | uptime for 1, 2, 3 |
 | C7 | Can the Squire be damaged, die, or revive? | in-game | 4 |
 | C8 | Does the Squire gain charges, and does Lochtonial Caress share them? | in-game | 9 |
 | C9 | Do Squire attacks build the player's Glory or Valour? | in-game | 10 |
 | C10 | Can Summon Squire take companion supports (Loyalty, Romira's Requital, Catha's Brilliance, Tangmazu's Thurible)? | gem screen | 2, 4 |
 | C11 | Does PoB 1.0 model the Squire natively, and does it add a Cyclone ground-pickup option? | PoB code at the re-pin | engine path (native_pob vs separate_build) |
 | C12 | Text of Elemental Discharge, Catalysing Elements and Echoing Strikes after the support rebalance | gem data after re-pin | 7, 9, build 2 |
-| C13 | Squire weapon rules: which two-handers (maces, quarterstaves, talismans), uniques allowed, a second weapon set, any passive tree (and so Giant's Blood); Giant's Blood's text at 1.0 | equipment screen; tree data after re-pin | S2, S4, S5, 2.9 roles |
+| C13 | Squire weapon rules: "any melee weapon" (F3) or any weapon (bows, crossbows, and so spells and ranged consumers); which two-handers (maces, quarterstaves, talismans); uniques allowed; a second weapon set; any passive tree (and so Giant's Blood); Giant's Blood's text at 1.0 | equipment screen; tree data after re-pin | S2, S4, S5, S6, 2.9 roles, 2.11 scope |
 | C14 | Does Summon Squire carry the Minion and Companion types? | gem data after re-pin | S3, 2.8 |
 | C15 | Do both actors' hits fill one Heavy Stun (and Freeze, Electrocute, Pin, Daze) buildup, and does the player's finishing hit count as the player's Heavy Stun for Boneshatter, Impact Shockwave and Glory? | in-game test: Squire with Brink, player with Boneshatter | S1, S2 |
-| C16 | Do the Squire's hits and kills count for the player's Marks and Heralds (Sniper's Mark activation and who gains the charge; Herald of Blood with Gravebind)? | in-game test | S5, kill relay |
+| C16 | Do the Squire's hits and kills count for the player's Marks and Heralds (Sniper's Mark activation and who gains the charge; Voltaic and Freezing Mark activation by the Squire's Electrocution and Freeze; Herald of Blood with Gravebind)? Do the Squire's Mark and the player's Mark share a target's one Mark slot? | in-game test: Squire with Brain Rattler on a target the player marked with Voltaic Mark; then both actors mark one target | S5, S6, kill relay, 2.11 choice |
 
 Recommendation for K4: add C1 to C5 to `unknowns` in `data/actors.yaml` when the Squire is sourced. They decide the
-most ideas per check. Of the follow-up checks, C15 decides the most (S1 and S2).
+most ideas per check. Of the follow-up checks, C15 and C16 decide the most: together they pick between the two maxima
+in 2.11.
 
 ## 6. Engine notes for Path of Sim (not implemented here)
 
@@ -554,6 +714,15 @@ the same kind of gate on the existing ground and charge keys if PoB adds one at 
 (2.10) is a rate: the setter's application rate against the payoff's hit rate, capped by Mark cooldowns. K2's on/off
 blend needs that uptime as an input. It belongs in the benchmark model layer, not in PoB.
 
+**Rule to enforce: one Mark per target across actors** (found 2026-11-23, 2.11 rule 5).
+- PoB fills one Mark slot from the player's, minions' and allies' Marks (`CalcPerform.lua` lines 3026 to 3048), so
+  `native_pob` would enforce the cap itself.
+- Under `separate_build`, each actor's build is calculated alone, so a Squire Mark and a player Mark on the same boss
+  would both count. When Squire Marks are modelled, the engine has to let one Mark per target through, across both
+  actors, unless C16 shows the cap is per actor.
+- Stacking needs no engine work: PoB already adds Shock and Intimidate in one increased-damage-taken bucket when both
+  are set in config.
+
 ## Sources
 
 Read on 2026-11-22. Dates are as shown on each page.
@@ -581,3 +750,7 @@ Read on 2026-11-22. Dates are as shown on each page.
 - Current game data: `data/catalogue/601768b.json`; PoB `ConfigOptions.lua` and `ConfigTab.lua` at commit
   601768bd105869618c3d6581b883e5d7aeec91b2. Added 2026-11-23: `CalcSetup.lua`, `CalcOffence.lua`, `ModParser.lua` and
   `ItemsTab.lua` at the same commit (Giant's Blood, weapon sets, dual wield, minion-to-player damage, mod scoping).
+  Also added 2026-11-23 for 2.11: `CalcPerform.lua`, `Data/Misc.lua` and `Data/Skills/*.lua` at the same commit (gem
+  magnitudes, cooldowns, Shock, Mark slots, dual wielding).
+- mobalytics.gg, "PoE 2: Marks Explained", updated 2026-02-09, read 2026-11-23 (one Mark per target):
+  https://mobalytics.gg/poe-2/guides/mark

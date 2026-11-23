@@ -17,6 +17,11 @@ actors:
       - "whether PoB models the Squire and its gear (decides native_pob vs separate_build)"
     model: null
     gear_slots: null
-    max_skills: null
+    # One skill plus its supports: owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY (2026-11-23). The ExileCon demo
+    # (Output Lag, 2026-11-06) showed two Squire skills (Blood Hunt, Bloodhound's Mark), so K4 re-checks at 1.0
+    # (docs/theorycraft-squire.md C2).
+    min_skills: 1
+    max_skills: 1
+    skills_source: "owner 2026-11-23 (cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY): one skill plus its supports; demo showed two, re-check at 1.0 (C2)"
     budget_share: null
     skill_effects: {}
