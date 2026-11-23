@@ -69,3 +69,32 @@ thousands of seconds): the stand-in builds are weak, so read the ratios, not the
   mods carries them as a block; an effect's "off" state silently kept them. The engine now writes the active config
   set's custom-mod block too (regression test `test_custom_mods_replace_and_clear_on_a_saved_build`).
 - The actor stage records the player's EHP with every effect on and off (`actor.survival`).
+
+## Meta-graft loop (owner: "loop on various squire builds until competitive with current meta", 2026-11-23)
+
+The search above builds weak stand-ins (about 2.5k DPS, failing survival), so their ratios say little about endgame. The
+loop instead starts from a strong exported build and changes only what a Knight changes: remove the build's ascendancy,
+add the Squire's Presence gear and skill effects, add the Squire's own damage. `tools/meta_graft.py BUILD ...` does it
+(pobb.in link, PoB code file or XML).
+
+Reference: a Gemling Legionnaire export (https://pobb.in/3qVMEwZkvTTK, from a mobalytics endgame guide, patch 0.4; PoB's
+main skill Magma Spray; Arbiter TTK 4.9 s, survives at 27 hits, EHP 93k). Forbidden Rites class share: Gemling
+Legionnaire 32% (poe.ninja build index).
+
+| Variant | Player | Squire own | Total | vs meta |
+|---|---|---|---|---|
+| meta (reference) | 1,082,664 | - | 1,082,664 | 100% |
+| ascendancy removed | 812,414 | - | 812,414 | 75% |
+| Squire own damage only | 812,414 | 98,488 | 910,902 | 84% |
+| Calamity + Leer | 942,670 | 73,866 | 1,016,536 | 94% |
+| Calamity + Leer + shock 0.5 | 1,036,937 | 73,866 | 1,110,803 | 103% |
+| Perfidy + Leer + shock 0.5 | 1,036,818 | 73,866 | 1,110,684 | 103% |
+| Calamity + shock 0.5 (no Leer) | 974,985 | 98,488 | 1,073,473 | 99% |
+
+Assumptions that decide it: the Squire has a Presence (owner assumption); its gear is as good as the player's (a second
+full gear set, double cost); Shock uptime 0.5; the Squire can use the build's skill (Magma Spray is probably not melee;
+the Squire takes melee skills); Squire own damage = the build's gear minus jewellery with no passive tree, x1.15 (Knight
+companion node), x0.75 with Leer Cast. Knight node text adds no player damage; the five Standards are unpublished
+(upside). Gemling is worth x1.33 to this build; the Squire's Presence gear wins back x1.28. Survival unchanged.
+
+Next iterations: more meta exports, attack and melee builds closer to Cyclone (needs swords, absent before 1.0).
