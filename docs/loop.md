@@ -210,3 +210,30 @@ spend unspent points; `deepen` in the slate still restarts instead of continuing
 two-actor (assumed Squire gear) runs refuse the loop and keep the single-pass result. Wasted time is visible in the trace:
 rounds 2-3 spent 520 s for +1.5%. L4 (diagnosis-directed move choice, skipping moves with no expected gain) fits cleanly on
 this trace format and has a concrete target: round 1 would cost ~200 s instead of 325 s without the dead gear move.
+
+### 6.1 L4 result (2026-11-23): directing rounds by diagnosis
+
+Built: `pos_pipeline/direct.py` (`stage_bounds`, `tree_goals`, `advice` from an L2 `Diagnosis`); in `loop.improve`: **dead-move
+skipping** (a move that found nothing on build X is skipped until the build changes; a round with every move dead stops as
+`fixed_point`), an optional **advisor** called once per round (stages whose bound is under 0.2% are skipped), and from round 2 on
+moves ordered by the gain per second they last delivered. CLI `run --direct` turns the advisor and diagnosis-weighted tree goals on.
+
+Measured, golden Spark, same spec as section 6, `--rounds 3 --direct`, one run (4 vCPU):
+| round | advice | supports | tree (weights EHP 0.1) | gear | wall |
+|---|---|---|---|---|---|
+| 1 | 45 s, gear bound 0.19 | kept | kept (deficit 1.647 -> 1.616, goal worse) | no gain | 507 s |
+| 2 | 35 s | kept | no gain | no gain | 386 s |
+| 3 | 30 s | unchanged | skipped (dead) | skipped (dead) | 168 s |
+Total 1060 s; key (-1.616, -0.899) vs L3 (-1.647, -0.809): smaller deficit, lower goal; summed gain 15.1% vs 21.0%.
+
+Verdict (the rule in 2.3: v2 ships only if it beats v1): **the advisor does not beat plain rounds here, so it is opt-in.**
+- Gear bound never skipped anything (0.19-0.22): single-affix probes always show relief, so they cannot predict that a
+  search at a fixed tier budget finds nothing. Round-1 gear (152 s) is not predictable from marginal levers. The diagnosis
+  (~37 s per round, 111 s total) cost more than it saved.
+- Diagnosis-weighted tree goals clamped to the minimum EHP weight (0.1) and traded goal for deficit: lexicographically a win,
+  in DPS a loss; a single run cannot separate that from noise.
+- **Dead-move skipping is sound and on by default** (no diagnosis needed): in this run it removed tree and gear from round 3
+  (~210 s by the round-1/2 timings) and ends the loop at a fixed point instead of running a further round.
+- Gain-per-second ordering is built and unit-tested but unmeasured separately.
+Not done: variance across runs; an advisor that learns bounds from the trace rather than from probes; skipping gear by
+budget-slack rather than lever relief.

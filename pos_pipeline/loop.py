@@ -5,7 +5,13 @@ tree, gear) from the current build and returns a new build XML. After every move
 (the L1 objective key `(-deficit, goal)`, lexicographic); a move is **kept only if it strictly improves the key**, so the
 objective never regresses and a stage that cannot improve the build is a recorded no-op, not a loss.
 
-A round runs every move once in order. The loop stops when
+A round runs every move once. L4 (docs/loop.md 6.1) directs the rounds:
+  * a move that found nothing on build X is *dead* on X (searches are deterministic): it is skipped until another move
+    changes the build, and a round in which every move is dead stops the loop at once ("fixed point");
+  * an optional `advisor(xml)` (a diagnosis in the orchestrator) returns, per stage, an upper bound on the fractional
+    gain the stage can still deliver (None = unknown); a stage whose bound is below `skip_below` is skipped;
+  * from round 2 on, moves run in order of the gain per second they last delivered (a stage not yet timed goes first).
+The loop stops when
   * a full round gains less than `min_gain` (default 1%: `(-deficit)` and `ln(rate)` are both relative, so their summed
     difference is a fractional gain), or
   * `max_rounds` rounds ran, or
@@ -24,6 +30,7 @@ from typing import Callable, Sequence
 Key = tuple[float, float]
 DEFAULT_MIN_GAIN = 0.01
 KEY_EPS = 1e-6
+DEFAULT_SKIP_BELOW = 0.002   # a stage the advisor bounds under 0.2% of the objective is not worth its seconds
 
 
 @dataclass
@@ -31,6 +38,7 @@ class Move:
     name: str
     fn: Callable[[str], str]                       # build xml -> improved build xml (may raise: recorded, skipped)
     on_accept: Callable[[str], None] | None = None  # called with the new xml when the loop keeps the move's result
+    stage: str = ""                                # key into the advisor's bounds; "" = never advised away
 
 
 @dataclass
@@ -42,6 +50,7 @@ class MoveRecord:
     seconds: float
     accepted: bool
     note: str = ""
+    skipped: bool = False        # not run: dead on this build, or advised away (seconds = 0)
 
 
 @dataclass
@@ -61,7 +70,8 @@ class LoopResult:
     best: Key
     rounds: list[Round] = field(default_factory=list)
     moves: list[MoveRecord] = field(default_factory=list)
-    stop: str = ""               # converged | max_rounds | budget
+    stop: str = ""               # converged | fixed_point | max_rounds | budget
+    advice: list[dict] = field(default_factory=list)   # one entry per advisor call (round, bounds, notes)
     seconds: float = 0.0
 
     @property
@@ -91,7 +101,9 @@ def better(b: Key, a: Key, eps: float = KEY_EPS) -> bool:
 def improve(xml: str, moves: Sequence[Move], key_of: Callable[[str], Key], *, max_rounds: int = 4,
             min_gain: float = DEFAULT_MIN_GAIN, budget_s: float | None = None, trace: str | Path | None = None,
             clock: Callable[[], float] = time.perf_counter, log: Callable[[str], None] = lambda s: None,
-            label: str = "", after_move: Callable[[], None] | None = None) -> LoopResult:
+            label: str = "", after_move: Callable[[], None] | None = None,
+            advisor: Callable[[str], dict] | None = None, skip_below: float = DEFAULT_SKIP_BELOW,
+            dead_skip: bool = True) -> LoopResult:
     t_start = clock()
     cur, cur_key = xml, key_of(xml)
     res = LoopResult(xml, cur_key, cur_key)
@@ -107,19 +119,48 @@ def improve(xml: str, moves: Sequence[Move], key_of: Callable[[str], Key], *, ma
 
     try:
         emit({"event": "start", "key": cur_key})
+        dead: dict[str, str] = {}          # move name -> build xml it found nothing on
+        rate: dict[str, float] = {}        # move name -> last gain per second (ordering from round 2)
         for n in range(1, max_rounds + 1):
             r_start, r_t0, acc = cur_key, clock(), []
-            for mv in moves:
+            bounds: dict = {}
+            if advisor is not None and not spent():
+                try:
+                    adv = advisor(cur)
+                    bounds = adv.get("bounds") or {}
+                    res.advice.append({"round": n, **{k: v for k, v in adv.items()}})
+                    emit({"event": "advice", "round": n, **adv})
+                except Exception as ex:   # no diagnosis = no direction: the round runs undirected
+                    res.advice.append({"round": n, "error": f"{type(ex).__name__}: {ex}"})
+                    emit({"event": "advice", "round": n, "error": f"{type(ex).__name__}: {ex}"})
+            order = list(moves)
+            if n > 1:
+                order.sort(key=lambda m: -rate.get(m.name, float("inf")))   # sort is stable: untimed first, in given order
+            ran = 0
+            for mv in order:
                 if spent():
                     res.stop = "budget"
                     break
                 t0, before = clock(), cur_key
                 rec = MoveRecord(n, mv.name, before, None, 0.0, False)
+                skip = ""
+                if dead_skip and dead.get(mv.name) == cur:
+                    skip = "dead: found nothing on this exact build"
+                elif mv.stage and bounds.get(mv.stage) is not None and bounds[mv.stage] < skip_below:
+                    skip = f"advised away: bound {bounds[mv.stage]:.4f} < {skip_below}"
+                if skip:
+                    rec.skipped, rec.after, rec.note = True, before, skip
+                    res.moves.append(rec)
+                    emit({"event": "move", **asdict(rec)})
+                    log(f"{label} round {n} {mv.name}: skipped ({skip})")
+                    continue
+                ran += 1
                 try:
                     new = mv.fn(cur)
                     if new == cur:
                         rec.note = "unchanged"
                         rec.after = before
+                        dead[mv.name] = cur
                     else:
                         rec.after = key_of(new)
                         if better(rec.after, before):
@@ -130,9 +171,11 @@ def improve(xml: str, moves: Sequence[Move], key_of: Callable[[str], Key], *, ma
                                 mv.on_accept(new)
                         else:
                             rec.note = "no gain; discarded"
+                            dead[mv.name] = cur
                 except Exception as ex:   # a failed search or scoring leaves the build as it was
                     rec.note = f"{type(ex).__name__}: {ex}"
                 rec.seconds = clock() - t0
+                rate[mv.name] = (gain(before, rec.after) / max(rec.seconds, 1e-9)) if rec.accepted and rec.after else 0.0
                 if after_move:
                     after_move()   # e.g. recycle a leaking engine between moves (every build load leaks memory)
                 res.moves.append(rec)
@@ -143,6 +186,9 @@ def improve(xml: str, moves: Sequence[Move], key_of: Callable[[str], Key], *, ma
             res.rounds.append(Round(n, r_start, cur_key, g, acc, clock() - r_t0))
             emit({"event": "round", **asdict(res.rounds[-1])})
             if res.stop == "budget":
+                break
+            if ran == 0:
+                res.stop = "fixed_point"
                 break
             if g < min_gain:
                 res.stop = "converged"

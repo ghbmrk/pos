@@ -275,6 +275,7 @@ def _run(argv: list[str]) -> int:
                     "until a round gains < --min-gain or this many rounds ran; 1 = single pass")
     ap.add_argument("--min-gain", type=float, default=0.01, help="stop the loop when a round gains less than this fraction of the objective")
     ap.add_argument("--loop-minutes", type=float, default=None, help="wall-clock budget per seed x tier for the loop")
+    ap.add_argument("--direct", action="store_true", help="L4 diagnosis direction: per-round diagnosis skips advised-away stages and weights the tree (off by default: did not beat plain rounds on golden Spark, docs/loop.md 6.1)")
     ap.add_argument("--tree-warm", action="store_true", help="loop tree move keeps the current tree (reset=False) instead of re-planning it")
     ap.add_argument("--assumed", action="store_true", help="allow a spec with companion.assumed (ASSUMED Squire what-if, docs/squire-assumed.md)")
     a = ap.parse_args(argv)
@@ -307,7 +308,7 @@ def _run(argv: list[str]) -> int:
         meta = {"metric_note": rep.metric_note, "limitations": [f"[{i.confidence or i.severity}] {i.message}" for i in rep.issues if i.code == "limitation"]}
         with engine_stages(spec, cat, rep, bases, workers=a.workers, cache=cache, realloc_rounds=a.realloc_rounds,
                            objective=not a.no_objective, hard_ttk=a.hard_ttk, tree_reset=not a.tree_warm,
-                           min_gain=a.min_gain) as (st, skill_of):
+                           min_gain=a.min_gain, direct=a.direct) as (st, skill_of):
             r = run(spec, st, skill_id=skill_of, force=a.force, allow_assumed=a.assumed, out_dir=a.out, meta=meta, **kw)
     except RunRefused as e:
         print(f"refused: {e}"); return 3
