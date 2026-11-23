@@ -75,9 +75,10 @@ def _slate_run(argv: list[str]) -> int:
     by = {c.name: c for c in s.candidates}
     kept = [by[r.name] for r in rep.kept]
     slots = {c.name: len({**bases, **c.bases}) for c in kept}
-    if not all(slots.values()) and not a.preflight:
-        print("a candidate has no bases (give `bases:` on it or slot=Base on the command line)"); return 2
-    est = estimate_slate(kept, s.brief, {n: v or len(SLOTS) for n, v in slots.items()}, a.workers, max_minutes=a.max_minutes, k=a.deepen_k)
+    for n, v in slots.items():
+        if not v:
+            print(f"note: {n} has no bases: no gear is searched (unarmed / bare build)")
+    est = estimate_slate(kept, s.brief, {n: v or 1 for n, v in slots.items()}, a.workers, max_minutes=a.max_minutes, k=a.deepen_k)
     print(est.summary())
     if a.preflight:
         for src in est.sources:
@@ -306,13 +307,13 @@ def _run(argv: list[str]) -> int:
     return 1 if any(not s.ok for s in r.seeds) else 0
 
 
-def _sweep(path: str, kind: str, workers: int, top: int, pieces: list[str] | None = None) -> int:
+def _sweep(path: str, kind: str, workers: int, top: int, pieces: list[str] | None = None, weapon: str | None = None) -> int:
     """`sweep spec.yaml KIND [workers] [top]` / `ablate spec.yaml kind:id ...` on the assembled (unsearched) seed."""
     from pos_engine.engine import PobEngine
     from pos_pool.pool import EnginePool
 
     from .assemble import assemble, variants
-    from .sweep import ablate, sweep
+    from .sweep import ablate, equip_probe_weapon, sweep
 
     spec = load_spec(path)
     cat = Catalogue.load(pob_sha=spec.pob_sha)
@@ -332,7 +333,13 @@ def _sweep(path: str, kind: str, workers: int, top: int, pieces: list[str] | Non
                 d = "-" if r.delta_rel is None else f"{r.delta_rel:+.1%}"
                 print(f"{r.verdict:20} {r.piece['kind']}:{r.piece['id']}  worth {d}  {r.replacement or ''} {r.note}")
             return 0
-        s = sweep(cat, pool, a.xml, kind, rep.metric, skill_id=sk, engine=eng)
+        xml = a.xml
+        if weapon:
+            try:
+                xml = equip_probe_weapon(cat, eng, xml, weapon)
+            except ValueError as ex:
+                print(f"error: {ex}"); return 1
+        s = sweep(cat, pool, xml, kind, rep.metric, skill_id=sk, engine=eng)
     print(f"{s.kind} sweep on {s.metric}: baseline {s.baseline:.1f}, {len(s.entries)} entries, {s.seconds:.0f} s")
     for e in s.entries[:top]:
         print(f"  {e.name:36} {'-' if e.delta is None else format(e.delta, '+.1f'):>10}  pts {e.points}  {','.join(e.flags)}")
@@ -355,7 +362,11 @@ def main(argv: list[str]) -> int:
         print(f"wrote report.md and results.sqlite in {out}")
         return 0
     if len(argv) >= 3 and argv[0] == "sweep":
-        return _sweep(argv[1], argv[2], int(argv[3]) if len(argv) > 3 else 2, int(argv[4]) if len(argv) > 4 else 15)
+        rest = list(argv[3:])
+        weapon = rest.pop(rest.index("--weapon") + 1) if "--weapon" in rest and rest.index("--weapon") + 1 < len(rest) else None
+        if "--weapon" in rest:
+            rest.remove("--weapon")
+        return _sweep(argv[1], argv[2], int(rest[0]) if rest else 2, int(rest[1]) if len(rest) > 1 else 15, weapon=weapon)
     if len(argv) >= 3 and argv[0] == "ablate":
         return _sweep(argv[1], "", 2, 0, argv[2:])
     if len(argv) >= 2 and argv[0] == "assemble":
@@ -369,7 +380,7 @@ def main(argv: list[str]) -> int:
     if len(argv) == 2 and argv[0] == "import":
         return _import(argv[1])
     if len(argv) != 2 or argv[0] != "validate":
-        print("usage: python -m pos_pipeline validate spec.yaml | slate validate slate.yaml | sweep spec.yaml KIND [workers] [top] (KIND keystone|ascendancy|unique:<slot>|support) | ablate spec.yaml kind:id[@slot]... | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
+        print("usage: python -m pos_pipeline validate spec.yaml | slate validate slate.yaml | sweep spec.yaml KIND [workers] [top] [--weapon Base] (KIND keystone|ascendancy|unique:<slot>|support) | ablate spec.yaml kind:id[@slot]... | assemble spec.yaml [out_dir] | supports spec.yaml [workers] | tree spec.yaml [workers] [candidates; default best of 100/200/400] | gear spec.yaml TIER slot=Base... | import code.pobcode | report DIR [OUT] | run spec.yaml slot=Base... [--preflight] [--workers N] [--max-minutes M] [--force] [--realloc-rounds N] [--out DIR]")
         return 2
     try:
         spec = load_spec(argv[1])

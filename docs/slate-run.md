@@ -28,3 +28,7 @@ Run on the screen's final build, metric = the spec's objective stat under the fi
 - While B3 inputs are unsourced the pack benchmark has no value, so ranking rests on the boss time-to-kill alone and survival stays `n/a`.
 - Ablation of the best rare is a search result (beam, `realloc` 0 mode), not a proof of optimality; a small `worth` can mean a weak search.
 - One seed per candidate is ranked: the highest objective across axis variants, not the best benchmark.
+
+## Candidates with no gear slot (I12)
+
+A candidate with no `bases:` and no CLI default bases runs the gear stage with zero searched slots: tier values are the build without gear (unarmed or bare builds). CLI prints a note and runs; the MCP `run_slate` still refuses such a slate unless `unarmed_ok=true` (guards against a forgotten `bases`). Cost estimate counts one slot.

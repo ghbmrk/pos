@@ -173,6 +173,24 @@ def _tree_alloc(cat: Catalogue, pool: EnginePool, xml: str, entries: list[dict],
     return out
 
 
+def equip_probe_weapon(cat: Catalogue, engine: PobEngine, xml: str, base: str) -> str:
+    """Probe seed + a plain, unmodded `base` in Weapon 1 (I12): without a weapon an attack main skill does not evaluate, so the
+    sweep cannot probe it. Only the base's implicits, no affixes; the slate's real gear comes from the gear search."""
+    from .gear import GearSearcher
+    e = cat.resolve("base", base).entry
+    if e is None:
+        raise ValueError(f"probe weapon: base {base!r} not found (or ambiguous) in the catalogue")
+    gs = GearSearcher(cat, None, engine)  # type: ignore[arg-type]
+    if gs._slot_of_base(e["name"]) != "weapon":
+        raise ValueError(f"probe weapon: base {e['name']!r} is not a weapon base (type {e.get('type')!r})")
+    engine.load_build_xml(xml)
+    raw = gs.raw(e["name"], [])
+    r = engine.add_item(raw, slot="Weapon 1")
+    if not r.get("ok"):
+        raise ValueError(f"probe weapon: could not equip {e['name']!r}: {r.get('error')}")
+    return engine.get_xml()
+
+
 def _unique_slot_kind(cat: Catalogue, u: dict) -> str | None:
     try:
         b = cat.resolve("base", u["base"]).entry

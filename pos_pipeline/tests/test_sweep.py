@@ -105,3 +105,21 @@ def test_ablation_measures_a_conditional_notable_under_a_declared_condition(cat)
         out[bool(conds)] = r
     assert out[False].verdict == "possibly_unmodelled"
     assert out[True].verdict == "confirmed" and out[True].without < out[True].baseline
+
+
+def test_equip_probe_weapon_rejects_non_weapon_and_unknown(cat, seed):
+    from pos_pipeline.sweep import equip_probe_weapon
+    with PobEngine() as eng:
+        with pytest.raises(ValueError, match="not found"):
+            equip_probe_weapon(cat, eng, seed, "Nonexistent Sledgehammer")
+        body = next(b["name"] for b in cat.entries("base") if b.get("type") == "Body Armour")
+        with pytest.raises(ValueError, match="not a weapon"):
+            equip_probe_weapon(cat, eng, seed, body)
+
+
+def test_gear_search_with_no_slots_is_the_bare_build(cat, seed):
+    """Unarmed / gearless slate candidates run the gear stage with zero slots (I12)."""
+    from pos_pipeline.gear import search_gear
+    with PobEngine() as eng, EnginePool(workers=1) as pool:
+        r = search_gear(cat, pool, eng, seed, "mid", {}, "TotalDPS", slots=())
+    assert r.items == {} and r.xml and r.value > 0

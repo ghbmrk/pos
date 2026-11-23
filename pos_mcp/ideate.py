@@ -52,8 +52,9 @@ the reading in one line. Default: benchmarks [arbiter_ash, breach_t15], tiers [m
   `GeneratesCharges`, `ConsumesCharges`, `SkillConsumesFreeze`) and passives or uniques that name it. Skill types are
   exact catalogue names; read real ones from `explain(kind='skill')` or `explain(kind='support')`.
 - Optional, engine: `sweep(spec, kind)` on at most two probe specs (keystone | ascendancy | support | unique:<slot>),
-  about one to two minutes each, one job at a time. The probe seed carries no gear, so an attack main skill cannot
-  be evaluated (`probe seed failed to evaluate`): probe with a spell main skill, or skip the sweep. Entries with a large positive delta are leads you did not think
+  about one to two minutes each, one job at a time. The probe seed carries no gear: for an attack main skill pass
+  `weapon=<catalogue weapon base>` (plain, unmodded); without it the attack skill cannot be evaluated (`probe seed failed to evaluate`).
+  Spell probes need no weapon. Entries with a large positive delta are leads you did not think
   of. The metric is damage, so defensive entries show zero by design; `possibly_unmodelled` on an entry whose text
   should raise damage means PoB may not model it (label it, do not call it a dud); `audit_outlier` means check for an
   engine artefact first; `over_budget` deltas are added on top of a full tree, not traded for other points. Build at least one candidate on a sweep lead when you ran a sweep, with

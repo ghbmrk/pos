@@ -161,14 +161,16 @@ def explain(kind: str, name: str) -> dict[str, Any]:
 
 
 @mcp.tool()
-def sweep(spec: str | dict[str, Any], kind: str, searched: bool = True, top: int = 20, workers: int | None = None) -> dict[str, Any]:
+def sweep(spec: str | dict[str, Any], kind: str, searched: bool = True, top: int = 20, workers: int | None = None,
+          weapon: str | None = None) -> dict[str, Any]:
     """Engine sweep, background job (returns run_id; read with get_report): measure the change in the spec's metric from adding each
     catalogue entry of one kind, one at a time, on a probe seed built from the spec. kind: keystone | ascendancy (own ascendancy's
     notables) | support | unique:<slot> (slot as in preflight). searched=true (default) searches supports and the passive tree first,
     about 1-2 min in all; false is quicker but keystone deltas then include their path nodes. Flags: audit_outlier (check for an
     engine artefact), possibly_unmodelled (zero delta on an entry with text; PoB may not model it). Use for leads, at most two
-    probe specs per slate; deltas are not finished-build numbers."""
-    return core.start_sweep(spec, kind, searched=searched, top=top, workers=workers)
+    probe specs per slate; deltas are not finished-build numbers. weapon: catalogue weapon base (e.g. 'Crude Bow') put on the probe
+    seed unmodded; REQUIRED to probe an attack main skill (the seed has no gear, so an attack skill does not evaluate), omit for spells."""
+    return core.start_sweep(spec, kind, searched=searched, top=top, workers=workers, weapon=weapon)
 
 
 @mcp.tool()
@@ -192,12 +194,13 @@ def preflight_slate(slate: str | dict[str, Any], bases: dict[str, str] | None = 
 
 @mcp.tool()
 def run_slate(slate: str | dict[str, Any], bases: dict[str, str] | None = None, workers: int | None = None, deepen_k: int | None = None,
-              max_minutes: float | None = None, force: bool = False) -> dict[str, Any]:
+              max_minutes: float | None = None, force: bool = False, unarmed_ok: bool = False) -> dict[str, Any]:
     """Start a slate run in the background and return run_id: screen each kept candidate, ablate its key pieces (keystone/notable
     removed, support swapped for the next best, unique replaced by the best rare for its slot), rank on benchmark metrics only,
     then full runs for the top deepen_k at every brief tier. Validates first; refuses over the cap (default 45 min) unless force,
-    set only after the user has seen the estimate. Poll run_status about once a minute; then get_report."""
-    return core.start_slate(slate, bases, workers=workers, deepen_k=deepen_k, max_minutes=max_minutes, force=force)
+    set only after the user has seen the estimate. A candidate with no bases is refused unless unarmed_ok=true, which runs it with no
+    searched gear (unarmed builds; values are the bare build). Poll run_status about once a minute; then get_report."""
+    return core.start_slate(slate, bases, workers=workers, deepen_k=deepen_k, max_minutes=max_minutes, force=force, unarmed_ok=unarmed_ok)
 
 
 def main() -> None:
