@@ -322,7 +322,7 @@ class EngineRunner:
             raise ValueError("spec no longer validates: " + "; ".join(i.message for i in rep.errors))
         bases = self.bases_of(c)
         if not bases:
-            raise ValueError("no bases for the gear search: give `bases:` on the candidate or slot=Base on the command line")
+            self.log(f"{c.name}: no bases, no gear searched (unarmed / bare build); values are the build without gear")
         floors = {**(STANDARD_FLOORS if spec.floors.get("resist_capped") else {}), **(self.slate.brief.get("floors") or {})}
         meta = {"metric_note": rep.metric_note}
         with engine_stages(spec, self.cat, rep, bases, workers=self.workers, cache=self.cache, realloc_rounds=realloc,

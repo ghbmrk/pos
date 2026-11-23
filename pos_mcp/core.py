@@ -401,12 +401,12 @@ def preflight_slate(slate: str | dict, bases: dict[str, str] | None = None, work
 
 
 def start_slate(slate: str | dict, bases: dict[str, str] | None = None, *, workers: int | None = None, deepen_k: int | None = None,
-                max_minutes: float | None = None, force: bool = False) -> dict:
+                max_minutes: float | None = None, force: bool = False, unarmed_ok: bool = False) -> dict:
     pf = preflight_slate(slate, bases, workers, deepen_k, max_minutes)
     if not pf["ok"]:
         return pf
-    if pf.get("missing_bases"):
-        return {"ok": False, "error": f"no gear bases for {pf['missing_bases']}: pass bases (slot -> base) or give the candidate `bases:`; resolve names with kind 'base'"}
+    if pf.get("missing_bases") and not unarmed_ok:
+        return {"ok": False, "error": f"no gear bases for {pf['missing_bases']}: pass bases (slot -> base) or give the candidate `bases:`; resolve names with kind 'base'. A deliberately unarmed / gearless candidate: unarmed_ok=true (its numbers are the bare build)"}
     if pf["over_cap"] and not force:
         return {"ok": False, "refused": pf["summary"], "hint": "estimate is above the cap; tell the user, then pass force=true or max_minutes, or cut candidates / deepen_k"}
     b, _ = _bases(bases or {})
@@ -422,7 +422,8 @@ def start_slate(slate: str | dict, bases: dict[str, str] | None = None, *, worke
 SWEEP_KINDS = ("keystone", "ascendancy", "support", "unique:<slot>")
 
 
-def start_sweep(spec: str | dict, kind: str, *, searched: bool = True, top: int = 20, workers: int | None = None) -> dict:
+def start_sweep(spec: str | dict, kind: str, *, searched: bool = True, top: int = 20, workers: int | None = None,
+                weapon: str | None = None) -> dict:
     from pos_pipeline.gear import SLOTS
     if not (kind in ("keystone", "ascendancy", "support") or (kind.startswith("unique:") and kind[7:] in SLOTS)):
         return {"ok": False, "error": f"kind must be one of {list(SWEEP_KINDS)}; slots: {', '.join(SLOTS)}"}
@@ -430,6 +431,6 @@ def start_sweep(spec: str | dict, kind: str, *, searched: bool = True, top: int 
     if not v["ok"]:
         return {"ok": False, "validation": v}
     est = "about 2 min (probe seed: supports + tree search ~1.3 min on 4 vCPU, then the sweep 10-25 s)" if searched else "under 1 min"
-    extra = (["--workers", str(workers)] if workers else []) + ([] if searched else ["--no-search"])
+    extra = (["--workers", str(workers)] if workers else []) + ([] if searched else ["--no-search"]) + (["--weapon", weapon] if weapon else [])
     return _launch("sweep", "spec.yaml", _plain(spec), lambda d: ["-m", "pos_mcp.jobs", "sweep", str(d / "spec.yaml"), kind,
-                   "--out", str(d), "--top", str(top), *extra], est, {"kind": kind})
+                   "--out", str(d), "--top", str(top), *extra], est, {"kind": kind, **({"weapon": weapon} if weapon else {})})

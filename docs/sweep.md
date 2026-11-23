@@ -17,6 +17,10 @@ Caveats: a keystone/notable delta includes the path nodes' own stats, not only t
 
 Flags (carried from G5): `audit_outlier` (delta above 3x baseline: check for an artefact before trusting), `possibly_unmodelled` (exactly zero delta on an entry that has effect text: an engine gap, not a dud), `no_effect` (zero delta, no text; supports have no catalogue text until I2), `unreachable`, `over_budget`, `unparsed`, `failed`.
 
+## Probe weapon (I12)
+
+The probe seed has no gear, so an attack main skill computes 0 damage. `equip_probe_weapon(cat, engine, xml, base)` puts a plain, unmodded catalogue weapon base (implicits only) in Weapon 1; errors on an unknown or non-weapon base. Job/CLI/MCP: `--weapon BASE` / `sweep ... --weapon BASE` / `sweep(..., weapon=BASE)`; it is applied before the supports and tree search. The job checks the seed's metric first and exits 1 with a hint when it is 0 (attack skill without weapon, or a weapon the skill cannot use). Checked: Boneshatter keystone sweep baseline 0 without weapon, 66 HitAilmentDPS with a plain mace; Falling Thunder needs a quarterstaff (0 unarmed).
+
 ## `ablate(cat, pool, xml, key_pieces, metric, *, ..., threshold=0.10)`
 
 Per key piece `{kind, id[, slot]}`: remove it and re-measure.

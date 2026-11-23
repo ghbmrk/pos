@@ -196,11 +196,37 @@ def test_ideate_prompt_carries_live_vocabulary_and_rules():
     for rule in ("PoE1", "verbatim", "No numbers", "no_metric", "key_pieces", "validate_slate", "preflight_slate", "run_slate",
                  "get_report", "not_load_bearing", "possibly_unmodelled"):
         assert rule in t, rule
-    for rule in ("not in this PoE2 data", "Quotes are exempt", "ascendancy=", "probe with a spell", "weapon-only screen"):   # I7 fixes
+    for rule in ("not in this PoE2 data", "Quotes are exempt", "ascendancy=", "weapon=<catalogue weapon base>", "weapon-only screen"):   # I7 fixes
         assert rule in t, rule
     import re
     assert not re.search(r"\{[a-z_0-9]+\}", t)                       # no unfilled placeholders
     assert "(no idea given" in ideate.render("  ")
+
+
+def test_sweep_weapon_and_unarmed_flags_reach_the_job(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(core, "_launch", lambda kind, fn, text, argv, est, meta: seen.update(argv=argv(Path("/x")), meta=meta) or {"ok": True})
+    core.start_sweep(SPEC, "keystone", weapon="Crude Bow")
+    assert seen["argv"][-2:] == ["--weapon", "Crude Bow"] and seen["meta"]["weapon"] == "Crude Bow"
+    core.start_sweep(SPEC, "keystone")
+    assert "--weapon" not in seen["argv"]
+    # a gearless candidate is refused unless the caller says it is deliberate (I12)
+    assert "unarmed_ok" in core.start_slate(SLATE)["error"]
+    assert "no gear bases" not in str(core.start_slate(SLATE, max_minutes=0.01, unarmed_ok=True))
+
+
+def test_sweep_job_attack_skill_needs_a_weapon(tmp_path):
+    """Real engine (I12): Boneshatter has no damage on the gearless seed; a plain mace base makes it evaluate."""
+    import yaml
+    from pos_mcp import jobs
+    (tmp_path / "spec.yaml").write_text(yaml.safe_dump({"pob_sha": "601768b", "class": "Warrior", "ascendancy": "Titan", "level": 90,
+                                                      "main_skill": {"gem": "Boneshatter"}, "tiers": ["mid"]}))
+    assert jobs.sweep_job(str(tmp_path / "spec.yaml"), "keystone", str(tmp_path), top=3, workers=2, search=False) == 1
+    assert not (tmp_path / "sweep.json").exists()
+    assert jobs.sweep_job(str(tmp_path / "spec.yaml"), "keystone", str(tmp_path), top=3, workers=2, search=False, weapon="Aberrant Sledge") == 0
+    j = json.loads((tmp_path / "sweep.json").read_text())
+    assert j["baseline"] > 0 and "plain Aberrant Sledge" in j["seed"]
+    assert jobs.sweep_job(str(tmp_path / "spec.yaml"), "keystone", str(tmp_path), top=3, workers=2, search=False, weapon="Spark") == 1
 
 
 def test_sweep_job_end_to_end(tmp_path):
