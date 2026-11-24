@@ -91,7 +91,7 @@ Empowerment applies to? (b) Does each afterimage replay the whole sequence?
   Flame" and "Teleports and Strikes 2 times, plus 3 additional times per Sacrificial Flame". The flame count and the
   burn are tied to a single use, and the extra strikes are described as part of that use. Its tags include Strike.
 - Echoing Strikes: "Empower your **next Strike** to create afterimages that **use that same Strike** in additional
-  locations". Unlike Temporal Rift-style repeaters, it has no exclusion clause. Compare the 0.5 spell-repeat buff:
+  locations". Unlike Unleash (the 0.5 spell-repeat buff), it has no exclusion clause. Unleash says:
   "Cannot Empower Skills with a Cooldown" (PoB act_int.lua).
 
 **Precedents:**
@@ -102,7 +102,7 @@ Empowerment applies to? (b) Does each afterimage replay the whole sequence?
 | PoE2 Barrage: "Empowering your next Repeatable … Attack to Repeat multiple times. Consumes your Frenzy Charges on use to add additional repeats" | The same design family as Echoing (Frenzy in, copies out, "next" use). Barrage's Empowerment is consumed once and applies to all repeats of that use | Primary text; "applies to all repeats" is how repeats work by definition |
 | PoE2 Empowered/warcry rules (keyword): Empowerment is counted per attack **use**, and Ancestrally Boosted attacks "count as being Empowered" | Empowerment attaches to the use, not to each hit | Primary (keyword text) |
 | PoE1 Multistrike with exerted attacks: one exert covered all repeats of the attack | A long-standing GGG convention that a per-use buff covers every repeat within the use | Recall, not re-sourced |
-| PoE2 devs gate degenerate copies explicitly: "Triggered Skills cannot be Ancestrally Boosted", Tasalio's "cannot be Ancestrally Boosted", the spell repeater's cooldown exclusion | When GGG anticipates a bad combo, they print an exclusion. Neither Echoing Strikes nor Infernal Step has one, which suggests it hasn't been anticipated, or is accepted | Primary |
+| PoE2 devs gate degenerate copies explicitly: "Triggered Skills cannot be Ancestrally Boosted", Tasalio's "cannot be Ancestrally Boosted", Unleash's cooldown exclusion | When GGG anticipates a bad combo, they print an exclusion. Neither Echoing Strikes nor Infernal Step has one, which suggests it hasn't been anticipated, or is accepted | Primary |
 
 **Verdict (judgement, not a fact):**
 - (a) **Likely yes (~75%).** The whole sequence is one use, so the player's own Empowerment covers all 2+3F strikes.
