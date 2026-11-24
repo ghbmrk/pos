@@ -23,9 +23,9 @@ from .validate import Issue, _lookup, validate
 
 ARCH_FIELDS = ("class_asc", "delivery", "damage", "defence", "main_skill", "key_pieces")
 _TOP = {"slate", "pob_sha", "prompt", "brief", "candidates"}
-_BRIEF = {"benchmarks", "tiers", "constraints", "floors"}
+_BRIEF = {"benchmarks", "tiers", "constraints", "floors", "assumed_ok"}
 _CAND = {"name", "archetype", "spec", "key_pieces", "claims", "source", "bases"}
-_ARCH = {"delivery", "damage", "defence", "engine"}
+_ARCH = {"delivery", "damage", "defence", "engine", "patterns"}   # patterns: meta-lesson ids joined by "+"
 _SOURCE = re.compile(r"^(llm|sweep:[^/\s]+/\S.*)$")
 
 
@@ -225,8 +225,11 @@ def validate_slate(slate: Slate, cat: Catalogue, tiers: TierTable | None = None)
             sadd("error", "duplicate", f"candidates[{i}].name", f"name {c.name!r} already used by candidates[{seen_names[_norm(c.name)]}]")
         seen_names.setdefault(_norm(c.name), i)
 
+    # L6: assumed-Squire specs may be ranked only against each other, and only when the brief opts in (brief.assumed_ok)
+    assumed_ok = bool(slate.brief.get("assumed_ok")) and all(c.spec is not None and c.spec.companion is not None and c.spec.companion.assumed is not None
+                                                             for c in slate.candidates)
     for i, c in enumerate(slate.candidates):
-        rep.candidates.append(_check_candidate(i, c, cat, tiers, cfg))
+        rep.candidates.append(_check_candidate(i, c, cat, tiers, cfg, assumed_ok))
 
     _diversity(slate, rep, cfg)
     return rep
@@ -246,7 +249,7 @@ def _check_brief(brief: dict, tiers: TierTable, sadd) -> None:
         sadd("error", "tier", "brief.tiers", "at least one tier required", tiers.tier_names)
 
 
-def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg: dict) -> CandidateResult:
+def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg: dict, assumed_ok: bool = False) -> CandidateResult:
     res = CandidateResult(c.name)
     p = f"candidates[{i}]"
     add = lambda sev, code, path, msg, sug=(): res.issues.append(Issue(sev, code, f"{p}.{path}", msg, list(sug)))  # noqa: E731
@@ -260,7 +263,7 @@ def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg
     if c.spec is None:
         add("error", "spec_structure", "spec", c.spec_error or "spec failed to parse")
     else:
-        if c.spec.companion is not None and c.spec.companion.assumed is not None:
+        if c.spec.companion is not None and c.spec.companion.assumed is not None and not assumed_ok:
             add("error", "assumed_in_slate", "spec.companion.assumed",
                 "assumed-Squire what-if specs stay out of ranked slates (their numbers rest on assumptions); run them singly with `run --assumed`")
         sr = validate(c.spec, cat, tiers)
@@ -304,6 +307,25 @@ def _check_candidate(i: int, c: Candidate, cat: Catalogue, tiers: TierTable, cfg
         add("error", "claims", "claims", f"at least {cfg['slate']['claims']['min']} mechanism claim required")
     for j, cl in enumerate(c.claims):
         _check_claim(cl, f"claims[{j}]", cat, cfg, add)
+
+    # meta-lesson patterns (data/meta_lessons.yaml): unknown ids are errors; fewer than the minimum is a warning,
+    # because a label does not prove compounding (the engine measures that)
+    from . import meta_lessons
+    known_p = meta_lessons.ids()
+    named = meta_lessons.parse_ids(c.archetype.get("patterns", ""))
+    for pid in named:
+        if pid not in known_p:
+            add("error", "unknown_pattern", "archetype.patterns", f"unknown meta-lesson pattern {pid!r}", known_p)
+    rules = meta_lessons.load()["rules"]
+    sides = {pid: meta_lessons.side_of(pid) for pid in set(named) if pid in known_p}
+    off = [pid for pid, sd in sides.items() if sd in ("offence", "both")]
+    dfn = [pid for pid, sd in sides.items() if sd in ("defence", "both")]
+    if len(off) < rules["min_patterns_per_engine"]:
+        add("warning", "engine_not_compounding", "archetype.patterns",
+            f"name the {rules['min_patterns_per_engine']}+ offence patterns this engine combines (meta_lessons); one pattern plus marginal gains rarely competes")
+    if len(dfn) < rules["min_defence_layers"]:
+        add("warning", "defence_not_layered", "archetype.patterns",
+            f"name the {rules['min_defence_layers']}+ independent defence layers this build stacks (meta_lessons, side defence); one deep layer dies to what it does not cover")
 
     # archetype (derived where possible)
     delivery = _derive_delivery(cfg, skill, sup_entries)

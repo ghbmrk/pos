@@ -22,8 +22,10 @@
 |---|---|
 | prompt `ideate(idea, constraints?)` | The ideation procedure as an MCP prompt (in Claude Code: `/mcp__path-of-sim__ideate`). Text in `pos_mcp/ideate.py`; benchmark ids, tiers, slots and thresholds are filled from data files at call time. |
 | `ideation_guide(idea, constraints?)` | Same text as a tool, because clients do not invoke prompts on their own; the server instructions tell the client to call it for goal-style requests. |
+| `meta_lessons` | Compounding patterns from past metas as priors (docs/meta-lessons.md); ids go in `archetype.patterns`. |
 | `search`, `bridges`, `enablers`, `explain` | Catalogue queries (docs/catalogue-queries.md), compact results; `explain` resolves by exact name and returns the quotable `text` lines (newest unique variant only). |
 | `sweep(spec, kind, searched=true)` | Background job (`python -m pos_mcp.jobs sweep`): probe seed = first variant, supports- and tree-searched (cap 200) unless `searched=false`; metric under the first boss benchmark's options; writes `sweep.json` and `report.md`. Spark L90 keystone, 2 workers: 100 s. Default workers = half the CPUs (4 workers on 4 vCPU / 16 GB was OOM-killed). |
+| `play` (+ prompt `play`) | L6 end-to-end loop as one background job: screen the slate's ideas, sim-verified creative rounds, inner loop on finalists, player report (docs/play.md). Poll `run_status`, then `get_report`. |
 | `validate_slate`, `preflight_slate`, `run_slate` | Slate gate (docs/slate.md), estimate, and the slate runner as a background job (`slate run`, report `slate_report.md`; docs/slate-run.md). |
 
 `run_status`, `cancel_run`, `get_report` and `list_runs` cover every job kind; one job runs at a time. The job's report file is recorded in `meta.json`.

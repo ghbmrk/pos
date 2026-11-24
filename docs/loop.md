@@ -130,3 +130,110 @@ Kept from STATE: I14 (cheap ablation re-run) can run any time. I15 folds into L1
 Success measures (L6 eval, same 5 prompts): survival gate passes for a majority of boss-brief candidates and still
 separates them; a loop's final objective beats today's single pass on every golden build; hypotheses confirmed or
 refuted for every candidate (no silent zero).
+
+
+## 4. L1 result (2026-11-23): benchmark objective in supports and gear
+
+Built: `pos_pipeline/objective.py` (`Objective`), used by `search_supports(objective=)`, `GearSearcher(objective=)`,
+`engine_stages(objective=True, hard_ttk=False)` (on whenever the spec/slate names benchmarks), `EngineRunner(objective=)`,
+CLI `--no-objective` / `--hard-ttk`. Key = `(-deficit, goal)`: deficit = sum of fractional shortfalls (stat floors,
+survive every named hit, optional TTK gate; floors unclamped so negative resists keep a gradient), goal = sum of ln
+rate (-ln TTK per boss, -ln clear per pack). Tree stage unchanged (still metric; weights from the objective wait for L2/L3).
+Ranking is unchanged. Scoring evaluates every candidate once per benchmark, so searches cost about 2x evals.
+Scripts: `tools/measure_l1_stages.py` (paired, same input, common yardstick), `tools/measure_l1.py` (end to end).
+
+Paired stages (same input build, scored by one common objective; lower deficit / higher goal is better):
+| case | supports metric -> objective (deficit, goal) | gear metric -> objective (deficit, goal) | gear wall |
+|---|---|---|---|
+| golden | 6.60,-3.58 -> 6.07,-3.08 | 2.68,0.81 -> 2.45,0.81 | 35 -> 105 s |
+| p1 | equal | 5.27,-12.71 -> 5.10,-12.63 | 25 -> 54 s |
+| p2 | equal | 4.14,-1.61 -> 4.07,-1.22 | 23 -> 62 s |
+| p3 | 6.37,-2.07 -> 6.07,-1.95 | 5.32,2.16 -> 5.23,2.16 | 29 -> 68 s |
+| p4 | 6.04,-21.27 -> 6.04,-18.22 | 4.08,-17.47 -> 3.98,-17.75 | 25 -> 76 s |
+| p5 | 6.36,-19.42 -> 6.36,-16.36 | 4.35,-13.44 -> 4.29,-13.38 | 25 -> 93 s |
+Supports never lose on the objective (better in 4 of 6, equal in 2). Gear lowers the deficit in 6 of 6; the goal is
+equal or better in 5 of 6 (p4 -0.28: the deficit was traded first, as designed).
+
+End to end (supports, tree, gear, benchmark; golden + the rank-1 candidate of each I13 arm-B slate; metric -> objective):
+| case | Arbiter survive | TTK s | pack clear s | wall s |
+|---|---|---|---|---|
+| golden | yes -> yes | 280 -> 299 | 67 -> 72 | 152 -> 305 |
+| p1 | no -> no | 2861 -> 2269 | 116 -> 134 | 62 -> 128 |
+| p2 | no -> no | 5254 -> 5254 | 14300 -> 4965 | 86 -> 142 |
+| p3 | yes -> yes | 94 -> 71 | 133 -> 102 | 133 -> 254 |
+| p4 | no -> yes | 181 -> 238 | 11035 -> 745 | 110 -> 189 |
+| p5 | no -> yes | 221 -> 253 | 3104 -> 136 | 119 -> 140 |
+Survival pass rate 2/6 -> 4/6. Pack clear improves in 4 of 6 (large where it was absurd). Boss TTK improves in 2, equal in
+1 and is worse in 3 (golden, p4, p5): the objective spends boss damage on survival and clear, which is the intent, not a
+free gain. Wall time 1.75x in total (662 -> 1158 s). Golden floors stay unmet in both arms (3 gear slots cannot cover
+resists; G7b) and the single feed-forward pass remains order-dependent (L3). Limits: one run per cell (no variance
+estimate), the 6 cases share one machine, and the golden TTK and clear get worse, so L1 is a constraint fix, not a DPS gain.
+Engine note: `GearSearcher` scores whole-build keys through the pool, because each `load_build_xml` on the long-lived
+engine leaks memory (p5 hit the 3.5 GB watchdog before this).
+
+## 5. Acceptance test: the owner's end experience (cmsg_01RxGYnd78N9kMbbAJ5pWDhU1dnxqDdRaEYAuumsEdPHoc)
+
+Player prompt (e.g. "Squire + Cyclone") -> several likely-competitive build ideas -> sim validates each -> several
+rounds of creative improvement, each driven by sim deltas and failure causes -> results for the player. One entry point,
+no manual steps between. The end-to-end Squire + Cyclone run is the acceptance eval; it passes when it runs unattended,
+keeps the best build per round, stops on no gain, and reports the ranked builds with the sim evidence for each change.
+Squire rows are ASSUMED until 1.0 data (K4). Gap map: ideas + validation exist (I-series); L1 makes validation judge
+survival; L2 supplies failure causes (diagnose); L3 is the iteration (rounds, keep best, stop on no gain, trace);
+L4 directs moves by diagnosis; L6 is the single entry point with the creative-improvement step and the final report;
+the acceptance eval is the L6 eval re-run with this prompt.
+
+
+## 6. L3 result (2026-11-23): inner loop v1
+
+Built: `pos_pipeline/loop.py` (`improve`, `Move`), `Stages.improve`, `run(rounds=, loop_minutes=)`, CLI `run --rounds N
+[--min-gain 0.01] [--loop-minutes M] [--tree-warm]`, MCP `run(rounds=)` and `preflight` (estimate shows `loop (max)`, an
+upper bound), report section "improvement loop", `trace.jsonl` in the run dir. `rounds=1` (default) is the old single pass.
+Round = supports re-search, tree re-plan, gear re-search, each from the current build; a result is kept only if the L1
+objective key strictly improves (lexicographic), so the objective never regresses and a failed move is a recorded no-op.
+Stops when a round gains < 1% (`(-deficit)` + ln-rate are both relative), at `rounds`, or at the time budget. The engine is
+recycled in place between moves past the soft RSS cap (PR #56).
+
+Measured, golden Spark (weapon + amulet + body, mid, realloc 0, 4 vCPU), `--rounds 3`, one run:
+| round | supports | tree | gear | round gain | wall |
+|---|---|---|---|---|---|
+| 1 | kept (goal -1.019 -> -0.883) | kept (-> -0.824) | no gain | +19.5% | 325 s |
+| 2 | kept (-> -0.809) | no gain | no gain | +1.5% | 311 s |
+| 3 | unchanged | no gain | no gain | 0 | 211 s |
+Objective +21.0% in total, converged after 3 rounds (847 s, on top of the ~150 s single pass). Almost all of it comes from
+re-searching supports on the geared build and re-planning the tree once; gear found nothing at realloc 0 on a 3-slot build.
+The constraint deficit stays 1.647: the floors (resists with 3 slots, G7b) are unmet and no move relieves them, so the loop
+gains goal only. The tree, which is scored on the plain metric, was accepted once and rejected twice by the objective key.
+
+Not done (stated, not hidden): tree weights from L2 shadow prices (the tree move still optimises the metric; the objective
+key judges it afterwards); warm tree (`--tree-warm`, reset=False) is wired but unmeasured, and with a full tree it can only
+spend unspent points; `deepen` in the slate still restarts instead of continuing the screen build; no variance estimate (one run);
+two-actor (assumed Squire gear) runs refuse the loop and keep the single-pass result. Wasted time is visible in the trace:
+rounds 2-3 spent 520 s for +1.5%. L4 (diagnosis-directed move choice, skipping moves with no expected gain) fits cleanly on
+this trace format and has a concrete target: round 1 would cost ~200 s instead of 325 s without the dead gear move.
+
+### 6.1 L4 result (2026-11-23): directing rounds by diagnosis
+
+Built: `pos_pipeline/direct.py` (`stage_bounds`, `tree_goals`, `advice` from an L2 `Diagnosis`); in `loop.improve`: **dead-move
+skipping** (a move that found nothing on build X is skipped until the build changes; a round with every move dead stops as
+`fixed_point`), an optional **advisor** called once per round (stages whose bound is under 0.2% are skipped), and from round 2 on
+moves ordered by the gain per second they last delivered. CLI `run --direct` turns the advisor and diagnosis-weighted tree goals on.
+
+Measured, golden Spark, same spec as section 6, `--rounds 3 --direct`, one run (4 vCPU):
+| round | advice | supports | tree (weights EHP 0.1) | gear | wall |
+|---|---|---|---|---|---|
+| 1 | 45 s, gear bound 0.19 | kept | kept (deficit 1.647 -> 1.616, goal worse) | no gain | 507 s |
+| 2 | 35 s | kept | no gain | no gain | 386 s |
+| 3 | 30 s | unchanged | skipped (dead) | skipped (dead) | 168 s |
+Total 1060 s; key (-1.616, -0.899) vs L3 (-1.647, -0.809): smaller deficit, lower goal; summed gain 15.1% vs 21.0%.
+
+Verdict (the rule in 2.3: v2 ships only if it beats v1): **the advisor does not beat plain rounds here, so it is opt-in.**
+- Gear bound never skipped anything (0.19-0.22): single-affix probes always show relief, so they cannot predict that a
+  search at a fixed tier budget finds nothing. Round-1 gear (152 s) is not predictable from marginal levers. The diagnosis
+  (~37 s per round, 111 s total) cost more than it saved.
+- Diagnosis-weighted tree goals clamped to the minimum EHP weight (0.1) and traded goal for deficit: lexicographically a win,
+  in DPS a loss; a single run cannot separate that from noise.
+- **Dead-move skipping is sound and on by default** (no diagnosis needed): in this run it removed tree and gear from round 3
+  (~210 s by the round-1/2 timings) and ends the loop at a fixed point instead of running a further round.
+- Gain-per-second ordering is built and unit-tested but unmeasured separately.
+Not done: variance across runs; an advisor that learns bounds from the trace rather than from probes; skipping gear by
+budget-slack rather than lever relief.

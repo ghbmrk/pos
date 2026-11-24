@@ -118,7 +118,7 @@ def test_server_over_stdio():
     assert "ideate" in prompts and any(a.name == "idea" and a.required for a in prompts["ideate"].arguments)
     assert "a tanky lightning build" in got.messages[0].content.text
     assert {"resolve", "validate_spec", "import_pob", "preflight", "run", "run_status", "get_report", "compare", "cancel_run",
-            "ideation_guide", "search", "bridges", "enablers", "explain", "sweep", "validate_slate", "preflight_slate", "run_slate"} <= names
+            "ideation_guide", "search", "bridges", "enablers", "explain", "sweep", "validate_slate", "preflight_slate", "run_slate", "play"} <= names
     assert "Spark" in json.dumps(res.structured_content or [c.text for c in res.content])
 
 
@@ -163,6 +163,16 @@ def test_slate_validate_preflight_and_refusals():
     assert not list(Path(os.environ["POS_RUNS_DIR"]).iterdir())
 
 
+def test_play_validates_estimates_and_refuses():
+    b = {"weapon": "Acrid Wand"}
+    assert "no gear bases" in core.start_play("p", SLATE)["error"]
+    r = core.start_play("p", SLATE, b, max_minutes=0.01)
+    assert "refused" in r and "children" in r["refused"]              # the estimate names the creative-round cost
+    assert "unknown slot" in core.start_play("p", SLATE, {"hat": "x"})["error"]
+    assert not core.start_play("p", {"slate": 1, "bogus": 1}, b)["ok"]
+    assert not list(Path(os.environ["POS_RUNS_DIR"]).iterdir())
+
+
 def test_sweep_refuses_bad_kind_and_invalid_spec():
     assert "kind must be" in core.start_sweep(SPEC, "jewel")["error"]
     assert "kind must be" in core.start_sweep(SPEC, "unique:hat")["error"]
@@ -201,6 +211,18 @@ def test_ideate_prompt_carries_live_vocabulary_and_rules():
     import re
     assert not re.search(r"\{[a-z_0-9]+\}", t)                       # no unfilled placeholders
     assert "(no idea given" in ideate.render("  ")
+    # meta lessons (cmsg_01RxGYnd78N9kMbbAJ5pWDhUX2GMWf6TSLPYKzmKmpb39v): patterns rendered as priors, ids citable
+    assert "Priors from past metas" in t and "`stat_stacking`" in t and "archetype.patterns" in t
+    assert "Defence (layers):" in t and "`max_resistance_push`" in t and "independent defence layers" in t
+    assert "Righteous Fire" not in t and "Cast On Critical Strike" not in t
+
+
+def test_meta_lessons_tool():
+    r = core.meta_lessons()
+    assert r["ok"] and {p["id"] for p in r["patterns"]} >= {"stat_stacking", "trigger_automation", "layered_mitigation"}
+    assert all("examples" not in e for p in r["patterns"] for e in p["eras"])
+    assert core.meta_lessons("stat_stacking")["patterns"][0]["id"] == "stat_stacking"
+    assert not core.meta_lessons("nope")["ok"]
 
 
 def test_sweep_weapon_and_unarmed_flags_reach_the_job(monkeypatch):

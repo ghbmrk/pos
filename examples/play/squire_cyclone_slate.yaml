@@ -1,0 +1,66 @@
+# L6 acceptance prompt: "Knight Squire + Cyclone" (docs/loop.md section 5). Ideas the LLM client wrote from the prompt.
+# ASSUMED / STAND-INS (docs/squire-assumed.md): Cyclone is absent from the pinned pre-1.0 data, so Whirling Slash (nearest whirlwind
+# skill) stands in; a Huntress stands in for the Duelist/Knight; the Squire is the assumed profile (data/squire_assumed.yaml).
+# Run: python -m pos_pipeline play "Knight Squire + Cyclone" --slate examples/play/squire_cyclone_slate.yaml weapon='Akoyan Spear' \
+#        --assumed --assume "..." --out OUT
+slate: 1
+pob_sha: "601768b"
+prompt: "Knight Squire + Cyclone"
+brief:
+  benchmarks: [arbiter_ash]
+  tiers: [mid]
+  assumed_ok: true      # every candidate is an assumed-Squire what-if; they are ranked only against each other
+  constraints: { delivery: melee, damage: whirlwind }   # the prompt fixes the skill family
+candidates:
+  - name: "Ground painter, armour"
+    archetype: { defence: armour, engine: squire_ground }
+    spec: &base
+      pob_sha: "601768b"
+      class: Huntress
+      ascendancy: Ritualist
+      level: 90
+      main_skill: { gem: Whirling Slash }
+      tiers: [mid]
+      fixed: { keystones: ["Iron Reflexes"] }
+      companion:
+        kind: squire
+        assumed: { scenario: ground_painter }
+        skills: [ { gem: Whirling Slash } ]
+    key_pieces: [ { kind: keystone, id: "Iron Reflexes" } ]
+    claims:
+      - text: "The whirlwind skill stands in for the confirmed spinning skill; armour gains from the conversion"
+        cites:
+          - { kind: skill, id: "Whirling Slash", quote: "kicks up a Whirlwind around you" }
+          - { kind: keystone, id: "Iron Reflexes", quote: "Converts all Evasion Rating to Armour" }
+    source: llm
+  - name: "Debuff bot, no crit"
+    archetype: { defence: life, engine: squire_debuff }
+    spec:
+      <<: *base
+      ascendancy: Amazon
+      fixed: { keystones: ["Resolute Technique"] }
+      companion:
+        kind: squire
+        assumed: { scenario: debuff_bot }
+        skills: [ { gem: Whirling Slash } ]
+    key_pieces: [ { kind: keystone, id: "Resolute Technique" } ]
+    claims:
+      - text: "Reliable hits without critical strikes while the companion lowers enemy defences"
+        cites: [ { kind: keystone, id: "Resolute Technique", quote: "Never deal Critical Hits" } ]
+    source: llm
+  - name: "Own damage, stun immune"
+    archetype: { defence: evasion, engine: squire_damage }
+    spec:
+      <<: *base
+      ascendancy: Spirit Walker
+      fixed: { keystones: ["Unwavering Stance"] }
+      companion:
+        kind: squire
+        assumed: { scenario: own_damage }
+        skills: [ { gem: Whirling Slash } ]
+        gear: { weapon: "Akoyan Spear" }
+    key_pieces: [ { kind: keystone, id: "Unwavering Stance" } ]
+    claims:
+      - text: "The spinning skill cannot be interrupted while the companion adds its own damage"
+        cites: [ { kind: keystone, id: "Unwavering Stance", quote: "Cannot be Light Stunned" } ]
+    source: llm

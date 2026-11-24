@@ -101,7 +101,7 @@ def _bases(bases: dict[str, str]) -> tuple[dict[str, str], str | None]:
 
 
 def preflight(spec: str | dict, bases: dict[str, str] | None = None, workers: int | None = None,
-              realloc_rounds: int | None = None, max_minutes: float | None = None) -> dict:
+              realloc_rounds: int | None = None, max_minutes: float | None = None, rounds: int = 1) -> dict:
     """Cost estimate without running. Also validates the spec."""
     from pos_pipeline.orchestrate import DEFAULT_MAX_MINUTES, DEFAULT_REALLOC_ROUNDS, gear_slot_count, run
 
@@ -114,7 +114,7 @@ def preflight(spec: str | dict, bases: dict[str, str] | None = None, workers: in
         return {"ok": False, "error": err}
     r = run(s, None, skill_id="", dry_run=True, force=True, metric=v["metric"], slots=gear_slot_count(s, b),  # type: ignore[arg-type]
             workers=workers or os.cpu_count() or 1, realloc_rounds=DEFAULT_REALLOC_ROUNDS if realloc_rounds is None else realloc_rounds,
-            max_minutes=DEFAULT_MAX_MINUTES if max_minutes is None else max_minutes)
+            max_minutes=DEFAULT_MAX_MINUTES if max_minutes is None else max_minutes, rounds=rounds)
     e = r.estimate
     return {"ok": True, "summary": e.summary(), "over_cap": e.over_cap, "rate_sources": list(e.sources),
             "warnings": [i for i in v["issues"] if i["severity"] != "error"]}
@@ -136,10 +136,10 @@ def _active() -> list[str]:
 
 
 def start_run(spec: str | dict, bases: dict[str, str], *, workers: int | None = None, realloc_rounds: int | None = None,
-              max_minutes: float | None = None, force: bool = False, allow_assumed: bool = False) -> dict:
+              max_minutes: float | None = None, force: bool = False, allow_assumed: bool = False, rounds: int = 1) -> dict:
     """Validate, check the cost cap, then start the run as a background process. Returns a run id at once.
     A spec with `companion.assumed` (ASSUMED Squire what-if) runs only with allow_assumed=True."""
-    pf = preflight(spec, bases, workers, realloc_rounds, max_minutes)
+    pf = preflight(spec, bases, workers, realloc_rounds, max_minutes, rounds)
     if not pf["ok"]:
         return pf
     sc = ((_spec_from(spec).companion.assumed if _spec_from(spec).companion else None) or {}).get("scenario")
@@ -154,7 +154,7 @@ def start_run(spec: str | dict, bases: dict[str, str], *, workers: int | None = 
     b, _ = _bases(bases)
     extra = (["--workers", str(workers)] if workers else []) + (["--realloc-rounds", str(realloc_rounds)] if realloc_rounds is not None else []) \
         + (["--max-minutes", str(max_minutes)] if max_minutes is not None else []) + (["--force"] if force else []) \
-        + (["--assumed"] if sc else [])
+        + (["--assumed"] if sc else []) + (["--rounds", str(rounds)] if rounds > 1 else [])
     return _launch("run", "spec.yaml", _plain(spec), lambda d: ["-m", "pos_pipeline", "run", str(d / "spec.yaml"),
                    *[f"{k}={v}" for k, v in b.items()], "--out", str(d), *extra], pf["summary"], {"tiers": s.tiers, **({"assumed": sc} if sc else {})})
 
@@ -164,7 +164,7 @@ def _plain(doc: str | dict) -> Any:
     return json.loads(json.dumps(doc if isinstance(doc, dict) else yaml.safe_load(doc)))
 
 
-REPORTS = {"run": "report.md", "slate": "slate_report.md", "sweep": "report.md"}
+REPORTS = {"run": "report.md", "slate": "slate_report.md", "sweep": "report.md", "play": "report.md"}
 
 
 def _launch(job: str, input_name: str, doc: Any, argv, estimate: str, extra_meta: dict | None = None) -> dict:
@@ -333,6 +333,14 @@ def bridges(term_a: str, term_b: str, limit: int = 10) -> dict:
             **{k: [_card(k[:-1], e, 3) for e in v[:limit]] for k, v in r.items()}}
 
 
+def meta_lessons(pattern: str | None = None) -> dict:
+    """Abstract scaling patterns from past metas (data/meta_lessons.yaml), without past-meta names."""
+    from pos_pipeline import meta_lessons as ml
+    if pattern and pattern not in ml.ids():
+        return {"ok": False, "error": f"unknown pattern {pattern!r}", "patterns": ml.ids()}
+    return {"ok": True, "rules": ml.load()["rules"], "patterns": ml.public(pattern)}
+
+
 def explain(kind: str, name: str) -> dict:
     """Full quotable text of one entry, resolved exactly by name (or catalogue id)."""
     from pos_catalogue import query
@@ -419,6 +427,37 @@ def start_slate(slate: str | dict, bases: dict[str, str] | None = None, *, worke
     return r
 
 
+def start_play(prompt: str, slate: str | dict, bases: dict[str, str] | None = None, *, workers: int | None = None, k: int = 3, outer_rounds: int = 2,
+               children: int = 1, inner_rounds: int = 3, max_minutes: float | None = None, force: bool = False, allow_assumed: bool = False,
+               assume: list[str] | None = None, unarmed_ok: bool = False) -> dict:
+    """L6: the whole loop as one background job: screen the slate's ideas, creative improvement rounds, inner loop on the finalists, player report."""
+    from pos_pipeline.gear import SLOTS
+    from pos_pipeline.orchestrate import DEFAULT_MAX_MINUTES
+    from pos_pipeline.play import play_estimate
+
+    v = validate_slate(slate)
+    if not v["ok"]:
+        return {"ok": False, "validation": v}
+    s = _slate_from(slate)
+    b, err = _bases(bases or {})
+    if err:
+        return {"ok": False, "error": err}
+    kept = {r["name"] for r in v["candidates"] if r["kept"]}
+    cands = [c for c in s.candidates if c.name in kept]
+    no_bases = [c.name for c in cands if not {**b, **c.bases}]
+    if no_bases and not unarmed_ok:
+        return {"ok": False, "error": f"no gear bases for {no_bases}: pass bases (slot -> base) or give the candidate `bases:`; unarmed_ok=true runs them with no searched gear"}
+    cap = DEFAULT_MAX_MINUTES if max_minutes is None else max_minutes
+    est = play_estimate(cands, s.brief, b, workers or os.cpu_count() or 1, k=k, outer_rounds=outer_rounds, children=children, inner_rounds=inner_rounds, max_minutes=cap)
+    if est.over_cap and not force:
+        return {"ok": False, "refused": est.summary(), "hint": "estimate is above the cap; tell the user, then pass force=true or max_minutes, or cut ideas, k, rounds"}
+    extra = (["--workers", str(workers)] if workers else []) + (["--max-minutes", str(max_minutes)] if max_minutes is not None else []) \
+        + (["--force"] if force else []) + (["--assumed"] if allow_assumed else []) + [x for a in (assume or []) for x in ("--assume", a)]
+    return _launch("play", "slate.yaml", _plain(slate), lambda d: ["-m", "pos_pipeline", "play", prompt, "--slate", str(d / "slate.yaml"),
+                   *[f"{k_}={v_}" for k_, v_ in b.items()], "--out", str(d), "--k", str(k), "--outer-rounds", str(outer_rounds), "--children", str(children),
+                   "--inner-rounds", str(inner_rounds), *extra], est.summary(), {"kept": sorted(kept)})
+
+
 SWEEP_KINDS = ("keystone", "ascendancy", "support", "unique:<slot>")
 
 
@@ -434,6 +473,21 @@ def start_sweep(spec: str | dict, kind: str, *, searched: bool = True, top: int 
     extra = (["--workers", str(workers)] if workers else []) + ([] if searched else ["--no-search"]) + (["--weapon", weapon] if weapon else [])
     return _launch("sweep", "spec.yaml", _plain(spec), lambda d: ["-m", "pos_mcp.jobs", "sweep", str(d / "spec.yaml"), kind,
                    "--out", str(d), "--top", str(top), *extra], est, {"kind": kind, **({"weapon": weapon} if weapon else {})})
+
+
+def ceilings(build: str, metric: str = "FullDPS", ids: list[str] | None = None, required: float | None = None,
+             lines: dict[str, str] | None = None) -> dict:
+    """Uptime ceilings (L5b) for mechanics PoB cannot calculate, on a PoB build (XML text)."""
+    from pos_pipeline import ceilings as C
+    xml = build.strip()
+    if not xml.startswith("<"):
+        return {"error": "build must be PoB build XML text (a run's builds are exported as XML)"}
+    try:
+        res = C.evaluate(xml, ids, metric=metric, lines=lines)
+        joint = C.interaction(res, xml, metric=metric)
+    except Exception as ex:
+        return {"error": f"{type(ex).__name__}: {ex}"}
+    return {"results": [r.to_dict() for r in res], "joint": joint, "text": C.render(res, metric, required, joint)}
 
 
 def diagnose(build: str, metric: str = "FullDPS", benchmarks: list[str] | None = None, top: int = 8) -> dict:

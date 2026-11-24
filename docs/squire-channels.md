@@ -69,3 +69,65 @@ thousands of seconds): the stand-in builds are weak, so read the ratios, not the
   mods carries them as a block; an effect's "off" state silently kept them. The engine now writes the active config
   set's custom-mod block too (regression test `test_custom_mods_replace_and_clear_on_a_saved_build`).
 - The actor stage records the player's EHP with every effect on and off (`actor.survival`).
+
+## Meta-graft loop (owner: "loop on various squire builds until competitive with current meta", 2026-11-23)
+
+The search above builds weak stand-ins (about 2.5k DPS, failing survival), so their ratios say little about endgame. The
+loop instead starts from a strong exported build and changes only what a Knight changes: remove the build's ascendancy,
+add the Squire's Presence gear and skill effects, add the Squire's own damage. `tools/meta_graft.py BUILD ...` does it
+(pobb.in link, PoB code file or XML).
+
+Reference: a Gemling Legionnaire export (https://pobb.in/3qVMEwZkvTTK, from a mobalytics endgame guide, patch 0.4; PoB's
+main skill Magma Spray; Arbiter TTK 4.9 s, survives at 27 hits, EHP 93k). Forbidden Rites class share: Gemling
+Legionnaire 32% (poe.ninja build index).
+
+| Variant | Player | Squire own | Total | vs meta |
+|---|---|---|---|---|
+| meta (reference) | 1,082,664 | - | 1,082,664 | 100% |
+| ascendancy removed | 812,414 | - | 812,414 | 75% |
+| Squire own damage only | 812,414 | 98,488 | 910,902 | 84% |
+| Calamity + Leer | 942,670 | 73,866 | 1,016,536 | 94% |
+| Calamity + Leer + shock 0.5 | 1,036,937 | 73,866 | 1,110,803 | 103% |
+| Perfidy + Leer + shock 0.5 | 1,036,818 | 73,866 | 1,110,684 | 103% |
+| Calamity + shock 0.5 (no Leer) | 974,985 | 98,488 | 1,073,473 | 99% |
+
+Assumptions that decide it: the Squire has a Presence (owner assumption); its gear is as good as the player's (a second
+full gear set, double cost); Shock uptime 0.5; the Squire can use the build's skill (Magma Spray is probably not melee;
+the Squire takes melee skills); Squire own damage = the build's gear minus jewellery with no passive tree, x1.15 (Knight
+companion node), x0.75 with Leer Cast. Knight node text adds no player damage; the five Standards are unpublished
+(upside). Gemling is worth x1.33 to this build; the Squire's Presence gear wins back x1.28. Survival unchanged.
+
+### Ten builds (2026-11-23, patch 0.5.5 exports from poebuilds.cc unless noted)
+
+Best Squire combo per build. "Asc. worth" = meta / ascendancy removed, i.e. what the Knight has to win back.
+
+| Build (export) | Meta DPS | Asc. worth | Best combo | Knight + Squire | vs meta |
+|---|---|---|---|---|---|
+| Oracle Primal Strikes (pobb.in/9sM9nvjIZG9u) | 1,700,760 | x3.08 | Perfidy + Leer + shock | 805,851 | 47% |
+| Gemling Magma Spray (pobb.in/3qVMEwZkvTTK, 0.4) | 1,082,664 | x1.33 | Calamity + Leer + shock | 1,110,803 | 103% |
+| Gemling Shield Wall (pobb.in/lEVQqs8NuUXb) | 754,127 | x1.23 | Perfidy + Leer + shock | 931,001 | 123% |
+| Pathfinder Poisonburst Arrow (pobb.in/GhYw3wxqR1bR, 0.4) | 693,632 | x1.31 | Perfidy + Leer + shock | 618,211 | 89% |
+| Gemling Explosive Spear (pobb.in/hM0EbBBLnirD, 0.5.0) | 536,584 | x1.26 | Perfidy + Leer + shock | 589,525 | 110% |
+| Titan Hammer of the Gods (pobb.in/YmiPEBJjM5PT) | 158,159 | x1.27 | Calamity + Leer + shock | 195,021 | 123% |
+| Titan Hammer of the Gods L80 (pobb.in/6DPWD6-3huZ5) | 51,409 | x1.32 | Calamity + Leer + shock | 59,436 | 116% |
+| Titan Mace Strike (pobb.in/X04vA8o6Af2x) | 32,552 | x1.41 | Perfidy + Leer + shock | 32,385 | 99% |
+| Gemling Raise Shield (pobb.in/hAO3Uq6PNC-4) | 20,235 | x1.02 | Calamity + Leer + shock | 28,498 | 141% |
+| Titan Mace Strike (pobb.in/B-EjSJntFuNn) | 19,133 | x1.25 | Calamity + Leer + shock | 37,210 | 194% |
+
+Reading:
+- Under the assumptions above, the Knight + Squire matches or beats the build's own ascendancy on 7 of 10. Ascendancies
+  worth about x1.25-1.4 are replaceable; Oracle (x3.08 here) is not.
+- Against the strongest export in absolute terms (Oracle Primal Strikes, 1.70M), the best Knight graft (Gemling Magma
+  Spray body, 1.11M) reaches 65%. "Competitive with the meta" holds per build, not against the top build.
+- The combo choice depends on what the build already does to enemy resistance. Calamity (resistances 0) is worth x1.9
+  on a Titan with no penetration but loses on the Explosive Spear Gemling, which inverts enemy resistances (lower base
+  resistance, less inverted bonus); Perfidy (Intimidate) wins there.
+- Squire own damage is 1-9% of the total in every build: the Squire is a buff/debuff carrier, not a damage source.
+- Nothing here compounds; every gain is a fixed multiplier (x1.1-1.9). The owner's bar (massive scaling) is not met by
+  these channels alone; the candidate that could compound is still Cast on Critical Energy (K8).
+- Low-DPS exports (under 60k) are budget or levelling snapshots; their ratios are less informative.
+
+Tool fixes in this round: the "effect off" state now keeps conditions the build already assumes (it used to switch off
+e.g. the build's own Shocked, so uptime-blended Shock lowered DPS); each build is benchmarked on its highest-DPS skill
+(exports often leave a utility skill selected); builds with no damage metric are skipped instead of crashing. Large
+builds may need POS_ENGINE_HARD_RSS_MB=7000.

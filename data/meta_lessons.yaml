@@ -1,0 +1,556 @@
+# Meta lessons: abstract scaling patterns that made past meta builds dominant (PoE1 and PoE2), fed to the ideation
+# step as PRIORS, not names (owner requirement cmsg_01RxGYnd78N9kMbbAJ5pWDhUX2GMWf6TSLPYKzmKmpb39v; docs/meta-lessons.md).
+#
+# Why abstract: past metas were PoE1 builds whose names are the main hallucination source the slate gate catches. A
+# pattern ("stack one stat that many lines convert into damage") transfers; a name ("Indigon", "CoC") does not.
+#
+# Fields per pattern
+#   id, title         stable id (slate archetype.patterns cites it) and a short label
+#   side              offence | defence | both: which half of the objective (max DPS | no-death floor) it serves
+#   principle         the mechanism, game-agnostic. Rendered into the ideate prompt.
+#   compounds         why it multiplies instead of adding (owner principle: marginal gains are not enough). Rendered.
+#   limits            what capped it or what it costs. Rendered.
+#   eras              where it carried metas. `evidence`: snapshot:<file> (sourced, data/meta/) or recall (author's
+#                     knowledge of league history, unsourced: no archive of PoE1 ladders is reachable from this
+#                     environment, see docs/meta-lessons.md). `examples` = provenance for humans, NEVER rendered:
+#                     PoE1 names there are exactly the names a client must not reuse.
+#   poe2.anchors      pinned-catalogue entries where the pattern lives in PoE2 now. Test: each resolves `exact`.
+#                     Starting points for `explain`/`search`, not a build: the client still cites quotes.
+#   poe2.search       optional catalogue queries (kind + text) that find more of the pattern.
+#   levers            data/probes.yaml probe ids whose shadow price should rise if the pattern carries the build
+#                     (the L6 mechanism hypothesis). Test: each id exists.
+#   pob               modelled | partial | not_modelled: how far PoB's static calc sees the payoff (partial = needs a
+#                     declared condition or an uptime assumption; not_modelled = ablation will read possibly_unmodelled)
+schema_version: 1
+
+# How the ideate prompt uses this (rendered text lives in pos_pipeline/meta_lessons.py).
+rules:
+  min_patterns_per_engine: 2      # offence: an engine is >= 2 compounding patterns (side offence|both) that feed each other
+  min_defence_layers: 2           # defence: >= 2 independent layers (side defence|both); owner 2026-11-23 cmsg_01RxGYnd78N9kMbbAJ5pWDhUJwf4H96Eiv5VKs9dH3qwiY
+  max_rendered: 24
+
+patterns:
+  - id: more_stack
+    title: Independent multiplier layers
+    side: offence
+    principle: Damage is a product of separate multiplier pools (base, increased pool, each distinct "more", crit,
+      rate, enemy-side). Spend on the pool that is smallest relative to the others; a new independent layer beats
+      another point in a pool that is already large.
+    compounds: Each independent layer multiplies all the others, so the same budget split across many layers beats
+      the same budget poured into one additive pool.
+    limits: Supports and ascendancy slots are few; layers that carry a drawback (less speed, less area) only pay when
+      the drawback hits a pool the build does not use.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["six-link more-multiplier supports", "Elemental Overload"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: ["support gems as more multipliers"] }
+    poe2:
+      anchors:
+        - { kind: support, name: Supercritical }
+        - { kind: support, name: Concentrated Area }
+        - { kind: support, name: Fire Mastery }
+      search:
+        - { kind: support, text: more }
+    levers: [more_damage, inc_spell_damage, crit_damage]
+    pob: modelled
+
+  - id: gain_as_extra
+    title: Damage gained as extra damage of another type
+    side: offence
+    principle: Sources that add a share of the hit again as another type, before conversion and before type-specific
+      scaling, stack with each other and are then scaled again by every modifier of the added type.
+    compounds: Each "as extra" source multiplies the base hit, and the added portion picks up the other type's
+      increases, penetration and exposure as well.
+    limits: Value rises with the number of damage types the build already scales; a pure single-type build gains less.
+    eras:
+      - { game: poe1, era: "3.x, many leagues", evidence: recall, examples: ["Hatred", "Wrath", "Anger", "Elemental Overload", "Inspired Learning"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: notable, name: Dangerous Blossom }
+        - { kind: notable, name: Burning Strikes }
+        - { kind: notable, name: Turning of the Seasons }
+        - { kind: unique, name: Dusk Vigil }
+        - { kind: support, name: Fire Attunement }
+      search:
+        - { kind: notable, text: as extra }
+        - { kind: unique, text: as extra }
+    levers: [added_fire, added_lightning, more_damage]
+    pob: modelled
+
+  - id: conversion_funnel
+    title: Conversion funnel into one damage type
+    side: offence
+    principle: Convert every damage source into one type so that one set of type-specific multipliers (penetration,
+      exposure, type-level bonuses, type "more") applies to the whole hit.
+    compounds: Without conversion each type-specific multiplier scales a fraction of the hit; after it, every one of
+      them scales all of it, so they stop diluting each other.
+    limits: Conversion usually forbids or penalises other types (no non-fire damage, less of other types); pick the
+      funnel type whose enemy-side multipliers the build can reach.
+    eras:
+      - { game: poe1, era: "3.x, many leagues", evidence: recall, examples: ["Avatar of Fire", "physical to lightning chains", "Elemental Overload"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: keystone, name: Avatar of Fire }
+        - { kind: keystone, name: Blackflame Covenant }
+        - { kind: unique, name: Original Sin }
+        - { kind: support, name: Lightning Attunement }
+      search:
+        - { kind: unique, text: Converted to }
+    levers: [pen_fire, pen_lightning, pen_cold, enemy_res_all]
+    pob: modelled
+
+  - id: stat_stacking
+    title: One stat stacked, many lines convert it
+    side: both
+    principle: Pick one stat that is cheap to stack (an attribute, maximum mana, energy shield, armour, evasion) and
+      collect every line that turns it into damage, speed, defence or skill power; stacking that stat then scales all
+      of those lines at once.
+    compounds: Each point of the stacked stat feeds several "per X" lines in different multiplier pools, so the gain
+      per point is a product across pools; it also usually brings defence with it.
+    limits: Depends on the number of distinct "per X" lines available and on gear that rolls the stat high; caps and
+      "less attributes" style costs must be counted.
+    eras:
+      - { game: poe1, era: "3.x late leagues", evidence: recall, examples: ["Strength stacking", "Intelligence stacking", "Dexterity stacking", "Mana stacking"] }
+      - { game: poe2, era: "0.4 Forbidden Rites", evidence: "snapshot:data/meta/ninja-2026-11-23.json", examples: ["Gemling Legionnaire 32% of the Forbidden Rites build index"] }
+    poe2:
+      anchors:
+        - { kind: ascendancy, name: Gemling Legionnaire }
+        - { kind: notable, name: Enhanced Effectiveness }
+        - { kind: notable, name: Adaptive Capability }
+        - { kind: notable, name: Jack of all Trades }
+        - { kind: notable, name: Powerful Casting }
+        - { kind: notable, name: Falcon Technique }
+        - { kind: unique, name: Greymake }
+        - { kind: unique, name: Hand of Wisdom and Action }
+      search:
+        - { kind: notable, text: per Strength }
+        - { kind: unique, text: per Intelligence }
+        - { kind: unique, text: per Dexterity }
+    levers: [more_damage, life, energy_shield]
+    pob: modelled
+
+  - id: skill_level
+    title: Skill level as a base-damage multiplier
+    side: offence
+    principle: Base damage of skill gems grows steeply with level, so flat "+ to level" sources multiply the hit
+      before any other modifier, and the more increases a build already has the more each level is worth.
+    compounds: A level raises the base that every later pool multiplies, and level sources stack from gear, supports
+      and passives.
+    limits: Mostly spells (and minions); attacks take base damage from weapons, so the same lever is weak there.
+    eras:
+      - { game: poe1, era: "3.x, many leagues", evidence: recall, examples: ["+gem level spell builds", "Empower", "Shaper of Flames"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: support, name: Fire Mastery }
+        - { kind: support, name: "Dialla's Desire" }
+        - { kind: unique, name: "Adonia's Ego" }
+        - { kind: unique, name: Collapsing Horizon }
+        - { kind: notable, name: Endless Blizzard }
+      search:
+        - { kind: unique, text: Level of all }
+    levers: [skill_level]
+    pob: modelled
+
+  - id: resistance_removal
+    title: Remove the enemy's resistance
+    side: offence
+    principle: Lower the target's resistance with several independent sources (penetration on the hit, exposure,
+      curses, a "ignore resistance" rule) until it is at or below zero for the funnel type.
+    compounds: It multiplies every point of damage of that type, and against high-resistance bosses its value is
+      larger than against trash, exactly where DPS is scarce.
+    limits: Each source is capped or diminishing; works best after a conversion funnel so one type gets them all.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["Elemental Weakness", "Wave of Conviction", "Penetration supports", "Inquisitor"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: support, name: Lightning Penetration }
+        - { kind: support, name: Potent Exposure }
+        - { kind: notable, name: Stripped Defences }
+        - { kind: notable, name: Turning of the Seasons }
+        - { kind: skill, name: Elemental Weakness }
+        - { kind: unique, name: The Pandemonius }
+        - { kind: unique, name: Choir of the Storm }
+      search:
+        - { kind: notable, text: Penetrates }
+        - { kind: support, text: Exposure }
+    levers: [pen_fire, pen_lightning, pen_cold, enemy_res_all]
+    pob: partial
+
+  - id: damage_taken_debuff
+    title: Enemy takes more damage
+    side: offence
+    principle: Debuffs that raise the damage the target takes (electrocute or shock style states, curses, broken
+      armour) form their own multiplier pool, separate from everything on the player's side.
+    compounds: The pool is usually nearly empty, so its first sources are worth more than another player-side
+      increase, and they apply to every hit and every actor hitting that target.
+    limits: Many are conditional buildup states; the boss benchmark switches buildup states off unless the build can
+      sustain them, so declare only what the build applies itself.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["Wither", "Vulnerability", "Intimidate"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: notable, name: Electrocution }
+        - { kind: skill, name: Vulnerability }
+        - { kind: support, name: "Uruk's Smelting" }
+      search:
+        - { kind: notable, text: increased Damage taken }
+    levers: [more_damage]
+    pob: partial
+
+  - id: crit_product
+    title: Crit chance times crit damage
+    side: offence
+    principle: Critical hits multiply chance by bonus; raise chance to near its cap first, then pour into bonus,
+      because each scales the value of the other.
+    compounds: Expected crit multiplier = 1 + chance x bonus; the product grows faster than either alone and also
+      powers crit-gated triggers and effects.
+    limits: Needs high base crit (skill or weapon) or a chance source; a never-crit rule removes the layer entirely in
+      exchange for accuracy.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["Assassin", "Power charge stacking", "Diamond Flask"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: support, name: Supercritical }
+        - { kind: notable, name: Evocational Practitioner }
+        - { kind: keystone, name: Resolute Technique }
+      search:
+        - { kind: notable, text: Critical Damage Bonus }
+    levers: [crit_chance, crit_damage]
+    pob: modelled
+
+  - id: ailment_stacking
+    title: Ailments that stack per hit
+    side: offence
+    principle: Damage over time from ailments that stack per application (poison, bleed and similar) scales with hit
+      rate times duration times magnitude, not with hit size alone.
+    compounds: Stacks = application rate x duration, so speed, duration and magnitude multiply; effects that scale
+      with the number of stacks on the target add a further layer.
+    limits: Hit-only DPS metrics miss it (the engine's ailment metric covers it, I8); stacking caps and "less hit
+      damage" supports trade one pool for another.
+    eras:
+      - { game: poe1, era: "3.x, many leagues", evidence: recall, examples: ["Pestilent Strike", "Toxic Rain", "Crimson Dance", "Occultist poison"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: support, name: Escalating Poison }
+        - { kind: support, name: "Arakaali's Lust" }
+        - { kind: support, name: Deadly Poison I }
+        - { kind: notable, name: Building Toxins }
+        - { kind: keystone, name: Crimson Assault }
+      search:
+        - { kind: support, text: Poison }
+    levers: [more_damage, cast_speed]
+    pob: modelled
+
+  - id: trigger_automation
+    title: Triggers and repeats instead of casts
+    side: offence
+    principle: Let one action fire several skills (triggered spells, repeats, echoes, meta skills that fire on
+      reaching energy), so damage per action is the sum of many skills and the trigger rate rides on attack or crit
+      rate.
+    compounds: Per-action damage x action rate x number of triggered skills; anything that speeds the trigger
+      condition scales every triggered skill at once.
+    limits: Energy, cooldown or seal limits cap the trigger rate; PoB may not model the trigger rate or repeat count,
+      so the number can understate the idea (label possibly_unmodelled, do not call it a dud).
+    eras:
+      - { game: poe1, era: "2.x-3.x, many leagues", evidence: recall, examples: ["Cast On Critical Strike", "Cast While Channelling", "Arcanist Brand", "Mjolner", "Cospri's Malice"] }
+      - { game: poe2, era: "0.1-0.2", evidence: recall, examples: ["Cast on Critical"] }
+    poe2:
+      anchors:
+        - { kind: skill, name: Cast on Critical }
+        - { kind: support, name: Spell Echo }
+        - { kind: support, name: Unleash }
+        - { kind: support, name: Energy Retention }
+        - { kind: notable, name: Dynamism }
+        - { kind: keystone, name: Ritual Cadence }
+        - { kind: ascendancy, name: Invoker }
+        - { kind: unique, name: Collapsing Horizon }
+      search:
+        - { kind: skill, text: triggers socketed }
+    levers: [cast_speed, crit_chance, more_damage]
+    pob: partial
+
+  - id: parallel_instances
+    title: Many instances hitting one target
+    side: offence
+    principle: Make several copies of the damage source act at once on a single target (totems, overlapping
+      projectiles or areas, forks and splits, companions), so single-target DPS is per-instance DPS x instances.
+    compounds: Instance count multiplies everything that scales one instance, and per-instance bonuses that scale with
+      the count add another layer.
+    limits: Overlap rules (does the same projectile or area hit one target twice), placement time and limits;
+      minion main skills have no metric yet, so use player or totem delivery.
+    eras:
+      - { game: poe1, era: "3.x, many leagues", evidence: recall, examples: ["Ballista totems", "shotgunning projectiles", "Spell Totem", "Mines"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: keystone, name: Ancestral Bond }
+        - { kind: notable, name: Ancestral Artifice }
+        - { kind: notable, name: Ancestral Unity }
+        - { kind: notable, name: Fortified Location }
+        - { kind: notable, name: Answered Call }
+        - { kind: support, name: Fork }
+        - { kind: support, name: Multishot I }
+      search:
+        - { kind: notable, text: Totem }
+    levers: [more_damage, cast_speed]
+    pob: partial
+
+  - id: resource_engine
+    title: A resource the attack refills
+    side: offence
+    principle: Use charges, combo or infusions as multipliers, and refill them through the same action that spends
+      them, so the bonus is permanent in practice instead of a burst.
+    compounds: The resource multiplies damage while the generation rate rises with attack speed, so speed counts
+      twice; resource-to-ally rules let a second actor share it.
+    limits: Uptime is an assumption PoB cannot measure (L5b ceilings report break-even uptime); consuming and keeping
+      charges at once is usually forbidden.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["Frenzy and Power charge stacking", "Inspiration", "Rage"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: notable, name: Fervour }
+        - { kind: keystone, name: Resonance }
+        - { kind: keystone, name: Conduit }
+        - { kind: support, name: "Ailith's Chimes" }
+        - { kind: notable, name: Elemental Surge }
+      search:
+        - { kind: notable, text: Charges }
+    levers: [more_damage, cast_speed, crit_chance]
+    pob: partial
+
+  - id: defence_as_offence
+    title: Defence stat that also scales damage
+    side: both
+    principle: Choose a defence that, through specific lines, also raises damage or recovery (damage per armour or
+      evasion, damage while leeching, damage per totem that also gives armour), so one investment buys both sides.
+    compounds: Survival and DPS stop competing for the same budget; every point raises both, which matters because
+      the objective is maximum DPS subject to a no-death floor.
+    limits: The conversion lines are few and usually conditional (while leeching, per shield stat); check the
+      condition holds in the boss fight.
+    eras:
+      - { game: poe1, era: "3.x, many leagues", evidence: "snapshot:data/meta/ninja-2026-11-23.json", examples: ["Righteous Fire Chieftain (top of the Covens build index)", "Ward builds", "Iron Will"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: notable, name: Greatest Defence }
+        - { kind: notable, name: Fortified Location }
+        - { kind: notable, name: Fast Metabolism }
+      search:
+        - { kind: notable, text: while Leeching }
+    levers: [life, armour, evasion, more_damage]
+    pob: partial
+
+  - id: layered_mitigation
+    title: Independent defence layers
+    side: defence
+    principle: Effective HP is a product of independent layers (maximum resistances, armour or evasion, a second pool
+      that takes damage first, damage-type conversion on the player, recovery); add a missing layer before deepening
+      one that is already large.
+    compounds: Each independent layer multiplies the hits survived, so the same budget across layers survives far more
+      than one stacked layer; survival is the floor every DPS figure is ranked under.
+    limits: Mana or ES pools that take damage first trade offence resources; immunities with a cost (life set to one)
+      reshape the whole build.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["Chaos Inoculation", "Mind Over Matter", "Petrified Blood", "Low Life", "spell suppression"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: keystone, name: Mind Over Matter }
+        - { kind: keystone, name: Chaos Inoculation }
+        - { kind: keystone, name: Eldritch Battery }
+        - { kind: notable, name: "Varashta's Intuition" }
+        - { kind: unique, name: Blackbraid }
+        - { kind: unique, name: Ghostwrithe }
+      search:
+        - { kind: notable, text: Damage is taken from Mana before Life }
+    levers: [life, energy_shield, armour, evasion, all_res]
+    pob: modelled
+
+  - id: recovery_from_offence
+    title: Recovery that scales with damage dealt
+    side: defence
+    principle: Take recovery from damage dealt (leech, recoup on hit, life on kill), so the faster the build kills,
+      the faster it heals.
+    compounds: Recovery rises with DPS, so offence investment also buys sustain, and sustain keeps the damage uptime.
+    limits: Leech caps and leech-only rules; against one boss on-kill recovery does nothing.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["Vaal Pact", "Slayer", "Berserker"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: keystone, name: Vaal Pact }
+        - { kind: notable, name: Mystic Harvest }
+        - { kind: notable, name: Fast Metabolism }
+      search:
+        - { kind: notable, text: Leech }
+    levers: [life, more_damage]
+    pob: partial
+
+  - id: rule_changer
+    title: Cheap item or keystone that rewrites a rule
+    side: both
+    principle: Look for a unique or keystone whose line changes a rule (converts a mechanic, lets one stat stand in for
+      another, removes a requirement, transforms a slot) and that unlocks one of the other patterns cheaply.
+    compounds: The rule change itself adds little; its value is that it turns on a multiplier chain that was not
+      reachable, which is why cheap enablers defined many league-start metas.
+    limits: Sweeps find them (unique and keystone sweeps); check price tier, since a rare enabler fails the budget
+      tiers.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["Tabula Rasa", "Goldrim", "Indigon", "Cospri's Malice", "The Squire"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: unique, name: Kaltenhalt }
+        - { kind: unique, name: Original Sin }
+        - { kind: unique, name: Facebreaker }
+        - { kind: keystone, name: Hollow Palm Technique }
+        - { kind: notable, name: Way of the Stonefist }
+      search:
+        - { kind: unique, text: instead }
+    levers: [more_damage]
+    pob: partial
+
+  - id: persistent_dot_aura
+    title: Always-on damage scaled by defence
+    side: both
+    principle: A damaging effect that runs without actions (a burning aura, a degen around the player) and whose
+      damage scales from maximum life or regeneration, so defence investment is the damage investment.
+    compounds: Life and regeneration both raise survival and the aura's damage; uptime is total, so the build's
+      action economy goes entirely to movement or a second skill.
+    limits: Pinned PoE2 data has no direct equivalent skill (checked 2026-11-23); kept as a lesson for 1.0 data and
+      for spotting the shape in new skills.
+    eras:
+      - { game: poe1, era: "3.x to Covens (top build 2026-11-23)", evidence: "snapshot:data/meta/ninja-2026-11-23.json", examples: ["Righteous Fire Chieftain 5.1% of the Covens build index"] }
+    poe2:
+      absent: true
+    levers: [life]
+    pob: partial
+
+  # Defence-side lessons (owner: "Defensive layering + lessons also", cmsg_01RxGYnd78N9kMbbAJ5pWDhUJwf4H96Eiv5VKs9dH3qwiY).
+  # Builds that topped ladders and survived the hardest bosses combined several of these; one large layer died to the
+  # damage type or mechanic that layer did not cover.
+  - id: avoidance_layer
+    title: Chance-based avoidance on top of mitigation
+    side: defence
+    principle: Add a layer that stops or reduces some hits outright (evasion, deflection, block) beside the layer that
+      shrinks every hit (armour, resistances, a second pool).
+    compounds: Avoidance and mitigation are independent, so damage taken is their product; each also covers hits the
+      other handles badly (large physical slams versus many small hits).
+    limits: Chance layers do nothing against damage over time and can fail several times in a row against the one hit
+      that kills; luck-modifying rules matter more than raw chance at the top.
+    eras:
+      - { game: poe1, era: "3.x, many leagues", evidence: recall, examples: ["spell suppression", "max block Gladiator", "Acrobatics", "Glancing Blows block"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: keystone, name: Glancing Blows }
+        - { kind: notable, name: Enduring Deflection }
+        - { kind: notable, name: Defensive Reflexes }
+        - { kind: notable, name: Favourable Odds }
+      search:
+        - { kind: notable, text: Deflection }
+        - { kind: notable, text: Block chance }
+    levers: [evasion, life]
+    pob: modelled
+
+  - id: max_resistance_push
+    title: Maximum resistance above the cap
+    side: defence
+    principle: Raise maximum elemental resistances, not only resistances; each point above the usual cap removes a
+      large share of what still gets through, and the hardest bosses hit with elemental damage.
+    compounds: Damage taken scales with (100 - resistance), so one point near the top cuts remaining damage by a
+      growing fraction; it also multiplies every other layer's effect on elemental hits.
+    limits: Sources are rare and often conditional (socketed support colours, one element); enemy penetration and
+      exposure on the player eat into it.
+    eras:
+      - { game: poe1, era: "3.x, many leagues", evidence: recall, examples: ["Purity auras", "Saviour of the Sands", "Templar max res", "Hierophant"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: notable, name: Unnatural Resilience }
+        - { kind: notable, name: Crystalline Resistance }
+        - { kind: notable, name: Forged in Flame }
+      search:
+        - { kind: notable, text: Maximum Elemental Resistances }
+    levers: [all_res]
+    pob: modelled
+
+  - id: damage_type_shift
+    title: Move incoming damage to the layer that handles it
+    side: defence
+    principle: Take part of one damage type as another, or let a layer apply to a type it normally ignores (armour
+      against elemental hits), so every incoming hit meets the strongest layer the build already has.
+    compounds: Turns one deep layer into coverage for several damage types, so the weakest type stops being the one
+      that kills; it multiplies with maximum resistance and pool layers.
+    limits: Shifting into a type with low resistance makes things worse; armour against elemental is weaker per point
+      than against physical.
+    eras:
+      - { game: poe1, era: "3.x, many leagues", evidence: recall, examples: ["physical taken as elemental", "Taste of Hate", "Lightning Coil", "Kaom's Heart"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: notable, name: Altered Flesh }
+        - { kind: notable, name: Devoted Protector }
+        - { kind: unique, name: Blackbraid }
+        - { kind: keystone, name: Iron Reflexes }
+      search:
+        - { kind: notable, text: also applies to Elemental }
+        - { kind: notable, text: Damage taken as }
+    levers: [armour, all_res]
+    pob: modelled
+
+  - id: control_immunity
+    title: Immunity to stun, freeze and ailments
+    side: defence
+    principle: Make the build unable to lose control (stunned, frozen, heavily slowed) before stacking more health;
+      deaths in the hardest fights often start with one lost second, not one big hit.
+    compounds: Keeps every other layer and the damage uptime working; without it a single stun or freeze turns a
+      survivable fight into a chain of hits taken without recovery.
+    limits: The PoB numbers barely see it (no metric for time spent stunned), so ablation reads it as zero damage and
+      little EHP; judge it on the boss mechanics, not on the score.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["freeze immunity flasks", "Unwavering Stance", "Brine King pantheon", "ailment immunity"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: keystone, name: Unwavering Stance }
+        - { kind: notable, name: Crystallised Immunities }
+        - { kind: notable, name: Against the Elements }
+        - { kind: unique, name: Dream Fragments }
+      search:
+        - { kind: notable, text: Ailment Threshold }
+        - { kind: notable, text: Stun Threshold }
+    levers: [life]
+    pob: not_modelled
+
+  - id: burst_recovery
+    title: Recovery that answers burst
+    side: defence
+    principle: Pair the defence layers with recovery that refills fast after a big hit (flasks, recoup, instant or
+      recharging pools), so the build survives sequences of hits, not just the single largest one.
+    compounds: Effective HP over a fight = pool x mitigation, refilled at the recovery rate; recovery multiplies how
+      often the pool can be spent.
+    limits: Steady-state recovery does not save a one-shot; check the largest named hit first (benchmark margins), then
+      recovery.
+    eras:
+      - { game: poe1, era: "every league", evidence: recall, examples: ["instant life flasks", "Petrified Blood", "Aegis Aurora", "recoup clusters"] }
+      - { game: poe2, era: "0.1 onward", evidence: recall, examples: [] }
+    poe2:
+      anchors:
+        - { kind: keystone, name: Oasis }
+        - { kind: notable, name: Heavy Drinker }
+        - { kind: notable, name: Made to Last }
+        - { kind: notable, name: Endured Suffering }
+        - { kind: keystone, name: Eternal Youth }
+      search:
+        - { kind: notable, text: Recouped }
+    levers: [life, energy_shield]
+    pob: partial
+

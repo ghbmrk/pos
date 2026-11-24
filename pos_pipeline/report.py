@@ -193,6 +193,13 @@ def render_markdown(d: dict) -> str:
                 a(f"  - companion FAILED: {tr['actor']['error']}")
             if tr.get("unparsed"):
                 a(f"  - candidate mods rejected, PoB cannot parse: {', '.join(tr['unparsed'])}")
+            lp = tr.get("loop") or {}
+            if lp.get("rounds"):
+                a(f"  - improvement loop: stop {lp.get('stop')}, objective gain {lp.get('gain', 0):+.1%}, {lp.get('seconds', 0):.0f} s")
+                for r in lp["rounds"]:
+                    a(f"    - round {r['n']}: gain {r['gain']:+.1%}, kept {', '.join(r['accepted']) or 'nothing'}")
+                if lp.get("trace"):
+                    a(f"    - trace: {lp['trace']}")
             for note in tr.get("notes", []):
                 a(f"  - note: {note}")
             a("")
