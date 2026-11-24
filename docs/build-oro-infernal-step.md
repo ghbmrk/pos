@@ -81,6 +81,54 @@ Rotation:
 4. Cast Echoing Strikes, then one long Infernal Step.
 5. Repeat when Echoing comes off cooldown, about once per cast.
 
+## Diligence: does Echoing Strikes cover the whole Infernal Step sequence? (owner cmsg_01RxGYnd78N9kMbbAJ5pWDhUReQJLkN6QfevSzLjqD7Sin)
+
+This is really two questions with different answers. (a) Is the whole multi-strike sequence one "use" that an
+Empowerment applies to? (b) Does each afterimage replay the whole sequence?
+
+**Primary text:**
+- Infernal Step: "**When you use this Skill**, gain 1 Sacrificial Flame then take 400 Fire Damage per Sacrificial
+  Flame" and "Teleports and Strikes 2 times, plus 3 additional times per Sacrificial Flame". The flame count and the
+  burn are tied to a single use, and the extra strikes are described as part of that use. Its tags include Strike.
+- Echoing Strikes: "Empower your **next Strike** to create afterimages that **use that same Strike** in additional
+  locations". Unlike Temporal Rift-style repeaters, it has no exclusion clause. Compare the 0.5 spell-repeat buff:
+  "Cannot Empower Skills with a Cooldown" (PoB act_int.lua).
+
+**Precedents:**
+
+| Precedent | What it shows | Source quality |
+|---|---|---|
+| PoE2 Flicker Strike: "Teleport to an enemy and Strike them. Consumes Power Charges to perform additional teleporting Strikes" | The same structure already ships: one use containing N teleport strikes, with the count set at use time. So "one use = N strikes" is an established engine construct, not a special case | Primary (PoB 0.5 data) |
+| PoE2 Barrage: "Empowering your next Repeatable … Attack to Repeat multiple times. Consumes your Frenzy Charges on use to add additional repeats" | The same design family as Echoing (Frenzy in, copies out, "next" use). Barrage's Empowerment is consumed once and applies to all repeats of that use | Primary text; "applies to all repeats" is how repeats work by definition |
+| PoE2 Empowered/warcry rules (keyword): Empowerment is counted per attack **use**, and Ancestrally Boosted attacks "count as being Empowered" | Empowerment attaches to the use, not to each hit | Primary (keyword text) |
+| PoE1 Multistrike with exerted attacks: one exert covered all repeats of the attack | A long-standing GGG convention that a per-use buff covers every repeat within the use | Recall, not re-sourced |
+| PoE2 devs gate degenerate copies explicitly: "Triggered Skills cannot be Ancestrally Boosted", Tasalio's "cannot be Ancestrally Boosted", the spell repeater's cooldown exclusion | When GGG anticipates a bad combo, they print an exclusion. Neither Echoing Strikes nor Infernal Step has one, which suggests it hasn't been anticipated, or is accepted | Primary |
+
+**Verdict (judgement, not a fact):**
+- (a) **Likely yes (~75%).** The whole sequence is one use, so the player's own Empowerment covers all 2+3F strikes.
+  Effects that depend on this: Knight's Empowered +20%, Whispers' empowered extra chaos, and the "Empowered Attacks"
+  notables.
+- (b) **Uncertain (~50%).** An afterimage "uses that same Strike". If it reproduces the skill with the same stats, the
+  strike count comes with it, because that count is a stat read at use time, like Flicker Strike's charge count. Two
+  risks:
+  - The afterimage sits "in additional locations", but Infernal Step moves the user by teleporting. A stationary
+    afterimage might do only its first strike, or teleport on its own.
+  - The flame count may be read from the player's buff rather than copied into the afterimage.
+
+**Damage if (b) fails** (afterimages do one strike each): the Echoing bonus collapses from ×6 to (S + 0.5A)/S, where S
+is strikes per cast and A is the number of afterimages. At F=10 with 8 Frenzy that is (32+5)/32 = **×1.16**.
+
+| F=10, 8 Frenzy | Full replay | One strike per afterimage |
+|---|---|---|
+| Echoing bucket | ×6 | ×1.16 |
+| Build total vs F=0 (before generic scaling) | ×33 | ×6.4 |
+
+At ×6.4 the build is still an F-scaling build, but no longer exceptional. The Frenzy notables and Thrilling Chase
+(Deadeye) stop mattering, and the plan should move those points into flame scaling and defence.
+
+**Cheapest confirmation at 1.0:** at F≥3, cast Echoing then Infernal Step on a training dummy and count hits per
+afterimage. Check the combat log or count the damage numbers. Do this before buying the second Oro's.
+
 ## Gear (player)
 
 | Slot | Item | Key stats |
