@@ -146,6 +146,44 @@ target. Splash from Tribal Fury and Zealous Inquisition's explosions widen it. T
   one long cast.
 - Cyclone costs gem slots and mana only; the gear is unchanged.
 
+## Add-on: Darkness / Eclipse as a second per-use multiplier (owner cmsg_01RxGYnd78N9kMbbAJ5pWDhU6TLKcJWzKXKERPA9ubgsod)
+
+**Facts** (poe2db 1.0; see stealth-bank and brainstorm notes):
+- An Ambush (an attack from Stealth) expends all Darkness for 3% more per point; default max 30.
+- Eclipse: "Attacks count as being used from Stealth and expending maximum Darkness". It builds Glory by gaining
+  Darkness, and drains after 4 s at an accelerating rate.
+- Grim Bargain (60 Spirit): +5 Darkness on crit; skills count as consuming 10% more Darkness.
+- Conceal: +10 Darkness on entering Stealth.
+- The persistent "Shroud" Spell buff: Stealth after not using skills or being hit for a short time. No weapon needed.
+
+**Interaction.** Darkness and Echoing Strikes are both counted per *use*, so the bonus at cast start covers the whole
+2+3F sequence. It only needs to be active once per 12.8 s Echoing cycle. Eclipse's short, draining window is therefore
+enough, and the decay problem from the stealth-bank analysis goes away.
+
+| Variant | Multiplier on the cast (estimate) | Build total, F=10 / 8 Frenzy, before generic scaling |
+|---|---|---|
+| None | ×1 | ×33 |
+| Default 30 max Darkness (Eclipse or a full bar from Stealth) | ×1.9 (×2.0 with Grim Bargain) | ×66 |
+| Rage/Darkness shared-bar lever, if real (60–164 max) | ×2.8–5.9 | ×92–195 |
+
+Witchhunter adds a further ×1.3 to ×1.4 on top of any row.
+
+**Constraint: Darkness income without daggers.** Oro's has 5% crit, which gives Grim Bargain about 8 Darkness per
+cycle. Two practical paths:
+- **Stealth opener:** step out, let the Shroud buff restore Stealth (Conceal +10), then open the long cast from
+  Stealth.
+- **Eclipse:** needs its Glory requirement met from Darkness gains. The Glory cost and the Glory gained per Darkness
+  are unpublished.
+
+Shades also copy an ambushing melee attack (at 50% less), but creating them needs dagger skills on a weapon swap. They
+carry the same replay uncertainty as the afterimages, so they are low priority.
+
+**Tests:**
+1. Does the Ambush or Eclipse bonus persist across all strikes of one Infernal Step use (~70%)?
+2. Eclipse's Glory cost and Glory per Darkness.
+3. How quickly the Shroud buff grants Stealth.
+4. Whether Infernal Step's "Strike" counts as a melee Ambush (it is tagged Melee and Strike).
+
 ## Gear (player)
 
 | Slot | Item | Key stats |
