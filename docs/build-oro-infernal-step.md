@@ -1,4 +1,4 @@
-# Build plan: Oro's Sacrifice Infernal Step + Echoing Strikes (Knight)
+# Build plan: Oro's Sacrifice Infernal Step + Echoing Strikes
 
 Owner ask: cmsg_01RxGYnd78N9kMbbAJ5pWDhU8YitTiYSohyC5Z6G7yAeRh (a full gear set, ascendancy and required notables for
 candidate 1 in [novel-1-0-interactions.md](novel-1-0-interactions.md)). **Untested.** Item and skill text comes from
@@ -12,7 +12,35 @@ Cast Infernal Step repeatedly to stack Sacrificial Flames (F). Each flame adds 3
 fire damage. At max F, Oro's makes a Frenzy Charge every second. Spend those charges on Echoing Strikes so one long cast
 is copied by 2+charges afterimages.
 
-## Ascendancy: Knight (Duelist), recommended
+## Ascendancy: Witchhunter (Mercenary), recommended (owner follow-up cmsg_01RxGYnd78N9kMbbAJ5pWDhUBfn16gkVQxdNXeL9QhwFju)
+
+All 26 ascendancies were scored on this engine using 0.5 node text (Witchhunter is not on the reported 1.0 rework
+list). Estimates, against the same gear:
+
+| Ascendancy | What acts on this engine | Est. vs no ascendancy |
+|---|---|---|
+| **Witchhunter** | Witchbane: boss Concentration = 30% of its life, broken by 100% of damage dealt, and it doesn't regain while you keep hitting. No Mercy: up to 40% more damage from missing Concentration. Pitiless Killer: Culling Strike. Keyword: at 0 Concentration enemies have **50% less Cooldown Recovery Rate** | ×1.3 to 1.4 damage, and boss abilities come back up to half as often |
+| Deadeye | Thrilling Chase: 50% chance to double the benefit of consuming Frenzy Charges (Echoing's +1 afterimage per charge); Avidity: 50% chance of an extra Frenzy; Tailwind: up to +20% skill speed, lost when hit | ×1.2 over Knight at 8 Frenzy |
+| Amazon | Predatory Instinct: 50% more vs Open Weakness, but Weakness segments cover only 45% of boss life; In for the Kill: 40% skill speed then; Elemental Surges are projectile-only (useless here) | about ×1.35 |
+| Knight | Empowered +20% inc, 15% more vs rare/unique, Squire as a decoy | about ×1.25 |
+| Smith of Kitava | Defence only: fire res and armour applying to fire | ×1.0 (fixes the burn) |
+| Warbringer | Anvil's Weight (break armour by 10% of hit damage, from any element) + Imploding Impacts (fully broken armour raises all hit damage taken, can go below 0) | unknown: the broken-armour magnitude isn't published; test at 1.0 |
+
+**Why Witchhunter wins.** It is the only option that also attacks the build's main risk, being locked in a 10 s+ cast.
+32+ hits per cast strip a boss's Concentration within the first ~30% of its life, and from then on the boss's
+cooldown-gated attacks recover up to 50% slower while you take ×1.4 damage. Knight's appeal (the Squire) was
+survival-by-decoy; Witchhunter gets more survival by slowing the boss itself.
+
+**Picks (8 points):** Witchbane, No Mercy, Pitiless Killer, plus Weapon Master or Zealous Inquisition (clear). Skip
+Obsessive Rituals: Sorcery Ward costs 50% of your armour, which Molten Tenet and the fire-burn plan rely on.
+
+**Tests at 1.0:**
+- Witchhunter text unchanged after the Mercenary rework.
+- Concentration applies to uber bosses.
+- How much 50% less cooldown recovery actually slows the uber Arbiter's slams.
+- Whether the Deadeye doubling applies to Echoing's afterimage count (if yes, Deadeye closes most of the gap).
+
+## Ascendancy alternative: Knight (Duelist)
 
 | Pick | Node (poe2db 1.0 wording) | Why it is here |
 |---|---|---|
@@ -25,7 +53,7 @@ is copied by 2+charges afterimages.
 Not picked: Righteous Bastion (Guard from blocking; a 2H sword has no shield block), Glorious Entrance (the chariot is
 mobility; it adds nothing here).
 
-**Alternative: Smith of Kitava (Warrior), if the self-burn proves to be the limit.** It removes most of the 400F fire
+**Other alternative: Smith of Kitava (Warrior), if the self-burn proves to be the limit.** It removes most of the 400F fire
 self-hit:
 - Tantalum Alloy: +75% fire res from the body armour.
 - Flowing Metal: +50% of armour applies to elemental damage.
@@ -42,8 +70,8 @@ cap turns out high (F≥20) or flames decay quickly.
 |---|---|---|
 | Infernal Step (granted by Oro's, level 19) | Elemental Focus, Close Combat II (the teleport strikes land at point blank), Fire Attunement, Elemental Penetration (1.0, 30% pen), Vampirism (1.0, Strike-only) | Avoid Ferocity: it eats the Frenzy Charges that Echoing needs. Item-granted skills can be supported in the Skills Panel |
 | Echoing Strikes (sword spell, 12.8 s cooldown) | cooldown recovery or duration support if available | Cast right before a high-F Infernal Step |
-| Vaal Standard (Knight banner) | – | Place it at the boss |
-| Summon Squire | Squire gear set (see below) | Give it a taunt or defensive melee skill if one exists at 1.0 |
+| Vaal Standard (Knight only) | – | Place it at the boss |
+| Summon Squire (Knight only) | Squire gear set (see below) | Give it a taunt or defensive melee skill if one exists at 1.0 |
 | Defensive aura or herald with spare Spirit | – | The Fallen Formation gives +60 Spirit |
 
 Rotation:
@@ -120,7 +148,7 @@ Other base fixes, which apply to any setup:
 - Fire Attunement.
 - Fire Mastery (+1 gem level, which raises the 227% effectiveness).
 
-## Gear (Squire)
+## Gear (Squire, Knight variant only)
 
 The Squire is used for survival and aggro, not damage:
 - Heavy armour with life rolls.
