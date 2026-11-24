@@ -129,6 +129,23 @@ At ×6.4 the build is still an F-scaling build, but no longer exceptional. The F
 **Cheapest confirmation at 1.0:** at F≥3, cast Echoing then Infernal Step on a training dummy and count hits per
 afterimage. Check the combat log or count the damage numbers. Do this before buying the second Oro's.
 
+## Mapping vs bossing (owner cmsg_01RxGYnd78N9kMbbAJ5pWDhU7VXNqxcbxVCtQ6YRM9xQrL)
+
+**Infernal Step clears, but you can't steer it.** It teleports between enemies, the same structure as Flicker Strike's
+"additional teleporting Strikes on nearby enemies". So a 32-strike cast moves through a pack; it doesn't stay on one
+target. Splash from Tribal Fury and Zealous Inquisition's explosions widen it. The problems are different ones:
+- No steering or dodging for 10+ s.
+- The flame count only ever rises per cast, so casts get longer and the burn grows. You can't stay low-F on purpose.
+- Flame decay between packs is unknown.
+
+**Recommendation: split the roles.** Estimate, untested.
+- **Clear: Cyclone.** It requires dual swords or a two-hand sword, and Oro's qualifies, so there is no weapon swap.
+  Supports: Fan the Flames (Wind skills; it triggers fire explosions on ignited targets, and Oro's ignites full-life
+  enemies if that line survives at 1.0), Elemental Penetration, Close Combat.
+- **Rares and bosses: ramp, then the long cast.** Ramp with 3 to 5 short Infernal Step casts, then Echoing Strikes and
+  one long cast.
+- Cyclone costs gem slots and mana only; the gear is unchanged.
+
 ## Gear (player)
 
 | Slot | Item | Key stats |
