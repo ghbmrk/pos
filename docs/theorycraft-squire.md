@@ -11,7 +11,7 @@ values: every game number below is quoted from a source, the pinned catalogue or
 - Baseline (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUKXYJyC5hSBnTQELRB8Csqz): content confirmed for 1.0 plus current game data.
 - Cyclone is a confirmed 1.0 Duelist skill (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhURa2nYrS6YKpHK3nHuv9Fkf; sources F9 to F11).
   It is missing from the pinned data only because the Duelist is not in it yet.
-- The Squire gets one skill plus its supports (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY, 2026-11-23).
+- The Squire can use multiple skills (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUJuDwaMtpvSstLRZ33XFxUt, 2026-11-24). This supersedes "one skill plus its supports" (2026-11-23), so sections written under that rule (such as the Mark moving to the player in 2.11) can move back to the Squire.
   This conflicts with F6, where the demo Squire used two skills, so C2 re-checks it at 1.0. Section 2.11 and the
   one-skill note in section 3 follow the owner's statement.
 
@@ -644,7 +644,7 @@ equipment screen or a short in-game test on launch day.
 | # | Check | How | Decides ranks |
 |---|---|---|---|
 | C1 | Squire equipment slots: which armour pieces, and whether it has jewellery | equipment screen | 3, 4, 5, 6, 8, 9 |
-| C2 | Squire skill rules: one skill plus its supports per the owner (2026-11-23), against two skills in the demo (F6), so confirm the count; which types (Marks, spells, warcries, banners, persistent buffs?); which supports work, including "you use yourself" limits | gem screen | 1, 2, 3, 7, 10, 2.11 |
+| C2 | Squire skill rules: multiple skills per the owner (2026-11-24) and the demo (F6), so confirm the cap; which types (Marks, spells, warcries, banners, persistent buffs?); which supports work, including "you use yourself" limits | gem screen | 1, 2, 3, 7, 10, 2.11 |
 | C3 | Does "your Presence" work on items the Squire wears? | put Leer Cast on the Squire and read the player's damage on the character sheet; or read stat descriptions in data | 6, 9 |
 | C4 | Cyclone gem: its types (`Wind`, `Storm`, `InteractsWithElementalGround`?); whether pickup consumes the ground; whether several elements stack (F11 says they combine); its weapon requirement | gem data after re-pin | 3, 7, and the The Taming baseline |
 | C5 | Does ground the Squire makes count as allied for Cyclone pickup, the -walker notables and Catalysing Elements? | in-game test with Wake of Destruction on the Squire | 3, 7 |

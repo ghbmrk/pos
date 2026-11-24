@@ -42,7 +42,7 @@ everything else is a validator `Issue`:
 | `actor_kind` | error | kind not in `data/actors.yaml` |
 | `actor_unavailable` | error | actor is `pending`; message lists its unknowns |
 | `actor_requires` | error | class/ascendancy does not grant this actor |
-| `companion_skills` | error | skill-group count outside the actor's `min_skills`..`max_skills` (Squire: exactly one) |
+| `companion_skills` | error | skill-group count outside the actor's `min_skills`..`max_skills` (Squire: at least one, no upper limit until 1.0) |
 | `companion_slot` | error | gear slot not in the actor's `gear_slots` |
 | `unresolved` / `support_incompatible` / ... | error | companion skills and supports get the same checks as the main skill |
 
@@ -51,8 +51,8 @@ everything else is a validator `Issue`:
 Per actor: `status` (pending | available), `requires` {class, ascendancy}, `unknowns` (what blocks it),
 `model` (`native_pob` | `separate_build`, see 3), `gear_slots`, `min_skills`/`max_skills` (+ `skills_source`), `skill_effects`
 {skill id -> [{effect, uptime, source}]}, `budget_share` (see 5). Squire is `pending` with every 1.0-dependent field null,
-except its skill count: one skill plus its supports (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY,
-2026-11-23; the ExileCon demo showed two skills, so K4 re-checks).
+except its skill count: at least one, several allowed (owner, cmsg_01RxGYnd78N9kMbbAJ5pWDhUJuDwaMtpvSstLRZ33XFxUt, 2026-11-24,
+superseding one skill on 2026-11-23; matches the ExileCon demo's two skills). The upper limit is unpublished; K4 fills it.
 
 ## 3. How cross-actor effects enter PoB calcs
 

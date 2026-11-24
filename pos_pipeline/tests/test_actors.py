@@ -82,10 +82,10 @@ def test_companion_takes_exactly_one_skill_group(cat, fake_registry, skills):  #
     assert msg and "exactly 1" in msg[0] and f"spec lists {len(skills)}" in msg[0]
 
 
-def test_real_squire_skill_count_is_one_and_sourced():
+def test_real_squire_takes_multiple_skills_and_is_sourced():
     sq = data.actors()["squire"]
-    assert sq["min_skills"] == sq["max_skills"] == 1
-    assert "cmsg_01RxGYnd78N9kMbbAJ5pWDhUBsXA8kfFPvTNvep5sCDPmY" in sq["skills_source"]
+    assert sq["min_skills"] == 1 and sq["max_skills"] is None
+    assert "cmsg_01RxGYnd78N9kMbbAJ5pWDhUJuDwaMtpvSstLRZ33XFxUt" in sq["skills_source"]
 
 
 def test_actor_requires_every_variant(cat, fake_registry):  # noqa: F811

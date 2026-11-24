@@ -259,7 +259,7 @@ def _check_companion(spec, cat, cls, resolve, add) -> None:
 
 
 def _check_skill_count(comp, a, add) -> None:
-    """The actor's skill-group count: `min_skills`/`max_skills` in data/actors.yaml (Squire: exactly one, owner 2026-11-23)."""
+    """The actor's skill-group count: `min_skills`/`max_skills` in data/actors.yaml (Squire: at least one, no cap until 1.0, owner 2026-11-24)."""
     mn, mx, n = a.get("min_skills"), a.get("max_skills"), len(comp.skills)
     if (mn is None or n >= mn) and (mx is None or n <= mx):
         return

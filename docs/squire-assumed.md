@@ -9,7 +9,7 @@ loud failure for ordinary specs is unchanged. The assumed profile is a separate 
 ## Opt-in (two switches, both required)
 
 1. The spec says so: `companion: { kind: squire, assumed: { scenario: <id>, uptime: <0-1, optional> }, skills: [<one group>], gear: {...} }`.
-   The Squire takes exactly one skill group, one skill plus its supports (owner, 2026-11-23; `data/actors.yaml`).
+   The Squire takes at least one skill group and may take several (owner, 2026-11-24; `data/actors.yaml`).
 2. The run says so: CLI `--assumed`, MCP `run(..., allow_assumed=true)`. Without it the run is refused before any work
    (`AssumedNotAllowed`); preflight needs neither.
 
