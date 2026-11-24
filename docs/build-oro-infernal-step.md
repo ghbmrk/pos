@@ -184,6 +184,80 @@ carry the same replay uncertainty as the afterimages, so they are low priority.
 3. How quickly the Shroud buff grants Stealth.
 4. Whether Infernal Step's "Strike" counts as a melee Ambush (it is tagged Melee and Strike).
 
+## Integrated architecture (owner cmsg_01RxGYnd78N9kMbbAJ5pWDhUCBTcYPZGdVWSFQhRkYTxgm)
+
+Everything here is an estimate built on the hypotheses tested below; nothing is measured.
+
+### Design principle
+
+Most multipliers in this build are charged **per use** (Echoing afterimages, Eclipse/Ambush Darkness, Empowered
+bonuses, Whispers' empowered chaos). The flame count F turns one use into a 10–20 s, 32+ strike sequence. So the build
+is architected around one **cycle**: line up every per-use buff at the start of one long cast. The cast then generates
+everything the next cycle needs.
+
+### The cycle (~12.8 s, set by Echoing Strikes' cooldown)
+
+| Step | Action | What it consumes | What it produces |
+|---|---|---|---|
+| 0 | Arrive with F at its cap (Infernal Step ramp casts), Frenzy full, Glory 100 | – | – |
+| 1 | Eclipse (spell) | 100 Glory | Every attack counts as an Ambush expending max Darkness |
+| 2 | Echoing Strikes (spell) | All Frenzy (8) | Next Strike gets 10 afterimages |
+| 3 | Infernal Step, one long cast | 400F fire burn | 32 strikes × (player + 10 afterimages). Every strike carries Ambush ×2.0, Empowered bonuses and the F multipliers |
+| 3a | During the cast: Concentration breaks within the first ~30% of boss life | – | No Mercy up to 40% more; boss cooldown recovery 50% slower; Culling at the end |
+| 3b | During the cast: Oro's ×2 at max F | – | 2 Frenzy per second, so full again before Echoing is off cooldown |
+| 3c | During the cast, after Eclipse has ended: crits | – | Grim Bargain +5 Darkness per crit. Darkness gained builds Glory for the next Eclipse (Glory can't build while Eclipse is active) |
+| 4 | Cast ends: repeat from step 1 | – | – |
+
+**The closed loop that makes it compound (step 3c).** With full replay, one cast is about 350 hits. At Oro's 5%
+base crit that is about 18 crits, so +88 Darkness per cast if afterimage crits count as yours. So the long cast pays
+for the next Eclipse by itself. Hit volume (driven by F and Frenzy) feeds Darkness, which feeds Glory, which feeds
+Eclipse, which multiplies the next cast. Without full replay it is only 32 hits, about 2 crits and +8 Darkness: the
+loop breaks, and you need crit gear or the Stealth opener (Conceal +10) instead.
+
+**Self-burn neutralisation.** With 90% max fire res, the burn is 40F per cast. Molten Tenet recoups 10% of the fire
+damage it prevents: 0.1 × 360F = 36F. Net cost is about 4F life per cast, so F can sit at its cap for free. Recoup
+counting res-prevented damage is an assumption to test.
+
+### Multiplier stack (per strike, F=10, vs unstacked Infernal Step on one Oro's)
+
+| Layer | Factor | Depends on |
+|---|---|---|
+| Flames: 15% more and two Oro's 12% extra-fire lines (Giant's Blood) | ×8.5 (×5.5 with one Oro's) | Flame cap ≥10; two lines stack |
+| Echoing afterimages, 8 Frenzy | ×6 | Afterimages replay the full sequence (~50%) |
+| Eclipse Ambush at 30 max Darkness, Grim Bargain | ×2.0 | Ambush persists across the use (~70%) |
+| Witchhunter (No Mercy, time-averaged) | ×1.35 | Concentration exists on ubers |
+| **Core total** | **×137** | |
+| Optional: Whispers of the Damned (dagger set; +42% extra chaos on 2 casts per curse, gain-as-extra is additive with Oro's) | ×1.12 | Dagger weapon swap |
+| Optional: 3 Shades held by Eclipse (dagger set; each copies the ambushing melee use at 50% less, additive with afterimages) | ×1.25 | Shades replay the full sequence; ~3 s of setup inside the cycle |
+| Optional: Rage/Darkness shared-bar lever (60–164 max Darkness) | ×1.4–3.0 on the Darkness layer | Unconfirmed shared bar |
+
+The base-weapon handicap (Oro's at ~0.55× of a good rare) applies once, outside the stack.
+
+### Failure ladder (decides what to buy first at 1.0)
+
+| Outcome | Total |
+|---|---|
+| Everything holds | ×137 |
+| Ambush doesn't persist across the use | ×69 |
+| Afterimages do one strike each | ×26 (the Darkness loop also needs crit gear) |
+| Both fail | ×13 (still a working F-scaling build: Witchhunter + two Oro's) |
+
+Order of commitment:
+1. Test the flame cap.
+2. Test afterimage replay. If it fails, drop the Frenzy notables and skip Eclipse; spend those points on defence.
+3. Test Ambush persistence.
+4. Only then buy the second Oro's and the dagger swap.
+
+### Gear and passive changes vs the base plan
+
+- **Add crit chance** (jewels, amulet, rings). Crit no longer feeds damage here; it feeds Darkness. About 5–10% is
+  enough if replay holds.
+- **Int for Eclipse** (51). Giant's Blood triples weapon requirements: Oro's needs 186 Str / 132 Dex. A dagger on the
+  swap set is also tripled.
+- **Max fire res to 90** is the cheapest survival lever, because it makes the burn and recoup net-neutral.
+- **Weapon set 2 (optional tier):** a dagger for Whispers of the Damned and Shadow Assault (Shades). Weapon swaps are
+  allowed; whether Shades persist across a swap is a 1.0 test.
+
 ## Gear (player)
 
 | Slot | Item | Key stats |
