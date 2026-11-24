@@ -18,12 +18,13 @@
 - 2026-11-23 · Product acceptance test: player prompt (e.g. Squire + Cyclone) -> several likely-competitive ideas -> sim validates -> several loops of creative improvement verified by sim -> results; end-to-end Squire + Cyclone run is the acceptance eval (docs/loop.md section 5; closed by L3, L4, L6) · cmsg_01RxGYnd78N9kMbbAJ5pWDhU1dnxqDdRaEYAuumsEdPHoc
 - 2026-11-23 · Ideation draws on lessons from past PoE1/PoE2 metas as abstract compounding patterns (priors, not names); docs/meta-lessons.md · cmsg_01RxGYnd78N9kMbbAJ5pWDhUX2GMWf6TSLPYKzmKmpb39v
 - 2026-11-23 · Defensive layering also drawn from meta lessons: 2+ independent defence layers per candidate (warning defence_not_layered) · cmsg_01RxGYnd78N9kMbbAJ5pWDhUJwf4H96Eiv5VKs9dH3qwiY
+- 2026-11-24 · Currency-trading automation stops at public data + manual trades (no automation against undocumented GGG endpoints, no whispers/in-game automation); logged one-week trial at 1.0 decides continuation; docs/trading.md · cmsg_01RxGYnd78N9kMbbAJ5pWDhUA2fHVcoTbr5g6g2NTz61vY
 
 ## Open work
 <!-- id · state · owner thread -->
 - D1 · standing · Decisions 1 (cmsg_01RxGYnd78N9kMbbAJ5pWDhULpAd6m9DDdnmdwnR4WgH67)
 - A1 · retired · Alerts 1 (blockers go to Decisions)
-- T1 · exploration done, decision pending (Fable review, then card) · currency trading automation: line at tier 1 (public data + manual execution), reuse POE2MarketMCP, no POESESSID/whispers; docs/trading.md · thread "Explore automated trading for currency"
+- T1 · decided 2026-11-24 (public data + manual trades) · next: vet market-data MCP dependency (POE2MarketMCP vs sergeyklay/poe2-mcp-server) and start collector + one-week logged trial at 1.0 launch (with 2026-12-12 repin); docs/trading.md
 - Q1 · standing · Questions 1 (Opus)
 - S2 · done (PR open) · re-pin spike: result STAY ON FORK; engine layer in pos_engine/, PoB-PoE2 submodule at 601768b, zero patches; docs/engine-fork.md · thread "Test updating the PoB engine fork"
 - R1 · done · ghbmrk/pos scaffolded (README, .gitignore), STATE.md moved into repo · thread "Set up the pos repo"
