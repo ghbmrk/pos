@@ -75,6 +75,51 @@ Targets for the no-death floor (estimates):
 - Life about 5k or more.
 - Armour high enough that Molten Tenet's 45% matters.
 
+## Weapon base damage and Giant's Blood (owner follow-up cmsg_01RxGYnd78N9kMbbAJ5pWDhUU5i9J7grYfcynBBXautA4N)
+
+**Oro's is a weak base, and the build is a flat multiplier on it.** All figures are estimates. The 2H flat phys tier is
+assumed to be about twice the 1H tier, which is in the pin.
+
+| Weapon | Avg hit | APS | DPS index |
+|---|---|---|---|
+| Oro's Sacrifice: 248-384 fire, 21% speed, quality doesn't touch fire | 316 | 1.51 | 477 |
+| Good endgame rare Ultra Greatsword: 175% phys, mid flat, +20% quality, 20% speed | ~518 | ~1.56 | ~808 |
+| Top rare: T1 flat, 179% phys | ~618 | ~1.63 | ~1,000 |
+
+So Oro's base is about **0.5 to 0.6×** a good rare. Its per-flame line (×2.2 at F=10) has to cover that gap first.
+Phys-based "gain as extra" (Cremating Cries and similar) does nothing on it, because the sword has no physical damage.
+
+**Giant's Blood options.** The keystone lets you wield a 2H sword in one hand, so a second 2H weapon goes in the
+off-hand. This assumes dual-wield attacks alternate weapons. Oro's per-flame line has no "with this weapon" wording, so
+it is treated as global (assumption).
+
+| Setup at F=10 | Base | Per-flame extra fire | Index vs Oro's + shield |
+|---|---|---|---|
+| A. Oro's + shield (no keystone) | 477 | 1+1.2 | ×1.00 |
+| B. **Oro's + Oro's** (Giant's Blood) | 477 | 1+2.4 if both lines stack | **×1.55** (×1.38 at F=5, ×1.71 at F=20) |
+| C. Oro's + good rare 2H sword, alternating | ~640 average | 1+1.2 | ×1.35, plus phys-based extras on the rare's hits |
+
+**Recommendation: B.**
+- Two per-flame lines multiply the scaled quantity instead of the base, so the gain grows with F.
+- Frenzy generation also doubles to 2 per second, so Echoing Strikes is ready sooner.
+
+Choose C only if two copies of the same unique don't stack, or if a dual-wielded Infernal Step uses only the main hand.
+Costs of the keystone:
+- Attribute requirements triple: 186 Str and 132 Dex for Oro's.
+- Inherent life from Strength is halved (roughly 150 to 200 life).
+- No shield, so A's block, the Knight's Righteous Bastion and Redblade Banner are lost.
+
+Tests at 1.0:
+1. Does a 2H sword in the off-hand satisfy "Requires: Two Hand Sword"?
+2. Do Infernal Step strikes alternate weapons?
+3. Do two "12% per flame" lines stack?
+4. Do two granted copies of Infernal Step share one flame counter?
+
+Other base fixes, which apply to any setup:
+- Flat added fire to attacks on gloves, rings and jewels. Flat added damage matters more on a weak base.
+- Fire Attunement.
+- Fire Mastery (+1 gem level, which raises the 227% effectiveness).
+
 ## Gear (Squire)
 
 The Squire is used for survival and aggro, not damage:
