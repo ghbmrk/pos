@@ -242,6 +242,9 @@ The base-weapon handicap (Oro's at ~0.55× of a good rare) applies once, outside
 | Afterimages do one strike each | ×26 (the Darkness loop also needs crit gear) |
 | Both fail | ×13 (still a working F-scaling build: Witchhunter + two Oro's) |
 
+Time-domain check: [sim-oro-infernal-step.md](sim-oro-infernal-step.md) roughly halves these totals once boss
+mechanics and ramp time are modelled, and reorders the tests.
+
 Order of commitment:
 1. Test the flame cap.
 2. Test afterimage replay. If it fails, drop the Frenzy notables and skip Eclipse; spend those points on defence.
