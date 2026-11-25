@@ -144,6 +144,23 @@ Tests: Bunkerbuster death counts as a death for revival; From the Icy Brink appl
 
 Martial Artist quarterstaff: Ako's Answer + Hollow Focus + Tempest Bell for the shockwave multiplier (F1); Grim Bargain turns the five guaranteed crits per swing into 25+ Darkness per swing (F11), which builds Eclipse Glory and keeps every attack at max-Darkness Ambush. That stacks F1 (x8-15) with the Ambush multiplier (x1.9 at 30 Darkness) on one swing; Uhtred's (F7) on a cooldown host adds x2. Survival: crushing-blow shockwaves lock primed bosses; quarterstaff block 12-18%.
 
-## 5. Comparison with earlier passes
+## 5. Comparison with earlier passes (written after the ranking was committed)
 
-See section appended after ranking.
+Checked by grepping every earlier doc in `docs/` for each finding's key names.
+
+| finding | in earlier passes? | verdict |
+|---|---|---|
+| F1 Ako's Answer x Hollow Focus | Ako's appears only with Tempest Bell, rejected as "printed on purpose" (`unplanned-1-0-first-principles.md`). Hollow Focus appears nowhere | **new**: the exploit is the ascendancy bell, not the Tempest Bell |
+| F7 Uhtred's Constellation x cooldown flood | not mentioned | **new** |
+| F4 Primal Hunger x Blood Rage | Primal Hunger only with Abyssus, rejected on "No Rage effect" (`novel-1-0-interactions.md`). Blood Rage never | **new**: spend path avoids the effect clause |
+| F5 Bunkerbuster x From the Icy Brink | Bunkerbuster listed as 12.2% minion-life damage only; From the Icy Brink never | **new**: revival as a controlled cycle |
+| F9 Ashcaller per-spirit boost | not mentioned | **new** (low, text incomplete) |
+| F2 Whirling Blades x Darkness | Darkness pool lead with Whirling Blades (`unlocked-by-1-0.md`, `unplanned-1-0-rerun.md`, x60 per hit) | **seen**; the quadratic projectile term is a refinement, same scalar the owner judged as designed |
+| F3 Siege of Sands | listed as designed burst (`off-intent-scaling-1-0.md`) | **seen**; only the Uhtred's host pairing is new |
+| F6 Fan the Flames | in `off-intent-scaling-1-0.md` and the Oro build | **seen** |
+| F8 Detonate from Stealth | owner judged Darkness/Detonate Ambush as designed | **seen** |
+| F10 Blood Loss into Rending Dash | first pass, x3.3 at p 0.1 | **seen** |
+
+Net new against earlier passes: F1, F7, F4, F5 (and F9 as a stub). None of the four use Shades, Eclipse, Echoing Strikes or Infernal Step. The top new lead (F1) is a Monk build, a class earlier passes did not reach.
+
+Next steps: F1 tests (a)-(d) are the first thing to check when 1.0 data lands (Dec 4 text, Dec 12 repin). F7 is checkable now in PoB once a cooldown-heavy spec exists; it needs no 1.0 text beyond the skills already public.
