@@ -133,6 +133,5 @@ x30-40 for the engine alone. Every add-on multiplies, so the spread is wide.
 
 ## Next steps
 
-1. Sim (a routine build task): add Olroth's Conviction (three empowered Strikes per cast, with and without the 10 s
-   window), Perpetual Charge, Deadeye, Shades and Volcanic Eruption to `pos_pipeline/sim_oro.py`.
+1. Done: Olroth's Conviction, Perpetual Charge, Crescendo and Volcanic Eruption are in the sim, see [sim-olroth-addons.md](sim-olroth-addons.md) (Olroth's matters; Perpetual Charge does not).
 2. Rerun `tools/census/pair_1_0.py` on Dec 4 with the ascendancy text added to `new_1_0.json`. It is cheap to rerun.
