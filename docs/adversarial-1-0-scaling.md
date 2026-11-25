@@ -164,3 +164,15 @@ Checked by grepping every earlier doc in `docs/` for each finding's key names.
 Net new against earlier passes: F1, F7, F4, F5 (and F9 as a stub). None of the four use Shades, Eclipse, Echoing Strikes or Infernal Step. The top new lead (F1) is a Monk build, a class earlier passes did not reach.
 
 Next steps: F1 tests (a)-(d) are the first thing to check when 1.0 data lands (Dec 4 text, Dec 12 repin). F7 is checkable now in PoB once a cooldown-heavy spec exists; it needs no 1.0 text beyond the skills already public.
+
+## 6. Owner verdict and loop search (2026-11-25, after merge request)
+
+Owner (cmsg_01RxGYnd78N9kMbbAJ5pWDhUQrB3qBV3oegeSKkPeykEQQ): "These are all obvious/intended and don't scale that well." Accepted: F1-F10 are bounded multipliers (x2-15), not runaway scaling.
+
+What scales without bound is a feedback loop: X produces Y, Y produces more X, with gain above 1 and no cap. `tools/adversarial/loops.py` builds a quantity graph from every rule line (36 quantity nodes; generic flows such as hits, kills, crits, mana and life excluded, `LOOPS_GENERIC=1` keeps them) and lists cycles of length 2-3.
+
+Result: 23 cycles touch a 1.0 entry and 42 exist in all public text (`LOOPS_ALL=1`). After triage:
+- Every 1.0 cycle with possible gain above 1 runs through Darkness / Stealth / Glory (Eclipse, Conceal, Duplicity, Whirling Blades). The owner already judged that family as designed.
+- The rest are parser artefacts (one skill's own setup and payoff, e.g. Echoing Strikes, Abiding Hex, Walking Calamity) or cross-skill links with gain below 1 (Hand of Weeping Black zombies, From the Icy Brink, Freezing Trap fragments).
+
+Conclusion: public 1.0 text (105 entries, no 1.0 ascendancy, tree or keystone text) contains no new loop with gain above 1. The loop finder is the tool to rerun on the Dec 4 text and the Dec 12 data, where the new ascendancies and keystones land.
