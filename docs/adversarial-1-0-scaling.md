@@ -176,3 +176,31 @@ Result: 23 cycles touch a 1.0 entry and 42 exist in all public text (`LOOPS_ALL=
 - The rest are parser artefacts (one skill's own setup and payoff, e.g. Echoing Strikes, Abiding Hex, Walking Calamity) or cross-skill links with gain below 1 (Hand of Weeping Black zombies, From the Icy Brink, Freezing Trap fragments).
 
 Conclusion: public 1.0 text (105 entries, no 1.0 ascendancy, tree or keystone text) contains no new loop with gain above 1. The loop finder is the tool to rerun on the Dec 4 text and the Dec 12 data, where the new ascendancies and keystones land.
+
+## 7. Term-driven avenues (owner: "use words in skill description", cmsg_01RxGYnd78N9kMbbAJ5pWDhUP2WXocPFuQgJbPGBdyPyno)
+
+Method: `tools/adversarial/terms.py` pulls every capitalised or linked mechanic term from the 105 public 1.0 entries (Hazard, Detonator, Limit, Parried, Perfect Timing, Final Strike, Reviving Minions, Ice Crystals, Spread, Activate, Shrine and so on), then lists every old rule line in the pinned game that uses the same word. Run `python3 tools/adversarial/terms.py 40`. Each term was read for one question: does a 1.0 skill make the term cheap or plentiful, while an old line pays off per instance with no cap?
+
+### The one avenue that can run away: Hazard rearm x traps x Detonate
+
+- 1.0: all eight Shadow traps are tagged **Hazard**. Detonate triggers every placed trap at once and has no cost or cooldown on its page.
+- Old Hazard lines (sized for the Huntress Spearfield): Rearm II support "Hazards ... have a chance to be rearmed a short duration after triggering" (30%, PoB `hazard_rearm_%_chance`), Efficient Contraptions notable 15%, one small node 5%. Current total 50%.
+- Structure: every Detonate removes a fraction (1 - p) of the traps on the ground. If traps are thrown at rate T and Detonate is cast at rate D, the number of traps on the ground settles at N = T / ((1 - p) D), and damage per second is D x N x (trap damage) = T x trap damage / (1 - p). That is geometric in p: x2 at 50%, x5 at 80%, x10 at 90%. **At 100% a rearmed trap is never used up**, so N grows with every throw until trap duration (or an unpublished trap limit) stops it. Every detonation also counts as an Ambush with Darkness when Detonate is used from Stealth.
+- Brake: the rearm total. The current game reaches 50%, and the 1.0 Shadow tree and ascendancies (text on Dec 4) are where more would come from. A trap limit or rearm cap would also close it.
+- Tests: rearm applies to traps triggered by Detonate; rearm chance caps below 100%; trap limit and duration; whether a rearmed trap re-arms again (chained) or only once.
+
+### Avenues read and bounded
+
+| term | 1.0 source | old payoff | why bounded |
+|---|---|---|---|
+| Limit | Shades (limit 3), Raise Zombie (10), Foul Eyes (12), Bells | Overabundance I/II, Idol of Uldurn +1, Stormweaver +2 elemental | each adds a fixed count |
+| Detonator | Fire Trap, Poison Trap, Pestilent Volley | Gas Arrow, Decompose, Gas Grenade, Stormblast Bolts, Explosive Spear | each cloud or bolt detonates once |
+| Spread / Ignited Ground | Concussive Trap spreads Ignite as ground | Beira's Anguish ground ignites as 500% of max Life; Flamewalker; Desert's Scorn | ignite from life is fixed per flask use |
+| Parried | Shattering Parry, Engage, Bloodied Blade, Riptide | Dunkelhalt +50% magnitude, four notables +15-25%, Nocturne | consumed by the next hit |
+| Final Strike | Perforate, Shadow Assault | Crescendo I/II (twice), III (Ancestral Boost) | x2 |
+| Perfect Timing | Perfect Squall | Perfection 4 x 5%, Window of Opportunity, Assailum | fixed window and stacks |
+| Reviving Minions | From the Icy Brink | Sacrifice (minions as corpses), Crazed Minions, Muster | per revive |
+| Ice Crystals | Fangs of Agnar (10,118-life walls) | Verglas, Crystalline Shards, Vruun's Aftermath, Eventide Petals | per crystal destroyed |
+| Empowered | Intimidate, Viper Strike, Whispers | The Empty Roar, Bolstering Yell, Tireless | flat increased damage |
+| Surpassing | Blood Rage | Way of the Mountain | linear in Rage |
+| Shrine | Knight Valour | Hammer of Faith | one buff at a time |
