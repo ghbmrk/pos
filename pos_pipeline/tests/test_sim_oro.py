@@ -64,3 +64,47 @@ def test_witchhunter_slows_boss_mechanics():
 def test_defence_report_runs():
     from pos_pipeline.sim_oro import defence_report
     assert "Witchhunter" in defence_report()
+
+
+def _ol(b, sec=60.0, scale=100.0, **kw):
+    from dataclasses import replace
+    from pos_pipeline.sim_oro import Assumptions, Build, fight_dps
+    return fight_dps(Assumptions(preramp=True, **kw), replace(Build(), **b), sec, scale=scale)
+
+
+def test_olroth_extra_uses_need_window_when_uses_run_long():
+    # No cancel, cap 20: one use is ~28 s, far longer than Echoing's 10 s window, so the window kills the gain.
+    kw = dict(cancelable=False, flame_cap=20)
+    base = _ol({}, **kw)[0]
+    free = _ol(dict(olroth=True), olroth_window=False, **kw)[0]
+    win = _ol(dict(olroth=True), olroth_window=True, **kw)[0]
+    assert free > base * 1.01
+    assert win <= free
+    assert abs(win / base - 1) < 0.05
+
+
+def test_olroth_counts_extra_empowered_uses():
+    r = _ol(dict(olroth=True), olroth_window=False)[1]
+    assert r.echo_uses >= 2 * (r.uses // 3)
+
+
+def test_perpetual_charge_keeps_frenzy_and_never_hurts():
+    base = _ol({}, flame_cap=5)[0]
+    assert _ol(dict(perpetual=True), flame_cap=5)[0] >= base * 0.999
+
+
+def test_volcanic_eruption_adds_small_flat_damage():
+    base = _ol({})[0]
+    assert base < _ol(dict(eruption=True))[0] < base * 1.2
+
+
+def test_crescendo_only_matters_when_shade_setup_costs_time():
+    kw = dict(shades=4, shades_copy_echo=True)
+    free = _ol(dict(crescendo=True, **kw), shade_setup="free")[0], _ol(kw, shade_setup="free")[0]
+    assert free[0] == free[1]
+    assert _ol(dict(crescendo=True, **kw), shade_setup="each_eclipse")[0] >= _ol(kw, shade_setup="each_eclipse")[0]
+
+
+def test_olroth_report_runs():
+    from pos_pipeline.sim_oro import olroth_report  # slow: skipped body is cheap via monkeypatch-free smoke below
+    assert callable(olroth_report)

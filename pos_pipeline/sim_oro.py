@@ -40,6 +40,13 @@ AVIDITY_GAIN = 1.5         # Deadeye Avidity: 50% chance of an additional Frenzy
 TIME_SNAP_CD = 32.0        # Chronomancer Time Snap cooldown at level 20 (poe2db 1.0)
 TIME_SNAP_CAST = 0.5       # assumed cast time (unpublished)
 SHADE_LESS = 0.5           # Shade portion deals 50% less damage
+PC_KEEP = 0.25             # Perpetual Charge: 25% chance not to remove each consumed Charge (poe2db; expected value used)
+OLROTH_EXTRA_USES = 2      # Olroth's Conviction: Supported Skills Empower 2 additional Skill uses (poe2db)
+ERUPT_CD = 0.4             # Volcanic Eruption cooldown (poe2db)
+ERUPT_DMG = 4 * 0.20       # 4 Molten Projectiles at 20% of Default Attack Damage each (poe2db)
+ERUPT_HIT = 0.5            # share of projectiles that land on the boss (assumed: mortar, 1 m radius, 5-15 m range)
+SA_COMBO = 1.2             # seconds for one Shadow Assault combo of 3 Strikes (estimate: 110% speed, dagger)
+SA_FINAL2 = 0.5            # extra seconds for the second Final Strike with Crescendo (estimate)
 RARE_BASE_RATIO = 1 / 0.55  # good endgame rare 2H vs Oro's base (estimate in the build doc)
 
 
@@ -55,6 +62,15 @@ class Assumptions:
     cancelable: bool = True        # a use can be dodge-cancelled
     glory_per_darkness: float = 1.0  # Glory gained per Darkness gained (unpublished)
     preramp: bool = False          # flames (and Frenzy) can be built before the boss and carried into the fight
+    # Olroth's Conviction: True = the extra empowered uses only count if they START within Echoing's 10 s window;
+    # False = the three uses all count however long they take. Open question, decides the value.
+    olroth_window: bool = True
+    # "once": Frenzy is consumed at the Echoing cast and all three uses get that afterimage count (census reading);
+    # "each": every empowered use consumes the Frenzy held at that moment (upper bound).
+    olroth_consume: str = "once"
+    # Shade setup via Shadow Assault: "free" = Shades exist at no cost (old baseline); "once" = built at the start of
+    # the fight; "each_eclipse" = Shades expire between Eclipses (duration unpublished) and are rebuilt before each.
+    shade_setup: str = "free"
 
 
 @dataclass(frozen=True)
@@ -81,6 +97,10 @@ class Build:
     boss_cdr_less: float = 0.0     # Witchhunter at 0 Concentration: boss cooldown recovery 50% less (0.5 to enable)
     shades: int = 0                # Shades copying each Ambushing melee attack (limit 3, 4 with Golem Hunger)
     shades_copy_echo: bool = False  # Shades also copy the afterimage portion of an empowered use
+    olroth: bool = False           # Olroth's Conviction on Echoing Strikes: one cast empowers 3 Infernal Step uses
+    perpetual: bool = False        # Perpetual Charge on Echoing Strikes: 25% of consumed Frenzy is kept
+    crescendo: bool = False        # Crescendo on Shadow Assault: two Final Strikes, two Shades per combo
+    eruption: bool = False         # Volcanic Eruption on Infernal Step: triggered on Hit against Ignited, 0.4 s cooldown
 
 
 @dataclass(frozen=True)
@@ -148,6 +168,8 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
     mech_n = 0
     uses = flame_sum = locked = echo_uses = eclipse_uses = 0
     burn_total = 0.0
+    emp_left, emp_until, emp_after = 0, -1.0, 0
+    erupt_ready = 0.0
 
     def mech_gap() -> float:
         """Seconds to the next boss mechanic. Witchhunter: boss cooldown recovery is up to 50% less in proportion to
@@ -164,6 +186,19 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
             conc = min(conc_max, conc + CONC_REGEN * conc_max * dt)
         t += dt
 
+    def consume_frenzy() -> int:
+        """Consume Frenzy; Perpetual Charge keeps 25% of it (expected value). Returns the count consumed."""
+        nonlocal frenzy
+        n = int(frenzy)
+        frenzy -= n * (1 - PC_KEEP if b.perpetual else 1.0)
+        return n
+
+    def shade_setup_time() -> float:
+        if not b.shades or not b.eclipse or a.shade_setup == "free":
+            return 0.0
+        combos = math.ceil(b.shades / (2 if b.crescendo else 1))
+        return combos * (SA_COMBO + (SA_FINAL2 if b.crescendo else 0.0))
+
     def hit(amount: float) -> None:
         nonlocal dealt, conc, last_conc_loss
         if b.witchhunter and a.concentration and conc_max > 0:
@@ -172,6 +207,8 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
             last_conc_loss = t
         dealt += amount
 
+    if a.shade_setup != "free":
+        advance(shade_setup_time(), flames >= a.flame_cap)
     while dealt < life and t < fight.max_time:
         # flames decay
         if flames and t - last_flame_gain > a.flame_decay:
@@ -185,11 +222,20 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
         # Eclipse
         if b.eclipse and glory >= 100 and t >= eclipse_until:
             glory -= 100
+            if a.shade_setup == "each_eclipse":
+                advance(shade_setup_time(), flames >= a.flame_cap)
             advance(b.eclipse_cast, flames >= a.flame_cap)
             eclipse_until = t + b.eclipse_duration
             eclipse_uses += 1
         f_next = min(a.flame_cap, flames + 1)
-        want_echo = b.echoing and a.echo_mode != "none" and (not p.echo_at_cap_only or f_next >= a.flame_cap)
+        olroth_use = False
+        if emp_left > 0:
+            if a.olroth_window and t > emp_until:
+                emp_left = 0           # window closed: the remaining empowers are lost
+            else:
+                olroth_use = True
+        want_echo = (b.echoing and a.echo_mode != "none" and not olroth_use
+                     and (not p.echo_at_cap_only or f_next >= a.flame_cap))
         if want_echo and b.time_snap and t < echo_ready_at and t >= snap_ready_at:
             advance(TIME_SNAP_CAST, flames >= a.flame_cap)
             echo_ready_at = t
@@ -208,13 +254,17 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
             # Serle's Grit: the previous cast's Empower survived with probability serles_chance (expected value)
             empower_w = chain_w
             chain_w *= b.serles_chance
-            afterimages = 2 + per_frenzy * int(frenzy)
-            frenzy -= int(frenzy)
+            afterimages = 2 + per_frenzy * consume_frenzy()
+            echo_uses += 1
+        elif olroth_use:
+            emp_left -= 1
+            afterimages = (2 + per_frenzy * consume_frenzy()) if a.olroth_consume == "each" else emp_after
             echo_uses += 1
         elif want_echo and t >= echo_ready_at:
-            afterimages = 2 + per_frenzy * int(frenzy)
-            frenzy -= int(frenzy)
+            afterimages = 2 + per_frenzy * consume_frenzy()
             advance(ECHO_CAST, flames >= a.flame_cap)
+            if b.olroth:
+                emp_left, emp_until, emp_after = OLROTH_EXTRA_USES, t + ECHO_WINDOW, afterimages
             echo_ready_at = t - ECHO_CAST + ECHO_CD
             empower_until = t + b.serles_window if b.serles_chance > 0 else -1.0
             chain_w = b.serles_chance
@@ -251,6 +301,9 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
             hits = 1 + (afterimages if (afterimages and a.afterimage_crits and echo_mult > 1) else 0)
             if b.eclipse and t >= eclipse_until:
                 glory += hits * b.crit_chance * GRIM_BARGAIN_DARK * a.glory_per_darkness
+            if b.eruption and t >= erupt_ready:
+                hit(ERUPT_DMG * ERUPT_HIT * (1 + k_fire * EXTRA_FIRE_PER_FLAME * f) * titan)
+                erupt_ready = t + ERUPT_CD
             advance(dt, flames >= a.flame_cap)
             if flames and t - last_flame_gain > a.flame_decay:
                 flames = 0  # expired mid-use; current use keeps its count
@@ -264,8 +317,8 @@ POLICIES = [Policy(c, w, rc, al) for c in (True, False) for w in (0.0, 4.0, 13.0
             for al in (False, True)]
 
 
-def best(a: Assumptions, b: Build, fight: Fight) -> tuple[Result, Policy]:
-    runs = [(simulate(a, b, p, fight), p) for p in POLICIES]
+def best(a: Assumptions, b: Build, fight: Fight, policies: list | None = None) -> tuple[Result, Policy]:
+    runs = [(simulate(a, b, p, fight), p) for p in (policies or POLICIES)]
     return min(runs, key=lambda rp: (rp[0].ttk, -rp[0].damage))
 
 
@@ -301,9 +354,10 @@ def no_mercy_avg(life_fraction_per_hit: float = 1e-3) -> float:
     return 1.0 / (n * life_fraction_per_hit)
 
 
-def fight_dps(a: Assumptions, b: Build, seconds: float, fight: Fight | None = None, scale: float = RARE_FIGHT_SCALE) -> tuple[float, Result, Policy]:
+def fight_dps(a: Assumptions, b: Build, seconds: float, fight: Fight | None = None, scale: float = RARE_FIGHT_SCALE,
+              policies: list | None = None) -> tuple[float, Result, Policy]:
     fight = replace(fight or Fight(), boss_life=rare_dps(Build()) * scale * seconds)
-    r, p = best(a, b, fight)
+    r, p = best(a, b, fight, policies)
     return (fight.boss_life / r.ttk if r.killed else r.damage / r.ttk), r, p
 
 
@@ -496,13 +550,94 @@ def defence_report() -> str:
                      f"| {'n/a' if eaten == 0 else f'x{d2 / eaten:.1f}'} |")
     return "\n".join(L)
 
+ADDONS = {
+    "Base (Echoing only)": dict(),
+    "+ Perpetual Charge": dict(perpetual=True),
+    "+ Volcanic Eruption": dict(eruption=True),
+    "+ Crescendo (Shadow Assault)": dict(crescendo=True),
+    "+ Olroth's Conviction": dict(olroth=True),
+    "+ Olroth's + Perpetual Charge": dict(olroth=True, perpetual=True),
+    "+ Olroth's + Perpetual + Eruption + Crescendo": dict(olroth=True, perpetual=True, eruption=True, crescendo=True),
+}
+OLROTH_HOSTS = {"Witchhunter": dict(boss_cdr_less=0.5), "Deadeye": HOSTS["Deadeye (Thrilling Chase + Avidity)"]}
+
+
+OL_SCALE = 100.0  # boss sized for ~10x the build's plain DPS: long enough for 10+ uses, so empower counts show
+OL_POLICIES = [p for p in POLICIES if not p.ramp_cancel]  # ramp-cancel never wins at the cap; halves the run time
+
+
+def _olroth_row(job):
+    hn, an = job
+    ref = rare_dps(Build())
+    sec = FIGHT_SECONDS[1]
+    keys = list(SPACE)
+    combos = [(Assumptions(**{k: v for k, (v, _) in zip(keys, c)}), math.prod(pr for _, pr in c))
+              for c in itertools.product(*(SPACE[k] for k in keys))]
+    tot = sum(w for _, w in combos)
+    b = replace(Build(), eclipse=True, shades=4, shades_copy_echo=True, **OLROTH_HOSTS[hn], **ADDONS[an])
+    wins = (True, False) if b.olroth else (True,)
+
+    def dps(a, fight=None):
+        return fight_dps(a, b, sec, fight, OL_SCALE, OL_POLICIES)
+
+    means = [sum(dps(replace(a, olroth_window=win, shade_setup="once"))[0] / ref * w for a, w in combos) / tot
+             for win in wins]
+
+    def pre(win=True, **kw):
+        return dps(Assumptions(preramp=True, olroth_window=win, shade_setup="once", **kw))[0] / ref
+    holds = [pre(w) for w in wins]
+    cold = dps(Assumptions(olroth_window=True, shade_setup="once"))[0] / ref
+    nocancel = [pre(w, cancelable=False) for w in wins]
+    cap20 = [pre(w, flame_cap=20) for w in wins]
+    cap5 = pre(True, flame_cap=5)
+    fight = Fight(mechanic_every=15.0, first_mechanic=7.5)
+    r1 = dps(Assumptions(preramp=True, olroth_window=True, shade_setup="once"), fight)[1]
+    r2 = dps(Assumptions(preramp=True, olroth_window=True, shade_setup="once", cancelable=False), fight)[1]
+    return (sum(means) / len(means), hn, an, b.olroth, means, holds, cold, cap5, cap20, nocancel,
+            r1.mechanics / r1.ttk * 60, r2.locked_hits / r2.ttk * 60)
+
+
+def olroth_report() -> str:
+    """Rank Olroth's Conviction, Perpetual Charge, Crescendo and Volcanic Eruption add-ons on the Witchhunter and Deadeye
+    hosts with the 4-Shade echo-copying layer. x = multiple of a normal strike on a good rare 2H (boss sized ~10x that
+    over 180 s, so fights are long enough for several Echoing casts). Mean = probability-weighted over SPACE; for
+    Olroth's it is shown for both window readings; Shade setup is paid once."""
+    from multiprocessing import Pool
+    ref = rare_dps(Build())
+    sec = FIGHT_SECONDS[1]
+    with Pool(4) as pool:
+        rows = pool.map(_olroth_row, [(hn, an) for hn in OLROTH_HOSTS for an in ADDONS])
+
+    def two(v):
+        return f"x{v[0]:.1f}" if len(v) == 1 else f"x{v[0]:.1f} / x{v[1]:.1f}"
+    L = ["Olroth's cells show: all three uses must start in Echoing's 10 s window / no window limit.", "",
+         "| Rank | Host + add-on | Weighted mean | Pre-ramped, holds | Cold, holds | Cap 5 | Cap 20 | No cancel "
+         "| Mechanics faced/min | Hits eaten/min (no cancel) |", "|---|---|---|---|---|---|---|---|---|---|"]
+    for i, (mean, hn, an, ol, means, holds, cold, cap5, cap20, nc, mech, eaten) in enumerate(sorted(rows, key=lambda r: -r[0]), 1):
+        L.append(f"| {i} | {hn} {an} | {two(means)} | {two(holds)} | x{cold:.1f} | x{cap5:.1f} | {two(cap20)} | {two(nc)} "
+                 f"| {mech:.1f} | {eaten:.1f} |")
+    L += ["", "Crescendo on Shadow Assault under each Shade-setup assumption (Witchhunter, 4 echo-copying Shades, pre-ramped, holds):", "",
+          "| Shade setup | No Crescendo | Crescendo | Gain |", "|---|---|---|---|"]
+    for ss, label in (("free", "Free (old baseline)"), ("once", "Built once at fight start"),
+                      ("each_eclipse", "Rebuilt before every Eclipse")):
+        v = []
+        for cres in (False, True):
+            b = replace(Build(), eclipse=True, shades=4, shades_copy_echo=True, crescendo=cres)
+            v.append(fight_dps(Assumptions(preramp=True, shade_setup=ss), b, sec, None, OL_SCALE, OL_POLICIES)[0] / ref)
+        L.append(f"| {label} | x{v[0]:.1f} | x{v[1]:.1f} | {v[1] / v[0] - 1:+.1%} |")
+    return "\n".join(L)
+
 
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--hosts", action="store_true", help="print the ascendancy host and layer ranking only")
+    ap.add_argument("--olroth", action="store_true", help="rank Olroth's Conviction, Perpetual Charge, Crescendo, Eruption add-ons")
     ap.add_argument("--defence", action="store_true", help="print defence proxies per host")
     ap.add_argument("--json", help="also write every combination's row to this file")
     args = ap.parse_args(argv)
+    if args.olroth:
+        print(olroth_report())
+        return
     if args.defence:
         print(defence_report())
         return
