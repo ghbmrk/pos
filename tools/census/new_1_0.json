@@ -1,0 +1,1172 @@
+[
+{
+"name": "Demon Magus",
+"kind": "gem",
+"text": "Minion , Companion , Persistent , Meta Activate to summon a Reviving Demon Magus which casts socketed Spells in order. Minion Companion, Persistent, Meta Level: 20 (Max) Requires: Level 90 Summon a Reviving Demon Magus which casts socketed Spells. Cost of Spells cast by Minion are paid by you Spells cast by Minion cost 50% less Minion deals 15% more Damage per different socketed Skill",
+"hooks": [
+"companion",
+"meta_gem",
+"minion"
+]
+},
+{
+"name": "Shroud",
+"kind": "gem",
+"text": "Spell , Buff , Persistent Gain Stealth after not using Skills or being Hit for a short time. Attack AoE , Melee , Trigger , Duration , Travel Tier: 1 Level: 20 (Max) Cost: 81 Mana Cooldown Time: 7.00s Attack Speed: 80% of base Attack Damage: 94% Requires: Level 90 , 86 Dex , 86 Int Requires: Dagger Cloak yourself in shadow, dash in the target direction and enter Stealth , Triggering a Shade to appear at your previous location. Targets near the Shade take minor damage and are Blinded , and Unique monsters are Blinded in a much larger radius. This Skill can be used while using other Skills to interrupt them.",
+"hooks": [
+"cooldown",
+"dagger",
+"self_damage",
+"shade",
+"stealth",
+"trigger"
+]
+},
+{
+"name": "Fan The Flames",
+"kind": "gem",
+"text": "Support , Attack , AoE , Trigger , Fire Supports Wind Skills which Hit enemies. Hits with Supported Skills against Ignited enemies Trigger a fiery explosion, dealing damage to that enemy and enemies in a cone behind them. Support Spell , Attack , AoE , Trigger , Fire",
+"hooks": [
+"ignite",
+"trigger",
+"wind"
+]
+},
+{
+"name": "Engulf in Darkness",
+"kind": "gem",
+"text": "Attack AoE, Trigger, Duration, Remnant Level: 18 Attack Damage: 127% Requires: Level 78 Requires: Any Martial Weapon, Unarmed Inflicts the Engulfed in Darkness Debuff. Explodes, dealing Attack damage if the target dies, or is Immobilised while Engulfed. The explosion leaves behind a Remnant that grants 5 Darkness when collected. Impaling an Engulfed enemy also grants 1 Darkness. Remnants last for 12 seconds Explosion radius is 1.8 metres Engulfed in Darkness duration is 6 seconds",
+"hooks": [
+"darkness",
+"immobilise",
+"impale",
+"remnant",
+"trigger"
+]
+},
+{
+"name": "Abundant Remnants I",
+"kind": "gem",
+"text": "Support Remnant Category : Abundant Remnants Support Requirements : +5 Int (5) Supports Skills which create Remnants, causing those Skills to create additional Remnants. 25% chance for Supported Skills to create an additional Remnant Category : Fan The Flames Support Requirements : +5 Str (5) Supports Wind Skills which Hit . Hits with Supported Skills against Ignited targets Trigger a fiery explosion, dealing damage to that target and targets in a cone behind them.",
+"hooks": [
+"ignite",
+"remnant",
+"trigger",
+"wind"
+]
+},
+{
+"name": "Infernal Empowerment",
+"kind": "gem",
+"text": "Support Attack , AoE , Trigger , Fire Category : Infernal Empowerment Support Requirements : +5 Str (5) Supports Skills that can Empower Skills other than themselves. Melee Attacks Empowered by Supported Skills will cause targets to Combust when Killed .",
+"hooks": [
+"empower",
+"trigger"
+]
+},
+{
+"name": "From the Icy Brink",
+"kind": "gem",
+"text": "Support Minion , Persistent Category : Crazed Minions Support Requirements : +5 Int (5) Supports Minion Skills which summon Reviving Minions . Supported Minions which have Revived Recently are empowered by the icy cold of death. Supported Minions cause 200% more Freeze Buildup if they have Revived Recently Supported Minions Convert 100% of Physical Damage to Cold Damage if they have Revived Recently Supported Minions Gain 40% of Damage as Extra Cold Damage if they have Revived Recently",
+"hooks": [
+"chill_freeze",
+"empower",
+"extra_dmg",
+"minion"
+]
+},
+{
+"name": "Overchannel",
+"kind": "gem",
+"text": "Support Trigger, Channelling Category : Overchannel Support Requirements : +5 Dex (5) Supports Channelling Skills. Channelling a Supported Skill for long enough causes it to deal more damage. Using a non-Channelling Skill immediately after you finish Channelling Empowers that Skill with the same bonus. Gain Overchannel after Channelling Supported Skills for 1.5 seconds Overchannell grants Skills 15% more damage",
+"hooks": [
+"channel",
+"empower",
+"trigger"
+]
+},
+{
+"name": "Vampirism",
+"kind": "gem",
+"text": "Support Attack, Melee, Strike Category : Vampirism Support Requirements : +5 Dex (5) Supports Strikes you use yourself, providing a powerful Vampiric Boost every few seconds. Cannot Support Skills used by Minions. Supported Skills are Vampirically Boosted once every 6 seconds",
+"hooks": [
+"minion",
+"strike"
+]
+},
+{
+"name": "Impaling Blade II",
+"kind": "gem",
+"text": "Support Level: Copies parent gem level Cooldown Time: 5.00s Attack Damage: 343% Support Requirements : +5 Dex (5) Supports Strikes you use yourself, causing a gigantic sword to periodically erupt from the earth on Hitting a target in front of you, impaling them. Impales on Hit Blade length is 4 metres",
+"hooks": [
+"cooldown",
+"echo_repeat",
+"impale",
+"strike",
+"sword"
+]
+},
+{
+"name": "Volatile Shades",
+"kind": "gem",
+"text": "Support Level: Copies parent gem level Attack Damage: 125% Support Requirements : +5 Int (5) Supports Skills which create Shades , causing them to Trigger an explosion on death. Explosion radius is 1.6 metres Modifiers to Shade Damage also apply to explosion Damage",
+"hooks": [
+"echo_repeat",
+"shade",
+"trigger",
+"volatility"
+]
+},
+{
+"name": "Glorious Carnage",
+"kind": "gem",
+"text": "Support Category : Glorious Carnage Support Requirements : +5 Str (5) Supports Skills which can require Glory , causing them to generate Glory when you kill a target. Supported Skills generate 1 Glory when you kill an enemy",
+"hooks": [
+"glory"
+]
+},
+{
+"name": "Malignant Growth",
+"kind": "gem",
+"text": "Support Spell, Attack, AoE, Trigger, Plant Category : Accelerated Growth Support Requirements : +5 Int (5) Supports Plant Skills, causing them to Trigger a bundle of explosive blooming flowers after a delay when they Overgrow.",
+"hooks": [
+"trigger"
+]
+},
+{
+"name": "Elemental Penetration",
+"kind": "gem",
+"text": "Support Lightning, Cold, Fire Category : Elemental Penetration Cost Multiplier: 120% Support Requirements : +5 Int (5) Supports any Skill that Hits, making those Hits Penetrate target Elemental resistances. Supported Skills Penetrate 30% of Enemy Elemental Resistances",
+"hooks": [
+"penetrat"
+]
+},
+{
+"name": "Eroding Sands",
+"kind": "gem",
+"text": "Support Physical Level: 13 Copying the level of the Sword Slash Gem this is Socketed into Support Requirements : +5 Str Supports Skills which create Sand Disks, causing those Sand Disks to Break Armour on Hit. Hits from Sand Disks Created by Supported Skills Break 88 Armour",
+"hooks": [
+"armour",
+"armour_break",
+"echo_repeat",
+"sand",
+"sword"
+]
+},
+{
+"name": "Sandstorm",
+"kind": "gem",
+"text": "Support Lightning Category : Sandstorm Support Requirements : +5 Dex (5) Supports Skills which create Sand Disks, causing those Sand Disks to deal extra Lightning damage but less Physical damage. Sand Disks created by Supported Skills Gain 40% of damage as extra Lightning Damage",
+"hooks": [
+"extra_dmg",
+"sand"
+]
+},
+{
+"name": "Galvanising Blades",
+"kind": "gem",
+"text": "Support Category: Galvanising Blades Cost Multiplier: 130% Support Requirements : +5 Dex Supports Skills which create Buried Blades, causing you and Allies to gain more damage the more Buried Blades are nearby. Buried Blades from Supported Skills grant 3% more damage with Melee weapons to you or Allies if within 2 metres A maximum of 5 Blades can affect each target",
+"hooks": [
+"buried_blade"
+]
+},
+{
+"name": "Gouge",
+"kind": "gem",
+"text": "Support Fragment, Attack, AoE, Projectile, Trigger, Physical Category: Gouge Support Requirements : +5 Str Supports Attacks you use yourself, causing them to carve Flesh Chunks from targets when inflicting Bleeding.",
+"hooks": [
+"bleed",
+"projectile",
+"trigger"
+]
+},
+{
+"name": "Shattering Parry",
+"kind": "gem",
+"text": "Support Physical Level: 1 Will copy the level of the Gem it is Socketed into Support Requirements : +5 Dex Supports Skills which apply Parried, causing you to Break Armour on applying the Parried Debuff. Break 50 Armour on applying the Parried Debuff with Supported Skills",
+"hooks": [
+"armour",
+"armour_break",
+"echo_repeat",
+"parry"
+]
+},
+{
+"name": "Rending Blade",
+"kind": "gem",
+"text": "Support Level: 2 Copying the Level of the Sword Slash gem this is Socketed into Cooldown Time: 5.00s Attack Damage: 143% Support Requirements : +5 Dex (5) Supports Strikes you use yourself, causing a gigantic sword to periodically erupt from the earth on Hitting a target in front of you. Blade length is 4.5 metres",
+"hooks": [
+"cooldown",
+"echo_repeat",
+"strike",
+"sword"
+]
+},
+{
+"name": "Conceal",
+"kind": "gem",
+"text": "Support Category : Conceal Cost Multiplier: 110% Support Requirements : +5 Dex (5) Supports Skills which can put you into Stealth , causing them to grant you Darkness when they do. Gain 10 Darkness when you enter Stealth with Supported skills",
+"hooks": [
+"darkness",
+"stealth"
+]
+},
+{
+"name": "Viper Strike",
+"kind": "gem",
+"text": "Attack AoE, Melee, Strike, Trigger, Chaos Tier: 1 Level: 13 Cost: 22 Mana Attack Speed: 85% of base Attack Damage: 164% Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Perform a noxious stab that Poisons enemies. If the target is further away, dash to them and Trigger Virulent Burst in addition to the stab. Ambushing a target Empowers your next few Melee Attacks to also Trigger Virulent Burst the first time they Hit a target.",
+"hooks": [
+"dagger",
+"empower",
+"poison",
+"stealth",
+"strike",
+"trigger"
+]
+},
+{
+"name": "Contingency Plan",
+"kind": "gem",
+"text": "Buff Tier: 11 Level: 13 Cost: 57 Mana Cooldown Time: 50.00s Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Refresh all your Traps' cooldowns, and Empower the next few Traps you throw to deal more damage. Does not break Stealth. 36% increased Cooldown Recovery Speed Empowered Traps deal 22% increased Damage",
+"hooks": [
+"cooldown",
+"dagger",
+"empower",
+"stealth",
+"trap"
+]
+},
+{
+"name": "Whirling Blades",
+"kind": "gem",
+"text": "Attack Projectile, Physical Tier: 7 Level: 13 Cost: 40 Mana Added Attack Time: +0.60s Attack Damage: 65% Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Spin forward and throw a volley of knives in a spiral around you, Impaling targets Hit. Multiple knives can hit the same target. When Ambushing , throws additional knives based on the amount of Darkness expended. Fires 20 projectiles Fires 1 additional projectile for each Darkness spent when Ambushing Fires 35% more projectiles while Dual Wielding 250% more magnitude of Impale Inflicts Impale on Hit",
+"hooks": [
+"dagger",
+"darkness",
+"dual_wield",
+"immobilise",
+"impale",
+"projectile",
+"stealth"
+]
+},
+{
+"name": "Whispers of the Damned",
+"kind": "gem",
+"text": "Curse AoE, Chaos, Duration, Spread Tier: 5 Level: 13 Cost: 56 Mana Cooldown: 6.00s Cast Time: 0.8s Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Whisper a malediction that condemns all who hear it to a shared fate. Chaos damage dealt to one linked target causes every other linked targets to Lose Life equal to the Chaos damage dealt. Also Empowers your subsequent Attacks to deal extra Chaos damage. Does not break Stealth Curse radius is 6 metres Links enemies' fates for 8 seconds Empowers 1 Attack for every 10 Power of enemies in range, counting up to 50 Power Empowered Attacks gain 42% of their damage as extra Chaos damage",
+"hooks": [
+"cooldown",
+"curse",
+"dagger",
+"empower",
+"extra_dmg",
+"life_loss",
+"power_enemy",
+"stealth"
+]
+},
+{
+"name": "Nightmare",
+"kind": "gem",
+"text": "Attack AoE, Melee, Strike, Duration, Conditional Level: 13 Cost: 68 Mana Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Build Glory by creating Shades . When you have maximum Glory , invoke unspeakable powers to create a new Shade , then transform all of your Shades into invulnerable creates of nightmare. These demonic shades act on their own and no longer copy your Skills, but can move and Attack freely until the energy animating them expires.",
+"hooks": [
+"dagger",
+"echo_repeat",
+"glory",
+"shade",
+"strike"
+]
+},
+{
+"name": "Blood Rage",
+"kind": "gem",
+"text": "Buff Conditional Tier: 9 Level: 13 Cost: 19 Life Cooldown Time: 8.70s Requires: Level 52 , 51 Str , 51 Dex Overcome the fury of battle to consume all your current Rage to gain Frenzy Charges. Consumes all Rage on use 5% Surpassing Chance to gain a Frenzy Charge per Rage Consumed",
+"hooks": [
+"cooldown",
+"frenzy",
+"rage"
+]
+},
+{
+"name": "Molten Forge",
+"kind": "gem",
+"text": "Attack AoE, Slam, Trigger, Sustained, Duration Level: 1 Cost: 14 Mana Cooldown Time: 6.00s Attack Damage: 90% Requires: One Hand Mace, Two Hand Mace Call down an Anvil from the sky, Slamming into the ground after a delay. Striking the Anvil creates a damaging shockwave, and builds up Forged in Flame on your Weapon, causing your Slam Skills to deal bonus Fire damage. When Ignited, the Anvil's shockwaves have increased area of effect and extra Fire Damage.",
+"hooks": [
+"anvil_bell",
+"cooldown",
+"ignite",
+"mace",
+"shock",
+"slam",
+"trigger",
+"two_hand"
+]
+},
+{
+"name": "Soul Extraction",
+"kind": "gem",
+"text": "Spell AoE, Sustained, Chaos, Duration, Channelling Level: 9 Cost: 18.8 Mana per second Cast Time: 0.25 Requires: Level 31 , 57 Int Reach forward your hand and tear the souls of enemies in front of you, dealing Chaos Damage. Removes Decay on the enemy in order to do massively increased Damage. Cone Length is 3.8 metres Deals 18.1 Chaos damage per second Deals +334.5 Chaos damage per second if target has Decay Removes 334.5 Decay from targets per second Additional Effects From Quality: Minion have 0(0-20)% more Maximum Life",
+"hooks": [
+"channel",
+"decay",
+"max_life",
+"minion"
+]
+},
+{
+"name": "Duplicity",
+"kind": "gem",
+"text": "Attack AoE, Trigger, Duration, Channelling, Remnant Tier: 9 Level: 9 Attack Damage: 125% Requires: Level 31 , 32 Dex , 32 Int Requires: Dagger & Parrying Shield, Dual Daggers Prepare yourself to bait an attack and take advantage. The next time a nearby enemy would Hit you, Trigger Engulf in Darkness on them and other enemies in the vicinity, and teleport behind them in Stealth , leaving a Shade in your position to take the Hit instead and retaliate. Avoiding damage in this way causes you to accumulate Heavy Stun buildup, and none of this Skill's other effects will occur if the Hit Heavy Stuns you.",
+"hooks": [
+"channel",
+"dagger",
+"darkness",
+"heavy_stun",
+"parry",
+"remnant",
+"shade",
+"stealth",
+"trigger"
+]
+},
+{
+"name": "Blade Vortex",
+"kind": "gem",
+"text": "Attack AoE, Sustained, Physical, Duration, Channelling Tier: 11 Level: 13 Cost: 15.3 Mana per second Attack Speed: 160% of base Attack Damage: 25% Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Channel to periodically Extract Impales from targets in a large radius around you, creating blades that are pulled into orbit around you. These blades disintegrate after Hitting enemies a fixed number of times, but continue orbiting if you stop Channelling. Your weapon also orbits you as a blade while Channelling, but returns to your hand when you stop.",
+"hooks": [
+"channel",
+"dagger",
+"impale"
+]
+},
+{
+"name": "Blade of Night",
+"kind": "gem",
+"text": "Attack AoE, Melee, Strike, Trigger, Duration, Remnant Tier: 3 Level: 13 Cost: 23 Mana Attack Speed: 80% of base Attack Damage: 144% Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Cleave with your dagger, Trigger Engulf in Darkness on enemies Hit. When Ambushing , dash to your target and Hit all enemies within a wide swathe.",
+"hooks": [
+"dagger",
+"darkness",
+"remnant",
+"stealth",
+"strike",
+"trigger"
+]
+},
+{
+"name": "Ethereal Knives",
+"kind": "gem",
+"text": "Attack Projectile , Physical , Chaos Tier: 1 Level: 20 (Max) Cost: 35 Mana Attack Speed: 75% of base Attack Damage: 94% Requires: Level 90 , 86 Dex , 86 Int Requires: Dagger Flip backwards and throw a fan of daggers, multiple of which can Hit the same target, damaging and Impaling them. Using this Skill from Stealth does not break Stealth or backflip, and throws spectral knives in a tighter spread. The spectral knives do not Hit targets or deal damage, but inflict powerful [SpectralImpale|Spectral Impales].",
+"hooks": [
+"dagger",
+"impale",
+"projectile",
+"stealth"
+]
+},
+{
+"name": "Shadow Assault",
+"kind": "gem",
+"text": "Attack AoE, Melee, Strike Tier: 5 Level: 13 Cost: 17 Mana Attack Speed: 110% of base Attack Damage: 78% Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Strike rapidly three times, with the Final Strike creating a Shade that dashes through enemies, and causing any other Shades you have to teleport to the target and repeat the dash. When Ambushing , dash to target and immediately perform the Final Strike.",
+"hooks": [
+"dagger",
+"echo_repeat",
+"shade",
+"stealth",
+"strike"
+]
+},
+{
+"name": "Detonate",
+"kind": "gem",
+"text": "Detonator Tier: 9 Level: 9 Requires: Level 31 , 32 Dex , 32 Int Requires: Trap Trigger all of your placed Traps, causing them to detonate in the order in which you placed them with more damage and area of effect. If you use this Skill from Stealth , all of the detonations count as Ambushing , and gain damage from your Darkness . Has no Sockets Traps Triggered have 26% more area of effect",
+"hooks": [
+"darkness",
+"stealth",
+"trap",
+"trigger"
+]
+},
+{
+"name": "Cluster Trap",
+"kind": "gem",
+"text": "Attack AoE , Trap , Projectile, Trigger, Physical, Hazard Tier: 13 Level: 13 Cost: 60 Mana Cooldown Time: 8.00s Requires: Level 52 , 51 Dex , 51 Int Requires: Trap Throw a Trap that fires a mass of small bomb Projectiles when Triggered. The bombs explode after a delay, or when Detonated. Both the Trap and the bombs Impale enemies with shrapnel when they explode.",
+"hooks": [
+"cooldown",
+"impale",
+"projectile",
+"trap",
+"trigger"
+]
+},
+{
+"name": "Electrocution Trap",
+"kind": "gem",
+"text": "Attack AoE, Trap, Trigger, Lightning, Hazard Tier: 9 Level: 13 Cost: 31 Mana Cooldown Time: 4.00s (3 uses) Requires: Level 52 , 51 Dex , 51 Int Requires: Trap Throw a Trap that discharges a blast of electricity when Triggered, Electrocuting targets caught in the blast. Any Impale on targets Hits is Electrified, causing it to deal extra Lightning damage and also Electrocute when Extracted.",
+"hooks": [
+"cooldown",
+"impale",
+"shock",
+"trap",
+"trigger"
+]
+},
+{
+"name": "Freezing Trap",
+"kind": "gem",
+"text": "Attack AoE , Trap , Projectile , Trigger , Cold , Hazard , [Fragment] Tier: 1 Level: 20 (Max) Cost: 47 Mana Cooldown Time: 6.00s (2 uses) Requires: Level 90 , 86 Dex , 86 Int Requires: Trap Throw a Trap that emits an icy burst followed by a series of smaller explosions when Triggered , with very high potential to Freeze targets. Extracting Impale from a target Triggers an Ice Fragment to fly out, and explode after a short delay.",
+"hooks": [
+"chill_freeze",
+"cooldown",
+"impale",
+"projectile",
+"trap",
+"trigger"
+]
+},
+{
+"name": "Concussive Trap",
+"kind": "gem",
+"text": "Attack AoE , Trap , Trigger , Duration , Payoff , Hazard , Wind Tier: 3 Level: 20 (Max) Cost: 60 Mana Cooldown Time: 6.00s (3 uses) Requires: Level 90 , 86 Dex , 86 Int Requires: Trap Throw a Trap that emits a forceful blast wave when Triggered , causing significant Heavy Stun buildup. Frozen targets Hit have their icy coating shattered into an explosion, Ignited targets release a cone of embers that Spread the Ignite as Ignited Ground , and any gas clouds in the area are expanded.",
+"hooks": [
+"chill_freeze",
+"cooldown",
+"ground",
+"heavy_stun",
+"ignite",
+"trap",
+"trigger",
+"wind"
+]
+},
+{
+"name": "Null Trap",
+"kind": "gem",
+"text": "Attack AoE , Trap , Trigger , Chaos , Duration , Hazard Tier: 11 Level: 20 (Max) Cost: 51 Mana Cooldown Time: 5.00s Requires: Level 90 , 86 Dex , 86 Int Requires: Trap Throws a Trap that rips a hole in space when Triggered , dealing chaos damage and Triggering [EngulfInDarkness|Engulf In Darkness] on each target hit.",
+"hooks": [
+"cooldown",
+"darkness",
+"trap",
+"trigger"
+]
+},
+{
+"name": "Pestilent Volley",
+"kind": "gem",
+"text": "Attack AoE, Projectile, Chaos, Duration, Payoff Tier: 3 Level: 13 Cost: 38 Mana Attack Speed: 75% of base Attack Damage: 44% Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Jump back and throw multiple knives, which stick into their target or terrain and explode after a short delay. Knives lodged in a Poisoned enemy create a Gas Cloud in the same area, Spreading the largest active Poison affecting the enemy the knife lodged in. The cloud will detonate if hit by a Detonator skill or Ignited Ground, creating a fiery explosion.",
+"hooks": [
+"dagger",
+"ground",
+"ignite",
+"poison",
+"projectile"
+]
+},
+{
+"name": "Fire Trap",
+"kind": "gem",
+"text": "Attack AoE , Trap , Trigger , Fire , Detonator, Hazard Tier: 5 Level: 13 Cost: 38 Mana Cooldown Time: 6.00s (2 uses) Requires: Level 52 , 51 Dex , 51 Int Requires: Trap Throw a Trap that deals Fire damage when Triggered and is particularly effective at Igniting targets.",
+"hooks": [
+"cooldown",
+"ignite",
+"trap",
+"trigger"
+]
+},
+{
+"name": "Shrapnel Trap",
+"kind": "gem",
+"text": "Attack AoE , Trap , Trigger , Hazard Level: 1 Cost: 0 Mana Cooldown Time: 3.00s (4 uses) Requires: Trap Throw a Trap that sprays shards of metal when Triggered, damaging and impaling nearby enemies.",
+"hooks": [
+"cooldown",
+"impale",
+"meta_gem",
+"trap",
+"trigger"
+]
+},
+{
+"name": "Poison Trap",
+"kind": "gem",
+"text": "Attack AoE , Trap , Trigger , Fire , Chaos, Detonator, Hazard Tier: 7 Level: 13 Cost: 24 Mana Cooldown Time: 3.00s (3 uses) Requires: Level 52 Requires: Trap Throw a Trap that spews Poisonous gas when Triggered. The cloud will detonate if hit by a Detonator skill or Ignited Ground, creating a fiery explosion.",
+"hooks": [
+"cooldown",
+"ground",
+"ignite",
+"poison",
+"trap",
+"trigger"
+]
+},
+{
+"name": "Shadow Extraction",
+"kind": "gem",
+"text": "Attack AoE, Melee, Strike Tier: 7 Level: 13 Cost: 46 Mana Attack Speed: 55% of base Attack Damage: 122% Requires: Level 52 , 51 Dex , 51 Int Requires: Dagger Spin forward, Hitting targets around you twice. Hitting an enemies that is Engulfed in Darkness Consumes the Debuff, manifesting a Shade that backstabs the enemy.",
+"hooks": [
+"dagger",
+"darkness",
+"immobilise",
+"shade",
+"strike"
+]
+},
+{
+"name": "Eclipse",
+"kind": "gem",
+"text": "Spell Buff, Conditional Tier: 13 Level: 13 Cost: 57 Mana Cast Time: 0.75s Requires: Level 52 , 51 Dex , 51 Int Requires: Any Martial Weapon, Unarmed Build Glory by gaining Darkness , When you have maximum Glory , you may entreat Prospero for aid, binding your Shades to your will. While the Skill lasts, every Attack you make counts as being used from Stealth and your Shades cannot expire. However, your Darkness drains at an accelerating rate, and the Skill ends when you run out. Requires 100 Glory to use Attacks count as being used from Stealth and expending maximum Darkness Shades' durations are paused After the first 4 seconds, drains 6 Darkness per second, increasing by 40% each second",
+"hooks": [
+"darkness",
+"glory",
+"shade",
+"stealth"
+]
+},
+{
+"name": "Grim Bargain",
+"kind": "gem",
+"text": "Buff Persistent Level: 8 Reservation: 60 Spirit Requires: Level 26 , 28 Dex , 28 Int You've made a dark deal with Prospero. While active, you gain Darkness on Critical Hit and your Darkness is more powerful. Gain 5 Darkness on Critical Hit Skills that consume Darkness coount as consuming 10% increased amount of Darkness",
+"hooks": [
+"crit",
+"darkness",
+"spirit_res"
+]
+},
+{
+"name": "Bloodied Blade",
+"kind": "gem",
+"text": "Attack AoE , Melee , Strike , Physical , Channelling Tier: 1 Level: 20 (Max) Cost: 62 Mana [AddedAttackTime|Added Attack Time]: +0.50s Attack Damage: 187% Requires: Level 90 , 86 Str , 86 Dex Requires: One Hand Sword , Two Hand Sword Whirl forward and perform two slashing Strikes . Hitting a Parried target causes an explosion of gore that inflicts Bleeding , and consuming a Frenzy Charge to use this Skill causes the explosion from every target Hit . Holding down the Skill places you in [ReadyStance|Ready Stance], or [ReadyStance|Blood Stance] if it inflicted Bleeding .",
+"hooks": [
+"bleed",
+"channel",
+"charge_consume",
+"frenzy",
+"parry",
+"ready_stance",
+"strike",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Sand Scour",
+"kind": "gem",
+"text": "Attack AoE , Melee , Strike , Sustained , Channelling Tier: 1 Level: 20 (Max) Cost: 54 Mana [AddedAttackTime|Added Attack Time]: +0.25s Attack Damage: 218% Requires: Level 90 , 86 Str , 86 Dex Requires: One Hand Sword , Two Hand Sword Step backwards and slash forward while flinging sand, Blinding enemies and Heavy Stunning enemies that are Primed for Stun . Consumes a Frenzy Charge if possible to additionally fire Sand Disks. This Skill can be used while using other Skills to interrupt them, and can be held to enter [ReadyStance|Ready Stance] after use, or [ReadyStance|Sand Stance] instead if an enemy was Heavy Stunned or a Frenzy Charge was Consumed.",
+"hooks": [
+"channel",
+"charge_consume",
+"frenzy",
+"heavy_stun",
+"ready_stance",
+"sand",
+"strike",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Engage",
+"kind": "gem",
+"text": "Attack AoE, Melee, Strike Tier: 1 Level: 13 Cost: 38 Mana Attack Damage: 144% Requires: Level 52 , 51 Str , 51 Dex Requires: One Hand Sword, Two Hand Sword Stab forward with your weapon, causing Knockback and Stun buildup. Hitting an enemy that has been Parried Consumes the Debuff to cause an explosion around them and grant you a Frenzy Charge. This Skill can be used while using other Skills to interrupt them.",
+"hooks": [
+"frenzy",
+"parry",
+"strike",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Charged Slash",
+"kind": "gem",
+"text": "Attack AoE, Melee, Strike, Projectile, Lightning Tier: 1 Level: 13 Cost: 18 Mana Attack Speed: 115% of base Attack Damage: 133% Requires: Level 52 , 51 Str , 51 Dex Requires: One Hand Sword, Two Hand Sword Slash in front of you, dealing Shocking Hits. If used from Ready Stance, instead perform a spinning slash that creates Chaining Projectiles of electricity. Charges Buried Blades on Hit.",
+"hooks": [
+"buried_blade",
+"projectile",
+"ready_stance",
+"shock",
+"strike",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Earthrend",
+"kind": "gem",
+"text": "Attack AoE, Melee, Trigger, Sustained, Duration Tier: 3 Level: 13 Cost: 19 Mana Attack Speed: 110% of base Attack Damage: 66% Requires: Level 52 , 51 Str , 51 Dex Requires: One Hand Sword, Two Hand Sword Gouge the ground with your sword, creating a damaging fissure that causes a blade to erupt at its terminus. If used from Ready Stance, instead create a series of blades along the length of the fissure.",
+"hooks": [
+"ready_stance",
+"sword",
+"trigger",
+"two_hand"
+]
+},
+{
+"name": "Haemorrhage",
+"kind": "gem",
+"text": "Attack AoE , Melee , Strike , Physical , Payoff Tier: 3 Level: 20 (Max) Cost: 30 Mana Attack Speed: 125% of base Attack Damage: 103% Requires: Level 90 , 86 Str , 86 Dex Requires: One Hand Sword , Two Hand Sword Perform a series of three extended slashes that open wounds in your target. Bleeding targets Hit have their Bleeding [Rupture|Ruptured], causing the Bleeding damage to be dealt more quickly. The Final Strike has a longer range, [Rupture|Ruptures] more Bleeding , and is performed immediately if you use this Skill from [ReadyStance|Ready Stance]. Hitting a Bleeding target causes its blood to erupt in an explosion of gore.",
+"hooks": [
+"bleed",
+"ready_stance",
+"strike",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Intimidate",
+"kind": "gem",
+"text": "Attack Warcry, AoE, Melee, Trigger, Nova Tier: 3 Level: 13 Cost: 56 Mana Cooldown Time: 8.00s Use Time: 0.80s Requires: Level 52 , 51 Str , 51 Dex Perform a Warcry, Intimidating nearby enemies and Empowering subsequent Melee Attacks to Trigger a damaging shockwave on Hit. This Skill's cooldown can be bypassed by expending an Endurance Charge",
+"hooks": [
+"cooldown",
+"empower",
+"endurance",
+"shock",
+"trigger",
+"warcry"
+]
+},
+{
+"name": "Blade Plunge",
+"kind": "gem",
+"text": "Attack AoE, Melee, Trigger, Sustained, Physical, Duration, Channelling Tier: 5 Level: 13 Cost: 27.9 Mana per second Attack Speed: 150% of base Attack Damage: 155% Requires: Level 52 , 51 Str , 51 Dex Requires: Single Two Hand Sword Plunge your blade into the ground, damaging nearby targets and sending out multiple fissures that Trigger Buried Blade when they end. All Buried Blades explode after you finish Channelling. Channelling for an additional attack time primes the Buried Blades, causing their explosions to deal more damage in a larger area. Using this Skill from Blood Stance or Sand Stance creates Blood Pools or sand disks around the Buried Blades, damaging nearby enemies for as long as you hold the Skill.",
+"hooks": [
+"buried_blade",
+"channel",
+"ground",
+"ready_stance",
+"sand",
+"sword",
+"trigger",
+"two_hand"
+]
+},
+{
+"name": "Rending Dash",
+"kind": "gem",
+"text": "Attack AoE, Melee, Physical, Travel, Payoff Tier: 5 Level: 13 Cost: 44 Mana Cooldown Time: 4.5s Attack Speed: 90% of base Attack Damage: 141% Requires: Level 52 , 51 Str , 51 Dex Requires: One Hand Sword, Two Hand Sword Dash through an enemy or target location, dealing damage as you travel. Wind Blades on enemies Hit activate immediately and deal extra damage, and enemies suffering from Blood Loss lose extra life. Can be used in Ready Stance without breaking the stance. Wind Blades on targets Hit immediately Activate, dealing 50% more damage Consumes the target's Blood Loss to cause it to Lose Life equal to 70% of consumed Blood Loss at a rate of 10% of maximum Life per second Dash width is 1.2 metres Additional Effects From Quality: +(0-0.4) metres to dash width",
+"hooks": [
+"blood_loss",
+"cooldown",
+"life_loss",
+"max_life",
+"ready_stance",
+"sword",
+"two_hand",
+"wind"
+]
+},
+{
+"name": "Perforate",
+"kind": "gem",
+"text": "Attack AoE , Melee , Strike , Sustained , Physical Tier: 5 Level: 20 (Max) Cost: 29 Mana Attack Speed: 130% of base Attack Damage: 140% Requires: Level 90 , 86 Str , 86 Dex Requires: One Hand Sword , Two Hand Sword Stab forward three times in rapid succession. The Final Strike in the sequence drills forward, causing rapid additional Hits that inflict Bleeding . Using this Skill from [ReadyStance|Ready Stance] immediately performs the Final Strike , and additionally causes the drill's first Hit against each enemy to release a Blood Nova if you are in [ReadyStance|Blood Stance] or Sand Disks if you are in [ReadyStance|Sand Stance].",
+"hooks": [
+"bleed",
+"ready_stance",
+"sand",
+"strike",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Cyclone",
+"kind": "gem",
+"text": "Attack AoE , Melee , Strike , Sustained , Channelling , Wind Tier: 7 Level: 20 (Max) Cost: 49.3 Mana per second Attack Speed: 330% of base Attack Damage: 78% Requires: Level 90 , 86 Str , 86 Dex Requires: Dual Swords , Two Hand Sword Channel to spin rapidly, damaging targets around you and moving forward. Overlapping an Elemental Ground Surface takes on that Element , applying the Elemental Ground Surface 's Debuff to enemies Hit . Using this Skill from [ReadyStance|Blood or Sand Stances] causes blood waves or sand disks to fly out for the first few seconds of Channelling .",
+"hooks": [
+"channel",
+"ground",
+"immobilise",
+"ready_stance",
+"sand",
+"strike",
+"sword",
+"two_hand",
+"wind"
+]
+},
+{
+"name": "Slicing Winds",
+"kind": "gem",
+"text": "Attack AoE, Melee, Strike, Physical, Wind Level: 5 Cost: 8 Mana Attack Speed: 110% of base Attack Damage: 100% Requires: Level 14 , 17 Str , 17 Dex Requires: One Hand Sword, Two Hand Sword Perform a series of slashes forward that project solid wind, dealing damage and applying Wind Blades to enemies Hit.",
+"hooks": [
+"strike",
+"sword",
+"two_hand",
+"wind"
+]
+},
+{
+"name": "Echoing Strikes",
+"kind": "gem",
+"text": "Spell Buff, Duration Tier: 9 Level: 1 Cost: 18 Mana Cooldown Time: 12.80s Cast Time: 0.80s Requires: One Hand Sword, Two Hand Sword Become swift and deadly, Consuming your Frenzy Charges on use to Empower your next Strike to create afteriimages that use that same Strike in additional locations. Empower duration is 10 seconds 50% less damage with Afterimages Creates 2 afterimages and 1 additional afterimage per Frenzy Charge Consumed",
+"hooks": [
+"charge_consume",
+"cooldown",
+"echo_repeat",
+"empower",
+"frenzy",
+"strike",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Blade Conduit",
+"kind": "gem",
+"text": "Attack AoE, Lightning, Duration, Nova Tier: 9 Level: 13 Cost: 54 Mana Cooldown Time: 6.00s Attack Speed: 65% of base Attack Damage: 288% Requires: Level 52 , 51 Str , 51 Dex Requires: One Hand Sword, Two Hand Sword Use your Sword as a conduit for Lightning, calling down a surging Nova around you, leaving behind Shocked Ground. Converts 100% of Physical damage to Lightning damage Explosion and Shocked Ground radius are 3 metres Shocked Ground duration is 4 seconds",
+"hooks": [
+"cooldown",
+"ground",
+"shock",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Worldcutter",
+"kind": "gem",
+"text": "Attack AoE, Melee, Strike, Duration, Channelling, Staged Tier: 11 Level: 13 Cost: 15 Mana Attack Time: 2.67s Attack Damage: 282% Requires: Level 52 , 51 Str , 51 Dex Requires: Two Hand Sword Channel to encase your sword with power and release to cleave the world in twain. Each Stage increases the area and damage of Strike. This Skill has its own Attack time. Edit",
+"hooks": [
+"channel",
+"strike",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Abyssus",
+"kind": "unique",
+"text": "Abyssus Goliath Greathelm Helmet Armour : 1026 Requires: Level 58 , 82 Str 250% increased Armour 50% increased Critical Hit Chance +15 to all Attributes Every Rage also grants 2 to 3 Added Physical Damage to Melee Attacks Every Rage also grants 1% increased Damage Taken Every Rage also grants 1 Life gained per enemy killed Extra gore",
+"hooks": [
+"armour",
+"crit",
+"rage"
+]
+},
+{
+"name": "Agnar",
+"kind": "unique",
+"text": "Agnar Vampiric Longsword Two Hand Sword Physical Damage: 15-25 Critical Hit Chance: 10.01% Attacks per Second: 1.25 Requires: Level 9 , 14 Str , 11 Dex Grants Skill: Level 19 Fangs of Agnar Leeches 8.08% of Physical Damage as Life Hits with this Weapon have 3 to 5 Added Cold Damage per Player Level +5.01% to Critical Hit Chance +10% to Critical Damage Bonus Hits with this Weapon Penetrate 50% Cold Resistance against Frozen Enemies 62% increased Immobilisation Buildup Life Leech recovers based on your Cold damage as well as Physical damage",
+"hooks": [
+"chill_freeze",
+"crit",
+"immobilise",
+"leech",
+"penetrat",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Ako's Answer",
+"kind": "unique",
+"text": "Ako's Answer Barrier Quarterstaff Quarterstaff Physical Damage: 92-154 Critical Hit Chance: 10.00% Attacks per Second: 1.30 Requires: Level 37 , 52 Dex , 22 Int +15% to Block chance 149% increased Physical Damage +1 to Level of all Melee Skills 50% increased Stun Buildup Strike skills which create Bells are Ancestrally Boosted Skills which create Bells have +2 to Limit Bells you create are Immune to Elemental Ailments Hits with this weapon do not count towards the number of Hits Bells take to destroy",
+"hooks": [
+"ancestral",
+"anvil_bell",
+"block",
+"crit",
+"quarterstaff",
+"strike"
+]
+},
+{
+"name": "Ashcaller",
+"kind": "unique",
+"text": "Ashcaller Searing Wand Wand Requires: Level 45 , 80 Int Grants Skill: Level 14 Burning Effigy Grants Skill: Level 14 Spirits of Ngamahu Gain 50% of Damage as Extra Fire Damage 118% increased Fire Damage The next 3 Fire Spells you cast after gaining a Fire Infusion are Ancestrally Boosted Ancestral Boost has 20% increased effect on your skills per summoned Spirit of Ngamahu +1 to maximum Fire Infusions",
+"hooks": [
+"ancestral",
+"extra_dmg",
+"infusion",
+"spirit_res"
+]
+},
+{
+"name": "Benevolence",
+"kind": "unique",
+"text": "Benevolence Commander Sword One Hand Sword Physical Damage: 40-54 Chaos Damage: 144-295 Critical Hit Chance: 15.74% Attacks per Second: 1.45 Requires: Level 54 , 44 Str , 62 Dex Grants Skill: Level 20 Tear Through Reality [RallyAura|Rallies] for 11% of Weapon Damage +10.74% to Critical Hit Chance Adds 144 to 295 Chaos damage 212% increased Magnitude of Ignite inflicted with this weapon [KeystoneChaosIncarnate|Chaos Incarnate]",
+"hooks": [
+"crit",
+"ignite",
+"sword"
+]
+},
+{
+"name": "Elysium",
+"kind": "unique",
+"text": "Elysium Sickle Sword One Hand Sword Physical Damage: 46-77 Critical Hit Chance: 7.00% Attacks per Second: 1.60 Requires: Level 27 , 24 Str , 33 Dex Grants Skill: Level 20 Siege of Sands 25% increased Melee Strike Range with this weapon Adds 29 to 41 Physical Damage +239 to Accuracy Rating 14% increased Attack Speed 23% increased Area of Effect Gain [SandIngrained|Sand-Ingrained] after using a Skill from [ReadyStance|Ready Stance] Hits Break 102 Armour",
+"hooks": [
+"armour",
+"crit",
+"ready_stance",
+"sand",
+"strike",
+"sword"
+]
+},
+{
+"name": "Hand of Weeping Black",
+"kind": "unique",
+"text": "Hand of Weeping Black Rattling Sceptre Sceptre Requires: Level 26 Grants Skill: Level 20 Skeletal Warrior Minion Has No Spirit Allies in your Presence deal 10 to 14 added Attack Physical Damage Raise Zombie does not Consume a Corpse or Power Charge Take Physical Damage equal to 20% of your maximum Life plus maximum Energy Shield when you Raise a Zombie Raised Zombies are always empowered Raised Zombies have infinite Duration",
+"hooks": [
+"empower",
+"energy_shield",
+"max_life",
+"minion",
+"power_charge",
+"presence",
+"self_damage",
+"spirit_res",
+"zombie"
+]
+},
+{
+"name": "Kaom's Roots",
+"kind": "unique",
+"text": "Kaom's Roots Monument Greaves Boots Armour : 206 Requires: Level 54 , 72 Str Grants Skill: Level 19 Mountain's Wake +302 to maximum Life Cannot be Knocked Back Cannot be Light Stunned Your speed is unaffected by Slows Gain 1 Crushing Pressure every 0.25 seconds while stationary, up to a maximum of 10 Consume 1 Crushing Pressure to Trigger Mountain's Wake every 0.20 seconds while moving",
+"hooks": [
+"armour",
+"max_life",
+"trigger"
+]
+},
+{
+"name": "Molten Tenet",
+"kind": "unique",
+"text": "Molten Tenet Plate Belt Requires: Level 24 Has (1 \u2014 3) Charm Slots +(140 \u2014 180) to Armour Gain 10% of Physical Damage as Extra Fire Damage +14 to Strength +42% to Fire Resistance +45% of Armour also applies to Fire Damage Enemies in your Presence Gain 10% of their Physical Damage as Extra Fire Damage 10% of Fire Damage prevented Recouped as Life",
+"hooks": [
+"armour",
+"extra_dmg",
+"presence",
+"recoup"
+]
+},
+{
+"name": "Oro's Sacrifice",
+"kind": "unique",
+"text": "Oro's Sacrifice Twilight Longsword Two Hand Sword Fire Damage: 248-384 Critical Hit Chance: 5.00% Attacks per Second: 1.51 Requires: Level 54 , 62 Str , 44 Dex Grants Skill: Level 19 Infernal Step [Bejewelled] No Physical Damage Adds 248 to 384 Fire Damage 21% increased Attack Speed Hits with this Weapon always Ignite targets that are on Full Life Gain 12% of Damage as Extra Fire Damage per [SacrificialFlame|Sacrificial Flame] Gain 1 Frenzy Charge every 1 second while at maximum [SacrificialFlame|Sacrificial Flame]",
+"hooks": [
+"crit",
+"extra_dmg",
+"frenzy",
+"ignite",
+"self_damage",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Riptide",
+"kind": "unique",
+"text": "Riptide Seaglass Spear Spear Physical Damage: 29-54 Cold Damage: 121-237 Critical Hit Chance: 13.38% Attacks per Second: 1.55 Requires: Level 51 , 29 Str , 71 Dex , 50 Int Grants Skill: Spear Throw Grants Skill: Level 19 Tasalio's Charge Adds 121 to 237 Cold Damage Gain 25% of Damage as Extra Cold Damage against Frozen targets +5.88% to Critical Hit Chance +26 to Dexterity 246% increased Freeze Buildup inflicted on Parried targets",
+"hooks": [
+"chill_freeze",
+"crit",
+"extra_dmg",
+"parry",
+"spear"
+]
+},
+{
+"name": "Siegebreaker",
+"kind": "unique",
+"text": "Siegebreaker Ornate Belt Belt Requires: Level 50 Grants Skill: Level 14 Bunkerbuster Has (1-3) Charm Slot (10\u201415)% reduced Charm Charges used +84 to maximum Life +28 to Strength Minions have 25% increased maximum Life Minions Regenerate 1.2% of maximum Life per second -1.5 seconds to Minion Revival timer when you cast Bunkerbuster",
+"hooks": [
+"max_life",
+"minion"
+]
+},
+{
+"name": "The Leviathan",
+"kind": "unique",
+"text": "The Leviathan Chieftain Cuirass Body Armour Armour : 1287 Requires: Level 50 , 80 Str 230% increased Armour +30 to Spirit +43% to Fire and Cold Resistances Gain 1 [LeviathanScales|Leviathan Scale] every 4 seconds Gain 3 [LeviathanScales|Leviathan Scales] for each Endurance Charge you consume You have no Lightning Resistance",
+"hooks": [
+"armour",
+"endurance",
+"spirit_res"
+]
+},
+{
+"name": "The Wanderer",
+"kind": "unique",
+"text": "The Wanderer Leather Vest Body Armour Evasion Rating : 30 +125 to Ailment Threshold 20% increased Experience gain 1% reduced Experience gained per 5 Player levels Ignore all Movement Penalties from Armour You cannot increase the Rarity of Items found [Wayfarer]",
+"hooks": [
+"armour"
+]
+},
+{
+"name": "The Watcher in the Dark",
+"kind": "unique",
+"text": "The Watcher in the Dark Rotwood Oar Staff Requires: Level 65 , 114 Int Grants Skill: Level 19 Abyssal Pact Grants Skill: Level 19 Lightless Stalker +133 to Spirit +1 to Level of all Minion Skills 18% reduced Cast Speed Minions deal 112% increased Damage Minions explode on death, dealing 11% of their maximum life as Physical Damage to enemies within 2 metres",
+"hooks": [
+"max_life",
+"minion",
+"spirit_res"
+]
+},
+{
+"name": "Windripper",
+"kind": "unique",
+"text": "Windripper Greatbow Bow Physical Damage: 74-156 Critical Hit Chance: 6.50% Attacks per Second: 1.29 Requires: Level 54 , 62 Str , 62 Dex Grants Skill: Level 19 Perfect Squall 100% increased Physical Damage Gain 30% of Damage as Extra Lightning Damage Gain 30% of Damage as Extra Cold Damage 12% increased Attack Speed Hits with this weapon Penetrate infinite Lightning Resistance of Shocked monsters Hits with this weapon Penetrate infinite Cold Resistance of Chilled monsters 43% increased Magnitude of Non-Damaging Ailments you inflict Edit",
+"hooks": [
+"chill_freeze",
+"crit",
+"extra_dmg",
+"penetrat",
+"shock"
+]
+},
+{
+"name": "Knight: Empowered Attacks deal 20% increased dam",
+"kind": "ascendancy",
+"text": "Empowered Attacks deal 20% increased damage",
+"hooks": [
+"empower"
+]
+},
+{
+"name": "Knight: While under the Valour, gain a random no",
+"kind": "ascendancy",
+"text": "While under the Valour, gain a random non-damaging Shrine buff for 20 seconds",
+"hooks": [
+"valour"
+]
+},
+{
+"name": "Knight: Skills which require Glory generate 1 Gl",
+"kind": "ascendancy",
+"text": "Skills which require Glory generate 1 Glory every 2 seconds",
+"hooks": [
+"glory"
+]
+},
+{
+"name": "Knight: 15% more damage when a rare or unique en",
+"kind": "ascendancy",
+"text": "15% more damage when a rare or unique enemy present; 15% less damage taken when surrounded (or swapped)",
+"hooks": []
+},
+{
+"name": "Knight: Banner Skills have 25% increased Duratio",
+"kind": "ascendancy",
+"text": "Banner Skills have 25% increased Duration",
+"hooks": [
+"banner"
+]
+},
+{
+"name": "Knight: Bannerlord",
+"kind": "ascendancy",
+"text": "Bannerlord: Maraketh/Karui/Vaal/Ezomyte/Kalguuran Standard",
+"hooks": [
+"banner"
+]
+},
+{
+"name": "Knight: Glorious Entrance",
+"kind": "ascendancy",
+"text": "Glorious Entrance: Liberator's Chariot",
+"hooks": []
+},
+{
+"name": "Knight: 15% increased Armour and Evasion Rating",
+"kind": "ascendancy",
+"text": "15% increased Armour and Evasion Rating",
+"hooks": [
+"armour"
+]
+},
+{
+"name": "Knight: Honourbound",
+"kind": "ascendancy",
+"text": "Honourbound: Honourbound Blade; Gain 5 Valour every 2 seconds while a Rare or Unique monster is in your Presence; Gain 5 Valour per 10 Glory consumed",
+"hooks": [
+"glory",
+"presence",
+"valour"
+]
+},
+{
+"name": "Knight: Companions deal 15% increased Damage",
+"kind": "ascendancy",
+"text": "Companions deal 15% increased Damage",
+"hooks": [
+"companion"
+]
+},
+{
+"name": "Knight: Esteemed Mentor",
+"kind": "ascendancy",
+"text": "Esteemed Mentor: Summon Squire (companion, own gear, any melee skill gems)",
+"hooks": [
+"companion"
+]
+},
+{
+"name": "Knight: 8% increased Block chance",
+"kind": "ascendancy",
+"text": "8% increased Block chance",
+"hooks": [
+"block"
+]
+},
+{
+"name": "Knight: Righteous Bastion",
+"kind": "ascendancy",
+"text": "Righteous Bastion: Gain Guard for 4 seconds equal to 25% Damage Blocked",
+"hooks": [
+"block",
+"guard"
+]
+},
+{
+"name": "Infernal Step",
+"kind": "granted skill",
+"text": "Level: 19 Cost: 0 Mana Attack Speed: 49% of base Attack Damage: 227% Requires: Level 84 Requires: Two Hand Sword Take fire damage as you traverse through an infernal realm to teleport and Strike enemies. The more you use this skill, the more you become marked by Sacrificial Flames which increase the damage taken, damage dealt, and number of additional Strikes made when using this skill. When you use this Skill, gain 1 [SacrificialFlame|Sacrificial Flame] then take 400 Fire Damage per [SacrificialFlame|Sacrificial Flame] 15% more Damage per [SacrificialFlame|Sacrificial Flame] Teleports and Strikes 2 times, plus 3 additional times per [SacrificialFlame|Sacrificial Flame] Additional Strikes have 113% more Attack speed",
+"hooks": [
+"self_damage",
+"strike",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Siege of Sands",
+"kind": "granted skill",
+"text": "Level: 20 (Max) Cooldown Time: 5.00s Attack Speed: 64% of base Attack Damage: 468% Requires: Level 90 Requires: One Hand Sword , Two Hand Sword Channel to gather ancient sand within your Sword before dashing through an enemy or target location, dealing damage as you travel. Upon arriving a number of Sand Mirages appear to dash and slash through your target based on the amount of sand gathered. [WindBlades|Wind Blades] on enemies Hit by you or Sand Mirages activate immediately and deal extra damage. Siege of Sands [WindBlades|Wind Blades] on targets Hit immediately activate, dealing 25% more damage [Dismember|Dismembers] enemies on Killing Blow Dash width is 1.2 metres Gain stages 100% faster per Stage 9 maximum Stages Mirage Attack Damage: 974% [WindBlades|Wind Blades] on targets Hit immediately activate, dealing 25% more damage [Dismember|Dismembers] enemies on Killing Blow Dash width is 1.2 metres",
+"hooks": [
+"channel",
+"cooldown",
+"echo_repeat",
+"sand",
+"sword",
+"two_hand",
+"wind"
+]
+},
+{
+"name": "Tear Through Reality",
+"kind": "granted skill",
+"text": "Level: 20 (Max) Cost: 37 Mana Cooldown Time: 4.00s Attack Speed: 147% of base Attack Damage: 572% Requires: Level 90 Requires: One Hand Sword , Two Hand Sword Dash through an enemy or target location, dealing damage as you travel. Can be used in [ReadyStance|Ready Stance] to slash a tear in reality, causing chaotic flames to wash out over nearby enemies until the tear closes. Dash Converts 100% of Physical damage to Chaos damage Gains 100% of damage as Fire damage [Dismember|Dismembers] enemies on Killing Blow Dash width is 1.2 metres Tear Attack Damage: 974% Converts 100% of Physical damage to Chaos damage Does not Hit , but Ignites targets as though Hitting them Tear width is 2.4 metres Tear duration is 7 seconds",
+"hooks": [
+"cooldown",
+"ignite",
+"ready_stance",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Fangs of Agnar",
+"kind": "granted skill",
+"text": "Level: 19 Attack Damage: 223% Requires: Level 84 , 80 Str , 80 Dex Requires: Two Hand Sword Swing your Sword once to each side, creating two walls of fang-like Ice Crystals before you. Then coat your blade in ice before Slamming it down, dealing damage and destroying Crystals in the area. Swing Converts 50% of Physical damage to Cold damage Radius is 2.5 metres Crystal Attack Damage: 95% Converts 100% of Physical damage to Cold damage Explosion radius is 5 metres Ice Crystal duration is 5 seconds Ice Crystals have 10118 maximum Life Wall is 8 metres long Slam Attack Damage: 568% Converts 70% of Physical damage to Cold damage Impact radius is 5 metres Hits destroy Ice Crystals",
+"hooks": [
+"max_life",
+"slam",
+"sword",
+"two_hand"
+]
+},
+{
+"name": "Abyssal Pact",
+"kind": "granted skill",
+"text": "Level: 19 Cost: 0 Mana Cast Time: 0.70s Critical Hit Chance: 14.00% Requires: Level 84 , 147 Int Sacrifice some of a damageable Minion's life to deal Physical damage in an area around it. Deals 37 to 68 Physical Damage Sacrifices 19% of a damageable Minion's maximum life to deal that much Physical damage Damage radius is 2.5 metres",
+"hooks": [
+"crit",
+"max_life",
+"minion",
+"self_damage"
+]
+},
+{
+"name": "Lightless Stalker",
+"kind": "granted skill",
+"text": "Level: 19 Requires: Level 84 Summons an immortal Lightless Stalker Minion which puts enemies it Hits under the Watcher's Gaze. Killing those enemies, or Hitting them if Rare or Unique , causes this skill to summon temporary Foul Eye Minions . Lightless Stalker Lightless Stalker's Hits put targets under the Watcher's Gaze for 6 seconds 75% Surpassing chance per enemy Power to summon a Foul Eye Minion when you or your Minions kill an enemy under the Watcher's Gaze 20% chance to summon a Foul Eye when you or your Minions Hit a Rare or Unique enemy under the Watcher's Gaze Foul Eye Limit 12 Foul Eyes Foul Eye duration is 10 seconds",
+"hooks": [
+"minion",
+"power_enemy"
+]
+},
+{
+"name": "Bunkerbuster",
+"kind": "granted skill",
+"text": "Level: 14 Cost: 0 Mana Cooldown Time: 4.00s (3 uses) Cast Time: 0.50s Critical Hit Chance: 7.00% Requires: Level 58 Target a location to send the closest reviving Minion moving towards it, removing Freeze and Pin from that Minion if affected, then consume that minion to create a powerful explosion dealing spell damage. Deals 175 to 262 Physical Damage Deals Fire Damage equal to 12.2% of the Minion maximum Life Explosion radius is 2 metres Explode after 4.0 seconds or when Chosen Minion reaches that target Chosen Minion takes -75% less damage Chosen Minion has 50% increased Movement Speed",
+"hooks": [
+"chill_freeze",
+"cooldown",
+"crit",
+"immobilise",
+"max_life",
+"minion"
+]
+},
+{
+"name": "Perfect Squall",
+"kind": "granted skill",
+"text": "Level: 19 Attack Speed: 60% of base Attack Damage: 297% Requires: Level 84 Requires: Bow Channel to charge up your bow before releasing a powerful shot. Releasing with Perfect Timing causes the arrow to transform into a roaring squall Projectile . On impact or reaching the end of its duration the Squall Projectile bursts into a set of smaller erratic squalls. If a smaller squall touches a Whirlwind from your other skills, it Consumes the Whirlwind to create additional squalls that deal more damage. Passing over Elemental Ground Surfaces or Consuming an Elemental Whirlwind will grant squalls extra damage of that element. Arrow Modifiers to Attack speed also affect this Skill's cost Large Squall Attack Damage: 728% Blinds Enemies Number of Projectiles cannot be modified 60% less Projectile Speed Pierces all Targets Squall radius is 1.5 metres Squall duration is 3 seconds Elemental squalls Gain 58% of damage as damage of the corresponding Type Squall can Hit each target no more than once every 0.66 seconds Small Squall Attack Damage: 463% Blinds Enemies 70% less Projectile Speed Pierces all Targets Fires Projectiles in a circle Squall radius is 0.5 metres Squall duration is 3 seconds Fires 5 Squalls Elemental squalls Gain 58% of damage as damage of the corresponding Type Squalls can Hit each target no more than once every 0.66 seconds",
+"hooks": [
+"channel",
+"ground",
+"projectile",
+"wind"
+]
+},
+{
+"name": "Raise Zombie (Hand of Weeping Black target)",
+"kind": "granted skill",
+"text": "Level: (1 \u2014 20) Cost: (10 \u2014 102) Mana Requires: Level (1 \u2014 90) , (4 \u2014 157) Int Consume a Corpse or Power Charge to create a short-lived Zombie. Zombies created from Power Charges are Empowered and also create two additional non-empowered Zombies. Limit 10 Raised Zombies Zombie duration is 20 seconds Empowered Zombies take 30 % less damage Empowered Zombies deal (100 \u2014 253) % more damage with Hits Empowered Zombies have 25 % more movement speed can perform skill while moving [1] display minion monster type [1] display statset no hit damage [1] movement speed +% final while performing action [-70] movement speed acceleration +% per second while performing action [160] movement speed while performing action locked duration % [50] zombie base decay rate permyriad [0] zombie decay rate increase +% final [25] Additional Effects From Quality: (0 \u2014 25) % increased effect of Empowerment on Raised Zombies Limit (0 \u2014 4) Raised Zombies",
+"hooks": [
+"decay",
+"empower",
+"minion",
+"power_charge",
+"zombie"
+]
+},
+{
+"name": "Mountain's Wake",
+"kind": "granted skill",
+"text": "Attack Melee Slam Trigger Physical; 531% attack damage; base 158-238 physical; not weapon-based; triggered by Kaom's Roots while moving",
+"hooks": [
+"slam",
+"trigger"
+]
+},
+{
+"name": "Tasalio's Charge",
+"kind": "granted skill",
+"text": "Strike Payoff; Hitting a Frozen enemy causes an implosion then a Cold explosion; 3% more Damage per Power of target; cannot be Ancestrally Boosted",
+"hooks": [
+"ancestral",
+"chill_freeze",
+"power_enemy",
+"strike"
+]
+},
+{
+"name": "Shade (mechanic)",
+"kind": "mechanic",
+"text": "Ambushing with a Melee Attack makes Shades perform it; Shade portion 50% less damage, dealt by you; limit 3; 6 second duration",
+"hooks": [
+"shade",
+"stealth"
+]
+},
+{
+"name": "Darkness / Ambush (mechanic)",
+"kind": "mechanic",
+"text": "Ambushing attacks (attacks from Stealth) expend all Darkness for 3% more damage per Darkness; default maximum 30 Darkness",
+"hooks": [
+"darkness",
+"stealth"
+]
+},
+{
+"name": "Blood Loss (mechanic)",
+"kind": "mechanic",
+"text": "All Physical damage over time taken by a target (including Bleeding) is accumulated as Blood Loss",
+"hooks": [
+"bleed",
+"blood_loss"
+]
+}
+]
