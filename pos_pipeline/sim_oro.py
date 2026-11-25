@@ -78,6 +78,7 @@ class Build:
     serles_window: float = ECHO_WINDOW  # seconds an uncounted Empower lasts after the Echoing cast
     time_snap: bool = False        # Chronomancer: Time Snap resets Echoing's cooldown
     titan_uptime: float = 0.0      # Titan Crushing Impacts: share of time the boss is Heavy Stunned (25% more)
+    boss_cdr_less: float = 0.0     # Witchhunter at 0 Concentration: boss cooldown recovery 50% less (0.5 to enable)
     shades: int = 0                # Shades copying each Ambushing melee attack (limit 3, 4 with Golem Hunger)
     shades_copy_echo: bool = False  # Shades also copy the afterimage portion of an empowered use
 
@@ -110,6 +111,7 @@ class Result:
     echo_uses: int
     eclipse_uses: int
     killed: bool = field(default=True)
+    mechanics: int = 0
 
 
 def _strike_times(f: int, aps: float) -> list[float]:
@@ -143,8 +145,16 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
     empower_until = -1.0           # an uncounted Empower (Serle's Grit) can still be used until this time
     next_mech = fight.first_mechanic
     dealt = 0.0
+    mech_n = 0
     uses = flame_sum = locked = echo_uses = eclipse_uses = 0
     burn_total = 0.0
+
+    def mech_gap() -> float:
+        """Seconds to the next boss mechanic. Witchhunter: boss cooldown recovery is up to 50% less in proportion to
+        missing Concentration (assumed to scale linearly; source: build doc), so mechanics come up to 2x less often."""
+        if b.witchhunter and a.concentration and conc_max > 0 and b.boss_cdr_less:
+            return fight.mechanic_every / (1 - b.boss_cdr_less * (1 - conc / conc_max))
+        return fight.mechanic_every
 
     def advance(dt: float, at_cap: bool) -> None:
         nonlocal t, frenzy, conc
@@ -169,7 +179,8 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
         # mechanic outside a use: dodge
         if t >= next_mech:
             advance(fight.dodge_time, flames >= a.flame_cap)
-            next_mech += fight.mechanic_every
+            next_mech += mech_gap()
+            mech_n += 1
             continue
         # Eclipse
         if b.eclipse and glory >= 100 and t >= eclipse_until:
@@ -224,7 +235,8 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
             if dealt >= life or (cut and i >= 2):
                 break
             if t >= next_mech:
-                next_mech += fight.mechanic_every
+                next_mech += mech_gap()
+                mech_n += 1
                 if a.cancelable:
                     advance(fight.dodge_time, flames >= a.flame_cap)
                     break
@@ -243,7 +255,7 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
             if flames and t - last_flame_gain > a.flame_decay:
                 flames = 0  # expired mid-use; current use keeps its count
     killed = dealt >= life
-    return Result(ttk=t, damage=dealt, uses=uses, avg_flames=flame_sum / max(uses, 1), locked_hits=locked,
+    return Result(ttk=t, damage=dealt, uses=uses, avg_flames=flame_sum / max(uses, 1), locked_hits=locked, mechanics=mech_n,
                   burn_net_per_min=burn_total / max(t, 1e-9) * 60, echo_uses=echo_uses,
                   eclipse_uses=eclipse_uses, killed=killed)
 
@@ -289,8 +301,8 @@ def no_mercy_avg(life_fraction_per_hit: float = 1e-3) -> float:
     return 1.0 / (n * life_fraction_per_hit)
 
 
-def fight_dps(a: Assumptions, b: Build, seconds: float, fight: Fight | None = None) -> tuple[float, Result, Policy]:
-    fight = replace(fight or Fight(), boss_life=rare_dps(Build()) * RARE_FIGHT_SCALE * seconds)
+def fight_dps(a: Assumptions, b: Build, seconds: float, fight: Fight | None = None, scale: float = RARE_FIGHT_SCALE) -> tuple[float, Result, Policy]:
+    fight = replace(fight or Fight(), boss_life=rare_dps(Build()) * scale * seconds)
     r, p = best(a, b, fight)
     return (fight.boss_life / r.ttk if r.killed else r.damage / r.ttk), r, p
 
@@ -458,11 +470,42 @@ def host_report() -> str:
     return "\n".join(L)
 
 
+def defence_report() -> str:
+    """Defence proxies per host: mechanics the build must dodge, hits eaten when a use can't be cancelled, and what
+    those cost in DPS terms. Fire burn is the same for every host (90% max fire res, Molten Tenet), so it is not a column."""
+    ref = rare_dps(Build())
+    sec = FIGHT_SECONDS[1]
+    hosts = {"Witchhunter (No Mercy + boss slowed)": dict(boss_cdr_less=0.5),
+             "Witchhunter, slow not applied": dict(),
+             "Deadeye": HOSTS["Deadeye (Thrilling Chase + Avidity)"],
+             "Chronomancer": HOSTS["Chronomancer (Time Snap)"],
+             "No bucket": HOSTS["No ascendancy bucket (floor)"]}
+    L = ["| Host | Mechanics every | Cancelable: DPS | Mechanics faced/min (cancelable) | Not cancelable: DPS "
+         "| Not cancelable: hits eaten/min | DPS per hit eaten (uncancelable) |", "|---|---|---|---|---|---|---|"]
+    for mech in (15.0, 10.0):
+        for name, hk in hosts.items():
+            b = replace(Build(), eclipse=True, shades=4, shades_copy_echo=True, **hk)
+            fight = Fight(mechanic_every=mech, first_mechanic=mech / 2)
+            cols = []
+            for canc in (True, False):
+                d, r, _ = fight_dps(Assumptions(preramp=True, cancelable=canc), b, sec, fight, scale=100.0)
+                cols.append((d / ref, r))
+            (d1, r1), (d2, r2) = cols
+            eaten = r2.locked_hits / r2.ttk * 60
+            L.append(f"| {name} | {mech:.0f} s | x{d1:.1f} | {r1.mechanics / r1.ttk * 60:.1f} | x{d2:.1f} | {eaten:.1f} "
+                     f"| {'n/a' if eaten == 0 else f'x{d2 / eaten:.1f}'} |")
+    return "\n".join(L)
+
+
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--hosts", action="store_true", help="print the ascendancy host and layer ranking only")
+    ap.add_argument("--defence", action="store_true", help="print defence proxies per host")
     ap.add_argument("--json", help="also write every combination's row to this file")
     args = ap.parse_args(argv)
+    if args.defence:
+        print(defence_report())
+        return
     if args.hosts:
         print(host_report())
         return
