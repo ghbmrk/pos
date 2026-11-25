@@ -49,3 +49,37 @@ Weighted mean uses the sim's subjective probabilities over the 1,152 assumption 
 - Shades require Eclipse (Ambush); limit 3, 4 with Golem Hunger; 50% less; whether they copy afterimages is the decider (subjective 0.25 per doc, so the weighted mean here treats it as a scenario, not weighted by that probability).
 - "No cancel" and Cap 20 columns report DPS only; damage taken while locked is not counted, so "No cancel" looks better than reality.
 - No ascendancy-specific survivability, damage taken, or point costs are modelled.
+
+## Defence (added after owner note: defence also matters)
+
+`python -m pos_pipeline.sim_oro --defence`. Echo-copying 4 Shades layer on every host, boss sized to about 3 minutes.
+Defence is measured by proxy only: how many boss mechanics must be handled per minute, and how many hits are eaten if a
+use cannot be cancelled.
+
+| Host | Mechanics every | Cancelable: DPS | Mechanics faced/min (cancelable) | Not cancelable: DPS | Not cancelable: hits eaten/min | DPS per hit eaten (uncancelable) |
+|---|---|---|---|---|---|---|
+| Witchhunter (No Mercy + boss slowed) | 15 s | x108.9 | 2.5 | x197.0 | 2.6 | x75.0 |
+| Witchhunter, slow not applied | 15 s | x141.5 | 3.8 | x197.0 | 3.9 | x50.0 |
+| Deadeye | 15 s | x152.5 | 4.1 | x197.9 | 4.0 | x50.0 |
+| Chronomancer | 15 s | x121.8 | 4.1 | x148.4 | 4.0 | x37.5 |
+| No bucket | 15 s | x110.9 | 4.1 | x148.4 | 4.0 | x37.5 |
+| Witchhunter (No Mercy + boss slowed) | 10 s | x47.4 | 3.5 | x194.9 | 3.2 | x60.0 |
+| Witchhunter, slow not applied | 10 s | x49.6 | 6.0 | x197.0 | 5.9 | x33.3 |
+| Deadeye | 10 s | x49.8 | 6.0 | x197.9 | 5.9 | x33.3 |
+| Chronomancer | 10 s | x42.6 | 6.0 | x148.4 | 5.9 | x25.0 |
+| No bucket | 10 s | x37.2 | 6.0 | x148.4 | 5.9 | x25.0 |
+
+
+- **Witchhunter is the only host with a measured defence effect.** If boss cooldown recovery is 50% less at 0
+  Concentration (assumed to scale with missing Concentration; source: build doc), the boss mechanics faced fall about
+  35%: 2.5/min vs 3.8-4.1/min at a 15 s cadence, and 3.5 vs 6.0/min at 10 s. Hits eaten when uncancelable fall in step
+  (2.6-3.2/min vs 3.9-5.9/min).
+- Deadeye, Chronomancer and no bucket face the full cadence. Their listed DPS does not pay for it: the DPS columns here
+  are noisy (phase of mechanics versus use length shifts them by up to about 30%), so only the mechanics and hits-eaten
+  columns are conclusions.
+- **Net:** Witchhunter's small DPS deficit (about x38 vs x39 mean with 4 echo-copying Shades) buys about a third fewer
+  mechanics. Recommendation, not fact: Witchhunter is the better host once defence is weighed, unless the afterimage
+  count (Thrilling Chase) matters because the flame cap is low (cap 5: x39 vs x31).
+- Not modelled: hit size, life/armour/res pools of each host, Titan's stun and armour, Chronomancer/Deadeye defensive
+  nodes (text unseen), Smith of Kitava's fire resistance (the build doc's defence variant), and the fire self-burn
+  (same for every host with 90% fire res and Molten Tenet). Death is not simulated.

@@ -49,3 +49,18 @@ def test_host_options_off_by_default_and_help_when_on():
 def test_shades_need_echo_replay_to_matter_more_and_ignore_no_eclipse():
     assert _x(dict(shades=3, eclipse=False)) == _x(dict(eclipse=False))
     assert _x(dict(shades=3, shades_copy_echo=True), echo_mode="none") == _x(dict(shades=3), echo_mode="none")
+
+
+def test_witchhunter_slows_boss_mechanics():
+    from dataclasses import replace
+    from pos_pipeline.sim_oro import Assumptions, Build, Fight, fight_dps
+    f = Fight(mechanic_every=15.0, first_mechanic=7.5)
+    a = Assumptions(preramp=True)
+    slow = fight_dps(a, replace(Build(), boss_cdr_less=0.5), 180.0, f, scale=100.0)[1]
+    base = fight_dps(a, Build(), 180.0, f, scale=100.0)[1]
+    assert slow.mechanics / slow.ttk < base.mechanics / base.ttk
+
+
+def test_defence_report_runs():
+    from pos_pipeline.sim_oro import defence_report
+    assert "Witchhunter" in defence_report()
