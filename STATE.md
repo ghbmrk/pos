@@ -84,6 +84,7 @@
 - K8 · startable · Cast on Critical Energy model (per enemy Power x share of ailment threshold dealt, from stat text) so the Cyclone + CoC + Squire coupling can be measured; PoB has none (CalcTriggers.lua CoC is PoE1 code) · Opus
 - K6 · blocked on K4 · ideation slate fields + sweeps over companion skills (Sonnet)
 - K5 · done (PR open) · assumed-Squire what-if runs: data/squire_assumed.yaml (every assumption listed, scenarios debuff_bot / ground_painter / charge_provider, stand-ins named) + spec `companion.assumed` + run opt-in `--assumed` / MCP `allow_assumed` + K2 model and K3 two-gear-set search wired into the orchestrator + ASSUMED banner in report/run.json/sqlite (`assumed` column) + slates reject, MCP list_runs/compare hide/refuse; real run Huntress Whirling Slash + Squire spear ~1.5 min; docs/squire-assumed.md. Probe test confirms effect keys move a plain build (charges need a consumer) · thread "Build assumed-Squire what-if runs"
+- AV1 · done · adversarial 1.0 scaling search (docs/adversarial-1-0-scaling.md, tools/adversarial/scan.py): brakes found per family; new leads F1 Ako's Answer x Hollow Focus bells (Martial Artist, x8-15, p 0.35), F7 Uhtred's Constellation x ~15 new cooldown skills (x2.2, no cap), F4 Primal Hunger x Blood Rage, F5 Bunkerbuster revive cycle x From the Icy Brink. Next: F1 tests on Dec 4 text; F7 measurable in PoB now · thread "Find 1.0 scaling the devs didn't intend"
 
 ## Standing rules learned
 - Recommendation cards: request a Fable review thread via coordinator first.
