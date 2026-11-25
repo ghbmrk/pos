@@ -35,6 +35,11 @@ NO_MERCY_MAX = 0.40        # up to 40% more by missing Concentration
 CONC_FRAC_LIFE = 0.30      # max Concentration = 30% of max life
 CONC_REGEN = 0.10          # regains 10%/s of max if not lost in past 5 s
 CONC_REGEN_DELAY = 5.0
+THRILLING_PER_FRENZY = 1.5  # Deadeye Thrilling Chase: 50% chance a consumed Frenzy Charge counts double (expected value)
+AVIDITY_GAIN = 1.5         # Deadeye Avidity: 50% chance of an additional Frenzy Charge per gain (expected value)
+TIME_SNAP_CD = 32.0        # Chronomancer Time Snap cooldown at level 20 (poe2db 1.0)
+TIME_SNAP_CAST = 0.5       # assumed cast time (unpublished)
+SHADE_LESS = 0.5           # Shade portion deals 50% less damage
 RARE_BASE_RATIO = 1 / 0.55  # good endgame rare 2H vs Oro's base (estimate in the build doc)
 
 
@@ -66,6 +71,15 @@ class Build:
     molten_tenet: bool = True      # 10% of prevented fire damage recouped as life
     eclipse_duration: float = 6.0  # active window (4 s then accelerating drain; estimate)
     eclipse_cast: float = 0.5
+    # host / layer options (docs/unlocked-by-1-0.md section 2.2); all off by default = original baseline
+    thrilling_chase: bool = False  # Deadeye: consumed Frenzy counts x1.5 (afterimages 2 + 1.5 per Frenzy)
+    avidity: bool = False          # Deadeye: Frenzy gain x1.5
+    serles_chance: float = 0.0     # Serle's Grit chance an Empower does not count its Attack (take 0.10-0.20)
+    serles_window: float = ECHO_WINDOW  # seconds an uncounted Empower lasts after the Echoing cast
+    time_snap: bool = False        # Chronomancer: Time Snap resets Echoing's cooldown
+    titan_uptime: float = 0.0      # Titan Crushing Impacts: share of time the boss is Heavy Stunned (25% more)
+    shades: int = 0                # Shades copying each Ambushing melee attack (limit 3, 4 with Golem Hunger)
+    shades_copy_echo: bool = False  # Shades also copy the afterimage portion of an empowered use
 
 
 @dataclass(frozen=True)
@@ -107,7 +121,9 @@ def _strike_times(f: int, aps: float) -> list[float]:
 def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
     aps = OROS_APS * SKILL_SPEED * (1 + b.inc_attack_speed)
     k_fire = (2 if (b.two_oros and a.oros_stack) else 1)
-    frenzy_rate = (2.0 if (b.two_oros and a.oros_stack) else 1.0)
+    frenzy_rate = (2.0 if (b.two_oros and a.oros_stack) else 1.0) * (AVIDITY_GAIN if b.avidity else 1.0)
+    per_frenzy = THRILLING_PER_FRENZY if b.thrilling_chase else 1.0
+    titan = 1 + 0.25 * b.titan_uptime
     ambush = 1 + AMBUSH_PER_DARK * b.max_darkness * GRIM_BARGAIN_CONSUME if b.eclipse else 1.0
 
     life = fight.boss_life
@@ -122,6 +138,9 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
     glory = 100.0 if b.eclipse else 0.0
     eclipse_until = -1.0
     echo_ready_at = 0.0
+    snap_ready_at = 0.0
+    chain_w = 0.0
+    empower_until = -1.0           # an uncounted Empower (Serle's Grit) can still be used until this time
     next_mech = fight.first_mechanic
     dealt = 0.0
     uses = flame_sum = locked = echo_uses = eclipse_uses = 0
@@ -160,7 +179,12 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
             eclipse_uses += 1
         f_next = min(a.flame_cap, flames + 1)
         want_echo = b.echoing and a.echo_mode != "none" and (not p.echo_at_cap_only or f_next >= a.flame_cap)
-        if want_echo and t < echo_ready_at and echo_ready_at - t <= p.wait_for_echo:
+        if want_echo and b.time_snap and t < echo_ready_at and t >= snap_ready_at:
+            advance(TIME_SNAP_CAST, flames >= a.flame_cap)
+            echo_ready_at = t
+            snap_ready_at = t - TIME_SNAP_CAST + TIME_SNAP_CD
+        free_empower = want_echo and b.serles_chance > 0 and t <= empower_until
+        if want_echo and not free_empower and t < echo_ready_at and echo_ready_at - t <= p.wait_for_echo:
             advance(echo_ready_at - t, flames >= a.flame_cap)
             continue
         afterimages = 0
@@ -168,11 +192,21 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
                 and next_mech - t < ECHO_CAST + sum(_strike_times(f_next, aps))):
             advance(next_mech - t, flames >= a.flame_cap)
             continue
-        if want_echo and t >= echo_ready_at:
-            afterimages = 2 + int(frenzy)
+        empower_w = 1.0
+        if free_empower:
+            # Serle's Grit: the previous cast's Empower survived with probability serles_chance (expected value)
+            empower_w = chain_w
+            chain_w *= b.serles_chance
+            afterimages = 2 + per_frenzy * int(frenzy)
+            frenzy -= int(frenzy)
+            echo_uses += 1
+        elif want_echo and t >= echo_ready_at:
+            afterimages = 2 + per_frenzy * int(frenzy)
             frenzy -= int(frenzy)
             advance(ECHO_CAST, flames >= a.flame_cap)
             echo_ready_at = t - ECHO_CAST + ECHO_CD
+            empower_until = t + b.serles_window if b.serles_chance > 0 else -1.0
+            chain_w = b.serles_chance
             echo_uses += 1
         # Infernal Step use
         flames = min(a.flame_cap, flames + 1)
@@ -197,9 +231,11 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
                 locked += 1
             echo_mult = 1.0
             if afterimages and (a.echo_mode == "full" or i == 0):
-                echo_mult += ECHO_LESS * afterimages
-            amb = ambush if (use_ambush or t < eclipse_until) else 1.0
-            hit(per * echo_mult * amb)
+                echo_mult += ECHO_LESS * afterimages * empower_w
+            amb_on = b.eclipse and (use_ambush or t < eclipse_until)
+            amb = ambush if amb_on else 1.0
+            shade = SHADE_LESS * b.shades * (echo_mult if b.shades_copy_echo else 1.0) if amb_on else 0.0
+            hit(per * (echo_mult + shade) * amb * titan)
             hits = 1 + (afterimages if (afterimages and a.afterimage_crits and echo_mult > 1) else 0)
             if b.eclipse and t >= eclipse_until:
                 glory += hits * b.crit_chance * GRIM_BARGAIN_DARK * a.glory_per_darkness
@@ -372,10 +408,64 @@ def report(b: Build | None = None) -> str:
     return "\n".join(L), out
 
 
+HOSTS = {
+    "Witchhunter (No Mercy)": dict(),
+    "Deadeye (Thrilling Chase + Avidity)": dict(witchhunter=False, thrilling_chase=True, avidity=True),
+    "Chronomancer (Time Snap)": dict(witchhunter=False, time_snap=True),
+    "Titan (Crushing Impacts, 60% heavy-stunned uptime, assumed)": dict(witchhunter=False, titan_uptime=0.6),
+    "No ascendancy bucket (floor)": dict(witchhunter=False),
+}
+LAYERS = {
+    "": dict(),
+    " + Serle's Grit 15% (drops 2nd Oro's)": dict(two_oros=False, serles_chance=0.15),
+    " + 3 Shades, copy the strike only": dict(shades=3),
+    " + 3 Shades, also copy afterimages": dict(shades=3, shades_copy_echo=True),
+    " + 4 Shades, also copy afterimages": dict(shades=4, shades_copy_echo=True),
+}
+HOST_SCENARIOS = {
+    "Everything holds": {},
+    "Afterimages first strike only": {"echo_mode": "first"},
+    "Flame cap 5": {"flame_cap": 5},
+    "Flame cap 20": {"flame_cap": 20},
+    "No dodge-cancel": {"cancelable": False},
+}
+
+
+def host_report() -> str:
+    """Rank ascendancy hosts and add-on layers by simulation. x = multiple of a normal strike on a good rare 2H."""
+    ref = rare_dps(Build())
+    sec = FIGHT_SECONDS[1]
+    keys = list(SPACE)
+    combos = [(Assumptions(**{k: v for k, (v, _) in zip(keys, c)}), math.prod(pr for _, pr in c))
+              for c in itertools.product(*(SPACE[k] for k in keys))]
+    rows = []
+    for hn, hk in HOSTS.items():
+        for ln, lk in LAYERS.items():
+            b = replace(Build(), **hk, **lk)
+            cells = []
+            for pre in (True, False):
+                for name, kw in list(HOST_SCENARIOS.items())[:1] + [list(HOST_SCENARIOS.items())[1]]:
+                    cells.append(fight_dps(Assumptions(preramp=pre, **kw), b, sec)[0] / ref)
+            stress = [fight_dps(Assumptions(preramp=True, **kw), b, sec)[0] / ref for n, kw in list(HOST_SCENARIOS.items())[2:]]
+            tot = sum(w for _, w in combos)
+            mean = sum(fight_dps(a, b, sec)[0] / ref * w for a, w in combos) / tot
+            rows.append((mean, hn + ln, cells, stress))
+    L = ["| Rank | Host + layer | Weighted mean | Pre-ramped, holds | Cold, holds | Pre-ramped, first-strike replay "
+         "| Cap 5 | Cap 20 | No cancel |", "|---|---|---|---|---|---|---|---|---|"]
+    for i, (mean, name, c, st) in enumerate(sorted(rows, reverse=True), 1):
+        L.append(f"| {i} | {name} | x{mean:.1f} | x{c[0]:.1f} | x{c[2]:.1f} | x{c[1]:.1f} | "
+                 + " | ".join(f"x{v:.1f}" for v in st) + " |")
+    return "\n".join(L)
+
+
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--hosts", action="store_true", help="print the ascendancy host and layer ranking only")
     ap.add_argument("--json", help="also write every combination's row to this file")
     args = ap.parse_args(argv)
+    if args.hosts:
+        print(host_report())
+        return
     text, out = report()
     print(text)
     if args.json:
