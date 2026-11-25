@@ -137,6 +137,5 @@ aftershocks and Ancestral Boost.
 
 ## 4. Next steps
 
-- Add Deadeye (Thrilling Chase, Avidity), Serle's Grit, Time Snap and a Shade layer as switches in
-  `pos_pipeline/sim_oro.py`, so the host choice is measured rather than estimated. This is a Sonnet-sized build task.
+- Done: host switches measured in [sim-hosts-infernal-step.md](sim-hosts-infernal-step.md) (Deadeye ≈ Witchhunter; layer dominates).
 - On Dec 4, check the Darkness question first.

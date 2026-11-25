@@ -28,3 +28,24 @@ def test_static_stack_reproduced_without_mechanics():
     a = S.Assumptions(preramp=True)
     gain = S.fight_dps(a, S.Build(), 180.0, f)[0] / S.fight_dps(a, plain, 180.0, f)[0]
     assert 15 < gain < 27
+
+
+def _x(b, **kw):
+    from dataclasses import replace
+    from pos_pipeline.sim_oro import Assumptions, Build, fight_dps, rare_dps
+    bb = replace(Build(), **b)
+    return fight_dps(Assumptions(preramp=True, **kw), bb, 60.0)[0] / rare_dps(bb)
+
+
+def test_host_options_off_by_default_and_help_when_on():
+    base = _x({})
+    assert 25 < base < 45  # unchanged baseline
+    assert _x(dict(thrilling_chase=True)) > base
+    assert _x(dict(shades=3)) > base
+    assert _x(dict(shades=3, shades_copy_echo=True)) > _x(dict(shades=3))
+    assert _x(dict(time_snap=True)) >= base
+
+
+def test_shades_need_echo_replay_to_matter_more_and_ignore_no_eclipse():
+    assert _x(dict(shades=3, eclipse=False)) == _x(dict(eclipse=False))
+    assert _x(dict(shades=3, shades_copy_echo=True), echo_mode="none") == _x(dict(shades=3), echo_mode="none")
