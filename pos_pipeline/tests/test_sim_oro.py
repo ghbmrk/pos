@@ -108,3 +108,19 @@ def test_crescendo_only_matters_when_shade_setup_costs_time():
 def test_olroth_report_runs():
     from pos_pipeline.sim_oro import olroth_report  # slow: skipped body is cheap via monkeypatch-free smoke below
     assert callable(olroth_report)
+
+
+def test_decoy_off_is_baseline_and_ideal_decoy_cuts_dodges():
+    from dataclasses import replace
+    b = replace(S.Build(), shades=4, shades_copy_echo=True)
+    f = S.Fight(mechanic_every=10.0, first_mechanic=5.0, targeted_share=1.0, splash=0.0)
+    base = S.fight_dps(S.Assumptions(preramp=True, shade_setup="once"), b, 180.0, f, scale=100.0)
+    same = S.fight_dps(S.Assumptions(preramp=True, shade_setup="once", decoy=False, shade_death=1.0), b, 180.0, f,
+                       scale=100.0)
+    assert math.isclose(base[0], same[0]) and same[1].shades_lost == 0
+    ideal = S.fight_dps(S.Assumptions(preramp=True, shade_setup="once", decoy=True), b, 180.0, f, scale=100.0)
+    assert ideal[1].dodged < base[1].dodged / 3
+    assert ideal[0] > base[0]
+    fragile = S.fight_dps(S.Assumptions(preramp=True, shade_setup="once", decoy=True, shade_death=1.0), b, 180.0, f,
+                          scale=100.0)
+    assert fragile[1].shades_lost > 0
