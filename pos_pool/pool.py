@@ -192,7 +192,13 @@ class EnginePool:
         finally:
             timer.cancel()
             stop.set()
-            if w.rss_mb() > self.max_rss_mb:
+            rss = w.rss_mb()
+            # A job shorter than one guard poll (0.25 s) is never sampled mid-run, so check the cap once more here:
+            # without this the hard cap was timing-dependent (CI runs #156, #159).
+            if rss > self.hard_rss_mb:
+                w.kill()
+                raise MemoryError(f"worker RSS {rss:.0f} MB over hard cap {self.hard_rss_mb:.0f} MB")
+            if rss > self.max_rss_mb:
                 w.kill()
 
     def _evaluate(self, w: _Worker, batch: list[Job]) -> list[Result]:
