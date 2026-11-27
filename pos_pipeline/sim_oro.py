@@ -47,6 +47,8 @@ ERUPT_DMG = 4 * 0.20       # 4 Molten Projectiles at 20% of Default Attack Damag
 ERUPT_HIT = 0.5            # share of projectiles that land on the boss (assumed: mortar, 1 m radius, 5-15 m range)
 SA_COMBO = 1.2             # seconds for one Shadow Assault combo of 3 Strikes (estimate: 110% speed, dagger)
 SA_FINAL2 = 0.5            # extra seconds for the second Final Strike with Crescendo (estimate)
+SHROUD_CD = 7.0            # Shroud cooldown (poe2db L20); Shade at your previous location, 97% of your life
+WEAPON_SWAP = 0.25         # seconds per weapon-set swap (estimate); rebuilding Shades swaps to daggers and back
 RARE_BASE_RATIO = 1 / 0.55  # good endgame rare 2H vs Oro's base (estimate in the build doc)
 
 
@@ -71,6 +73,12 @@ class Assumptions:
     # Shade setup via Shadow Assault: "free" = Shades exist at no cost (old baseline); "once" = built at the start of
     # the fight; "each_eclipse" = Shades expire between Eclipses (duration unpublished) and are rebuilt before each.
     shade_setup: str = "free"
+    # Shade decoys (Shade text: "Enemies cannot distinguish between you and your Shades, and will target a Shade as if
+    # it were you"). True = a targeted mechanic picks uniformly among you and your live Shades (even targeting is an
+    # assumption). shade_death = chance a Shade dies when a mechanic aimed at it lands (Shade life 64-97% of yours,
+    # Shade defences unpublished).
+    decoy: bool = False
+    shade_death: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -100,6 +108,8 @@ class Build:
     olroth: bool = False           # Olroth's Conviction on Echoing Strikes: one cast empowers 3 Infernal Step uses
     perpetual: bool = False        # Perpetual Charge on Echoing Strikes: 25% of consumed Frenzy is kept
     crescendo: bool = False        # Crescendo on Shadow Assault: two Final Strikes, two Shades per combo
+    shroud_dodge: bool = False     # dodge a mechanic with Shroud (dagger set) when ready: it interrupts the use like a
+                                   # roll, and leaves a Shade where you stood, replacing a lost one at no setup cost
     eruption: bool = False         # Volcanic Eruption on Infernal Step: triggered on Hit against Ignited, 0.4 s cooldown
 
 
@@ -117,6 +127,11 @@ class Fight:
     mechanic_every: float = 15.0    # a must-dodge boss mechanic every N seconds
     first_mechanic: float = 7.5
     dodge_time: float = 1.0
+    # Decoy geometry. targeted_share = share of mechanics aimed at a target (the rest are arena-wide or positional and
+    # ignore decoys). splash = chance a mechanic aimed at a Shade still hits you (Shades stand in melee range of the boss,
+    # next to you, so large AoE aimed at a Shade can still land on you).
+    targeted_share: float = 1.0
+    splash: float = 0.0
     max_time: float = 1200.0
 
 
@@ -132,6 +147,8 @@ class Result:
     eclipse_uses: int
     killed: bool = field(default=True)
     mechanics: int = 0
+    dodged: int = 0                 # mechanics that reached you and were dodged (cancel or between uses)
+    shades_lost: int = 0
 
 
 def _strike_times(f: int, aps: float) -> list[float]:
@@ -170,6 +187,38 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
     burn_total = 0.0
     emp_left, emp_until, emp_after = 0, -1.0, 0
     erupt_ready = 0.0
+    shades_alive = b.shades
+    aim_acc = death_acc = 0.0
+    dodged = lost = 0
+    shroud_ready = 0.0
+
+    def dodge() -> None:
+        nonlocal dodged, shades_alive, shroud_ready
+        dodged += 1
+        if b.shroud_dodge and t >= shroud_ready and shades_alive < b.shades:
+            advance(fight.dodge_time + 2 * WEAPON_SWAP, flames >= a.flame_cap)
+            shades_alive += 1
+            shroud_ready = t + SHROUD_CD
+            return
+        advance(fight.dodge_time, flames >= a.flame_cap)
+
+    def reaches_you() -> bool:
+        """Expected-value decoy roll for one mechanic (deterministic accumulators). Returns True if this mechanic must
+        be handled by you; kills Shades in proportion to the mechanics they absorb."""
+        nonlocal aim_acc, death_acc, shades_alive, lost
+        s_n = shades_alive if a.decoy else 0
+        ts = fight.targeted_share
+        on_shade = ts * s_n / (1 + s_n)
+        aim_acc += 1 - on_shade * (1 - fight.splash)
+        death_acc += on_shade * a.shade_death
+        while death_acc >= 1 - 1e-9 and shades_alive > 0:
+            death_acc -= 1
+            shades_alive -= 1
+            lost += 1
+        if aim_acc >= 1 - 1e-9:
+            aim_acc -= 1
+            return True
+        return False
 
     def mech_gap() -> float:
         """Seconds to the next boss mechanic. Witchhunter: boss cooldown recovery is up to 50% less in proportion to
@@ -213,11 +262,18 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
         # flames decay
         if flames and t - last_flame_gain > a.flame_decay:
             flames = 0
-        # mechanic outside a use: dodge
+        # mechanic outside a use: dodge unless a decoy took it
         if t >= next_mech:
-            advance(fight.dodge_time, flames >= a.flame_cap)
+            if reaches_you():
+                dodge()
             next_mech += mech_gap()
             mech_n += 1
+            continue
+        # rebuild Shades lost to mechanics (swap to daggers, Shadow Assault combos, swap back)
+        if b.eclipse and shades_alive < b.shades:
+            combos = math.ceil((b.shades - shades_alive) / (2 if b.crescendo else 1))
+            advance(2 * WEAPON_SWAP + combos * (SA_COMBO + (SA_FINAL2 if b.crescendo else 0.0)), flames >= a.flame_cap)
+            shades_alive = b.shades
             continue
         # Eclipse
         if b.eclipse and glory >= 100 and t >= eclipse_until:
@@ -287,16 +343,17 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
             if t >= next_mech:
                 next_mech += mech_gap()
                 mech_n += 1
-                if a.cancelable:
-                    advance(fight.dodge_time, flames >= a.flame_cap)
-                    break
-                locked += 1
+                if reaches_you():
+                    if a.cancelable:
+                        dodge()
+                        break
+                    locked += 1
             echo_mult = 1.0
             if afterimages and (a.echo_mode == "full" or i == 0):
                 echo_mult += ECHO_LESS * afterimages * empower_w
             amb_on = b.eclipse and (use_ambush or t < eclipse_until)
             amb = ambush if amb_on else 1.0
-            shade = SHADE_LESS * b.shades * (echo_mult if b.shades_copy_echo else 1.0) if amb_on else 0.0
+            shade = SHADE_LESS * shades_alive * (echo_mult if b.shades_copy_echo else 1.0) if amb_on else 0.0
             hit(per * (echo_mult + shade) * amb * titan)
             hits = 1 + (afterimages if (afterimages and a.afterimage_crits and echo_mult > 1) else 0)
             if b.eclipse and t >= eclipse_until:
@@ -310,7 +367,7 @@ def simulate(a: Assumptions, b: Build, p: Policy, fight: Fight) -> Result:
     killed = dealt >= life
     return Result(ttk=t, damage=dealt, uses=uses, avg_flames=flame_sum / max(uses, 1), locked_hits=locked, mechanics=mech_n,
                   burn_net_per_min=burn_total / max(t, 1e-9) * 60, echo_uses=echo_uses,
-                  eclipse_uses=eclipse_uses, killed=killed)
+                  eclipse_uses=eclipse_uses, killed=killed, dodged=dodged, shades_lost=lost)
 
 
 POLICIES = [Policy(c, w, rc, al) for c in (True, False) for w in (0.0, 4.0, 13.0) for rc in (False, True)
@@ -550,6 +607,53 @@ def defence_report() -> str:
                      f"| {'n/a' if eaten == 0 else f'x{d2 / eaten:.1f}'} |")
     return "\n".join(L)
 
+DECOY_GEOMETRY = {
+    # name: (targeted_share, splash, shade_death)
+    "Ideal: all targeted, no splash, Shades survive": (1.0, 0.0, 0.0),
+    "All targeted, no splash, Shade dies per hit": (1.0, 0.0, 1.0),
+    "Mixed boss: 60% targeted, 50% splash, 50% death": (0.6, 0.5, 0.5),
+    "Mixed boss, Shade dies per hit": (0.6, 0.5, 1.0),
+    "Arena-heavy boss: 30% targeted, 50% splash, 50% death": (0.3, 0.5, 0.5),
+}
+
+
+DECOY_PHASES = 8
+
+
+def decoy_report(mech: float = 10.0, shroud: bool = False) -> str:
+    """Shade decoys: mechanics that reach you, hits eaten when a use can't be cancelled, Shades lost, and DPS, for the
+    Witchhunter host (No Mercy + boss slowed) with echo-copying Shades, pre-ramped, Shades built once and rebuilt
+    (weapon swap + Shadow Assault) whenever one dies."""
+    ref = rare_dps(Build())
+    sec = FIGHT_SECONDS[1]
+    L = ["| Shades | Decoy geometry | Cancelable: DPS | Reach you/min | Shades lost/min | Not cancelable: DPS "
+         "| Hits eaten/min | Shades lost/min (no cancel) |", "|---|---|---|---|---|---|---|---|"]
+    rows = [(0, "No Shades", None)]
+    for n in (3, 4):
+        rows.append((n, "Shades, no decoy effect (old model)", None))
+        rows += [(n, g, v) for g, v in DECOY_GEOMETRY.items()]
+    if shroud:
+        rows += [(4, "Shroud-as-dodge + " + g, v) for g, v in DECOY_GEOMETRY.items() if v[2] > 0]
+    for n, name, geo in rows:
+        b = replace(Build(), eclipse=True, shades=n, shades_copy_echo=True, boss_cdr_less=0.5,
+                    shroud_dodge=name.startswith("Shroud"))
+        ts, sp, death = geo or (1.0, 0.0, 0.0)
+        cols = []
+        for canc in (True, False):
+            a = Assumptions(preramp=True, cancelable=canc, shade_setup="once", decoy=geo is not None, shade_death=death)
+            acc = [0.0, 0.0, 0.0, 0.0]
+            for k in range(DECOY_PHASES):  # average over mechanic phase: one phase is noisy (use length vs cadence)
+                fight = Fight(mechanic_every=mech, first_mechanic=mech * (k + 0.5) / DECOY_PHASES,
+                              targeted_share=ts, splash=sp)
+                d, r, _ = fight_dps(a, b, sec, fight, scale=100.0, policies=OL_POLICIES)
+                for i, v in enumerate((d / ref, r.dodged, r.locked_hits, r.shades_lost)):
+                    acc[i] += (v if i == 0 else v / r.ttk * 60) / DECOY_PHASES
+            cols.append(acc)
+        (d1, y1, _, s1), (d2, _, e2, s2) = cols
+        L.append(f"| {n} | {name} | x{d1:.1f} | {y1:.1f} | {s1:.1f} | x{d2:.1f} | {e2:.1f} | {s2:.1f} |")
+    return "\n".join(L)
+
+
 ADDONS = {
     "Base (Echoing only)": dict(),
     "+ Perpetual Charge": dict(perpetual=True),
@@ -633,10 +737,16 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--hosts", action="store_true", help="print the ascendancy host and layer ranking only")
     ap.add_argument("--olroth", action="store_true", help="rank Olroth's Conviction, Perpetual Charge, Crescendo, Eruption add-ons")
     ap.add_argument("--defence", action="store_true", help="print defence proxies per host")
+    ap.add_argument("--decoy", action="store_true", help="print the Shade decoy defence table")
     ap.add_argument("--json", help="also write every combination's row to this file")
     args = ap.parse_args(argv)
     if args.olroth:
         print(olroth_report())
+        return
+    if args.decoy:
+        print(decoy_report(10.0))
+        print()
+        print(decoy_report(15.0))
         return
     if args.defence:
         print(defence_report())
